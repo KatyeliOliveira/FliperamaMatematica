@@ -1,0 +1,70 @@
+Atualize este app para ficar no mesmo nível do jogo da família, o repositório de referência:
+https://github.com/Conhariki/jogos-personagens
+(conta GitHub Conhariki · felipe.conhariki@gmail.com)
+NÃO apague nem misture os temas, personagens, textos, cores, ícones, perguntas, falas e conteúdo original DESTE jogo. O que precisa igualar é a PLATAFORMA: tipos de jogo, 3D, menu, PWA, progresso, UX.
+Como trabalhar:
+1. Leia este projeto inteiro (index.html, manifest, worker, sync) e inventarie o que já existe.
+2. Use o repositório de referência (clone temporário ou gh) como fonte da verdade da IMPLEMENTAÇÃO, não do conteúdo.
+3. Porte os jogos e sistemas que faltam, adaptando nomes/símbolos/cores ao tema ATUAL deste app (os personagens dela, não Torajo/animes do outro).
+4. Mantenha um único HTML/JS estilo o de referência (app web, mobile-first, tela cheia, funciona no celular).
+5. Não invente conteúdo de copyright (letras de música, falas oficiais). Pistas e falas devem ser originais, no estilo dos personagens.
+## Menu e categorias (igual o nosso)
+Filtros: Todos · Quiz e Palavras · Tabuleiro e Cartas · Ação e Arcade · Criar e Explorar.
+Cards grandes com ícone, nome, descrição, brilho, som. Hero com tema atual + “Trocar tema”. Contadores: quantidade de jogos, personagens, estrelas.
+## Sistema de temas
+Objeto THEMES com: name, icon, cores (bg, acc, accD, line, cream), float (emojis de fundo), cheer, note, chars (nome, emoji, tag, pistas, falas, voz), words, quiz, tf, intr, mil, gameIcons.
+Trocar o tema muda TODOS os jogos (ícones, paleta, perguntas, personagens). Preservar os temas dela; só completar campos que o código novo exigir.
+## Jogos que o app precisa ter (porte os que faltarem)
+Quiz e Palavras:
+- Memória (pares de personagens, níveis)
+- Quiz (15 perguntas)
+- Quem é? (pistas)
+- De quem é a fala? (ler/ouvir)
+- Corrida contra o tempo
+- Verdade ou mentira
+- Forca
+- Caça-palavras
+- Embaralhadas (anagrama)
+- Qual é o intruso?
+- Cruzadinha
+- Rumo ao Milhão (16 perguntas)
+Tabuleiro e Cartas:
+- Jogo da velha (CPU ou 2 jogadores)
+- Dominó temático
+- Última Carta / Última Fruta (estilo UNO)
+- Cofrinho (tabuleiro de poupar)
+- Bingo dos personagens
+- Resta 1
+- Xadrez (partida completa vs CPU, visual 3D se o de referência tiver)
+- Dama
+Ação e Arcade:
+- Genius dos símbolos (Simon)
+- Pega-símbolos / Pega-frutas
+- Corte rápido / Corta-frutas
+- Tetris
+- Jogo de Dança (setas no ritmo)
+- Labirinto (avatar até o personagem)
+- Pinball 3D (Three.js: flippers, bumpers, combos; fallback se WebGL falhar)
+- Stick Fight (torneio, armas, física, bots, 2 jogadores, online se já existir no de referência)
+- Cat Escape (furtivo 3D: fases geradas, guardas, lasers, portões, esconderijo, loja de gatos/acessórios/rastros, câmera que segue, música/clima, tela cheia, dica de girar o celular)
+Criar e Explorar:
+- Ateliê de pintura
+- Pixel Art das Contas (resolver contas revela o desenho)
+- Estúdio do Avatar (cabelo, roupa, acessórios, pose, cena; avatar aparece no Mundo Aberto)
+- Mundo Aberto 3D estilo Minecraft (Three.js sob demanda): voxel, biomas, dia/noite, construir/quebrar, plantar, bichinhos, missões, salvar mundo, opcional online)
+## 3D (obrigatório, igual o nosso)
+- Three.js carregado sob demanda (não quebrar aparelhos fracos).
+- Mensagem amigável se WebGL falhar + botão tentar de novo.
+- Mundo Aberto, Pinball 3D, Stick Fight, Cat Escape — com a mesma qualidade do repo de referência (câmera, física, HUD, som, tela cheia, orientação paisagem quando fizer sentido).
+- Performance: nearest/atlas no voxel, antialias só se o aparelho aguentar.
+## Plataforma (porte se faltar)
+- PWA: manifest, service worker, ícones, instalar no celular, tela cheia (F no menu, Alt+Enter nos jogos).
+- Sons, confete, recordes por tema, estrelas/conquistas.
+- Salvar progresso: código da família, arquivo, nuvem (Cloudflare /sync Durable Object se este projeto já usa worker; senão mantenha o sync que já existe e só alinhe o pacote de save).
+- Junção de saves sem perder progresso (maior recorde/estrelas, visual mais novo).
+- Perfil da criança, troca de tema persistida.
+## Qualidade
+- Português do Brasil, tom infantil/adolescente, textos curtos.
+- Toque no celular primeiro; mouse/teclado no PC.
+- Não quebrar jogos que já funcionam.
+- Depois da porta, liste o que foi adicionado, o que já existia e o que ficou de fora (com motivo).

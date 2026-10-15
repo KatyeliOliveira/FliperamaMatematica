@@ -1,0 +1,16 @@
+{
+  "name": "Fliperama da Matemática",
+  "short_name": "Fliperama",
+  "description": "Jogos de matemática para estudar e se preparar para o SARESP",
+  "start_url": "./",
+  "scope": "./",
+  "display": "fullscreen",
+  "display_override": ["fullscreen", "standalone"],
+  "orientation": "any",
+  "background_color": "#fff4e6",
+  "theme_color": "#ff8a3d",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

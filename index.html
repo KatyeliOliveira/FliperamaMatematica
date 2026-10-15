@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fliperama da Matemática</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
+<meta name="theme-color" content="#7c3aed">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Fliperama">
+<meta name="description" content="Jogos de matemática para treinar e se preparar para o SARESP">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap">
+<style>
+:root{--main:#7c3aed;--bg1:#fef3c7;--bg2:#fbcfe8;--bg3:#bae6fd;--card:#fff;--ink:#312e81;--soft:#eef2ff;--ok:#10b981;--no:#f43f5e;}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--card:#1e1b4b;--ink:#eef2ff;--soft:#312e81;}}
+:root[data-theme="dark"]{--card:#1e1b4b;--ink:#eef2ff;--soft:#312e81;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{margin:0;min-height:100%}
+body{background:linear-gradient(160deg,var(--bg1),var(--bg2) 55%,var(--bg3));background-color:#fbcfe8;background-attachment:fixed;
+font-family:'Baloo 2','Comic Sans MS',system-ui,sans-serif;color:var(--ink);display:flex;justify-content:center;}
+#fx-app{width:100%;max-width:480px;padding:54px 14px 14px;}
+button{font-family:inherit;touch-action:manipulation;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;}
+.fx-title{font-size:2rem;font-weight:800;text-align:center;margin:8px 0 0;color:var(--main);line-height:1.1}
+.fx-sub{text-align:center;font-weight:600;margin:4px 0 14px;opacity:.85}
+.fx-card{background:var(--card);border-radius:26px;padding:18px;box-shadow:0 8px 0 rgba(0,0,0,.08);margin-bottom:12px;animation:fxpop .3s}
+@keyframes fxpop{from{transform:scale(.97)}to{transform:scale(1)}}
+.fx-card.fx-still{animation:none}
+.fx-big{display:block;width:100%;border:none;border-radius:22px;padding:16px;font-size:1.3rem;font-weight:800;color:#fff;
+background:var(--main);box-shadow:0 6px 0 rgba(0,0,0,.25);cursor:pointer;margin-top:8px}
+.fx-big:active{box-shadow:0 2px 0 rgba(0,0,0,.25);filter:brightness(.96)}
+.fx-ghost{background:var(--soft);color:var(--ink);box-shadow:0 5px 0 rgba(0,0,0,.1)}
+.fx-menu{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fx-tile{border:none;border-radius:22px;padding:14px 8px;background:var(--card);color:var(--ink);cursor:pointer;
+box-shadow:0 6px 0 rgba(0,0,0,.12);text-align:center;min-height:130px}
+.fx-tile:active{box-shadow:0 2px 0 rgba(0,0,0,.12);filter:brightness(.97)}
+.fx-tile .fx-emo{font-size:2.3rem;display:block;animation:fxtilt 3s ease-in-out infinite}
+.fx-tile b{display:block;font-size:1.1rem;font-weight:800}
+.fx-tile small{display:block;font-size:.8rem;font-weight:600;opacity:.8;line-height:1.15}
+.fx-bar{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:6px;margin-bottom:10px;align-items:center}
+.fx-pill{background:var(--card);border-radius:16px;padding:6px 4px;text-align:center;font-weight:800;font-size:.95rem;box-shadow:0 4px 0 rgba(0,0,0,.08)}
+.fx-x{border:none;background:var(--card);border-radius:14px;width:44px;height:44px;font-size:1.2rem;box-shadow:0 4px 0 rgba(0,0,0,.08);cursor:pointer}
+.fx-time{height:14px;background:rgba(255,255,255,.7);border-radius:10px;overflow:hidden;margin-bottom:10px}
+.fx-time i{display:block;height:100%;width:100%;background:var(--main);transition:width .1s linear}
+.fx-q{font-size:1.55rem;font-weight:800;text-align:center;margin:6px 0 14px;line-height:1.2}
+.fx-qs{font-size:1.15rem}
+.fx-opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.fx-opt{border:none;border-radius:20px;padding:16px 6px;min-height:64px;font-size:1.3rem;font-weight:800;background:var(--soft);color:var(--ink);
+box-shadow:0 5px 0 rgba(0,0,0,.12);cursor:pointer;overflow-wrap:anywhere}
+.fx-qs ~ .fx-opts .fx-opt{font-size:1rem}
+.fx-opt.fx-right{background:var(--ok);color:#fff;animation:fxjump .4s}
+.fx-opt.fx-wrong{background:var(--no);color:#fff;animation:fxshake .4s}
+@keyframes fxjump{50%{transform:scale(1.08)}}
+@keyframes fxshake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fx-msg{min-height:1.4em;text-align:center;font-weight:700;margin-top:10px;line-height:1.25}
+.fx-pet{font-size:3rem;text-align:center;animation:fxbob 1.6s ease-in-out infinite}
+@keyframes fxbob{50%{transform:translateY(-6px)}}
+.fx-chips{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.fx-chips .fx-big{margin:0;font-size:1.1rem;padding:12px 4px}
+.fx-score{font-size:3rem;font-weight:800;text-align:center;color:var(--main);margin:0}
+.fx-center{text-align:center}
+/* fundo interativo */
+#fx-bg{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
+#fx-bg span.fx-float{position:absolute;bottom:-60px;opacity:.45;animation:fxfloat linear infinite}
+@keyframes fxfloat{to{transform:translateY(-120vh) rotate(360deg);opacity:0}}
+#fx-bg span.fx-burst{position:absolute;font-size:1.3rem;animation:fxburst .6s ease-out forwards}
+@keyframes fxburst{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0}}
+body{position:relative}
+#fx-app{position:relative;z-index:1}
+/* efeitos 3D nos botões/cards */
+@keyframes fxtilt{50%{transform:translateY(-3px) rotateZ(.6deg)}}
+.fx-opt:active{box-shadow:0 2px 0 rgba(0,0,0,.12);filter:brightness(.97)}
+/* badge de perfil */
+#fx-who{position:fixed;top:8px;left:8px;z-index:10;background:var(--card);border-radius:20px;padding:5px 12px 5px 6px;
+display:flex;align-items:center;gap:6px;box-shadow:0 4px 12px rgba(0,0,0,.2);font-weight:800;font-size:.8rem;color:var(--ink)}
+#fx-who span{font-size:1.2rem;animation:fxbob 2s ease-in-out infinite}
+/* input de nome */
+.fx-input{width:100%;padding:14px;border-radius:16px;border:2px solid var(--soft);font-family:inherit;font-size:1.1rem;
+font-weight:700;text-align:center;margin-bottom:12px;background:var(--card);color:var(--ink)}
+.fx-emogrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.fx-emobtn{font-size:1.7rem;padding:10px 0;border:3px solid transparent}
+.fx-emobtn.fx-sel{border-color:var(--main);background:var(--soft)}
+/* jogo da memória: cartas com giro 3D */
+.fx-mem{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.fx-mcard{position:relative;height:74px;border:none;border-radius:14px;background:transparent;cursor:pointer;padding:0;perspective:600px}
+.fx-mcard>span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:14px;
+backface-visibility:hidden;font-weight:800;transition:transform .45s;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.fx-mfront{background:var(--main);color:#fff;font-size:1.8rem}
+.fx-mback{background:var(--soft);color:var(--ink);font-size:.95rem;transform:rotateY(180deg)}
+.fx-mcard.fx-flip .fx-mfront{transform:rotateY(180deg)}
+.fx-mcard.fx-flip .fx-mback{transform:rotateY(0)}
+.fx-mcard.fx-done .fx-mback{background:var(--ok);color:#fff}
+/* damas */
+.fx-board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:2px;background:#78350f;padding:4px;border-radius:14px;max-width:340px;margin:0 auto;box-shadow:0 8px 0 rgba(0,0,0,.15)}
+.fx-sq{aspect-ratio:1;border:none;display:flex;align-items:center;justify-content:center;padding:2px;cursor:pointer;position:relative}
+.fx-sq.fx-dark{background:#92400e}
+.fx-sq.fx-light{background:#fde68a}
+.fx-sq.fx-sel{box-shadow:inset 0 0 0 3px #22d3ee}
+.fx-sq.fx-can{box-shadow:inset 0 0 0 3px #a7f3d0}
+.fx-pc{width:82%;height:82%;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:.9rem;
+box-shadow:0 3px 0 rgba(0,0,0,.35),inset 0 -3px 5px rgba(0,0,0,.3),inset 0 3px 5px rgba(255,255,255,.35)}
+.fx-pc.fx-me{background:radial-gradient(circle at 35% 30%,#fca5a5,#dc2626)}
+.fx-pc.fx-cpu{background:radial-gradient(circle at 35% 30%,#93c5fd,#1d4ed8)}
+/* trilha do cofrinho */
+.fx-path{display:flex;gap:4px;overflow-x:auto;padding:8px 2px;margin-bottom:8px}
+.fx-cell{min-width:42px;height:42px;border-radius:12px;background:var(--soft);display:flex;align-items:center;justify-content:center;
+font-size:1.3rem;flex:none}
+.fx-cell.fx-here{background:var(--main);box-shadow:0 0 0 3px #fff inset,0 4px 0 rgba(0,0,0,.15);animation:fxbob 1s ease-in-out infinite}
+.fx-die{width:72px;height:72px;margin:10px auto;background:linear-gradient(145deg,#fff,#e2e8f0);border-radius:18px;
+display:flex;align-items:center;justify-content:center;font-size:2.2rem;font-weight:800;color:var(--ink);
+box-shadow:0 8px 0 rgba(0,0,0,.15);transform-style:preserve-3d}
+.fx-die.fx-rolling{animation:fxroll .6s ease-out}
+@keyframes fxroll{from{transform:perspective(400px) rotateX(0) rotateY(0)}to{transform:perspective(400px) rotateX(720deg) rotateY(360deg)}}
+.animtitle{display:inline-block;background:linear-gradient(90deg,#7c3aed,#ec4899,#06b6d4,#7c3aed);background-size:300% 100%;
+-webkit-background-clip:text;background-clip:text;color:transparent;animation:fxtitlewave 3s linear infinite,fxtitlebounce 1.6s ease-in-out infinite}
+@keyframes fxtitlewave{to{background-position:300% 0}}
+@keyframes fxtitlebounce{50%{transform:translateY(-4px) scale(1.04)}}
+@keyframes fxpreviewpop{0%{transform:scale(.4) rotate(-15deg)}60%{transform:scale(1.25) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
+/* figuras e quiz */
+.fx-fig{margin:0 auto 10px;text-align:center;color:var(--ink)}
+.fx-fig svg{width:100%;height:auto;display:block;margin:0 auto}
+.fx-tb{border-collapse:collapse;margin:0 auto;font-size:.95rem}
+.fx-tb th,.fx-tb td{border:2px solid var(--soft);padding:6px 10px;text-align:center}
+.fx-tb th{background:var(--soft)}
+.fx-tb caption{font-weight:800;margin-bottom:4px}
+.fx-emoji{font-size:1.7rem;letter-spacing:2px;line-height:1.35;word-break:break-all}
+.fx-study{margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--soft);font-weight:600;font-size:.9rem;line-height:1.3;text-align:left}
+.fx-study ul{margin:6px 0 0 18px;padding:0}
+.fx-opts.fx-one{grid-template-columns:minmax(0,1fr)}
+.fx-lv{text-align:left}
+.fx-lv small{display:block;font-weight:600;font-size:.8rem;opacity:.85}
+.fx-opts .fx-opt{text-align:center}
+/* modo calmo: sem movimento (também ativado por prefers-reduced-motion) */
+body.fx-calm *,body.fx-calm *::before,body.fx-calm *::after{animation:none!important;transition:none!important}
+body.fx-calm #fx-bg{display:none}
+</style>
+</head>
+<body>
+<div id="fx-bg"></div>
+<div id="fx-who" style="display:none"></div>
+<div id="fx-app"></div>
+<script>
+/* ===== TEMAS: para criar novo tema, adicione um objeto aqui ===== */
+const THEMES=[{
+  id:"mat",name:"Fliperama da Matemática",main:"#7c3aed",emoji:"🎮",
+  items:[{n:"Raposa Foxy",e:"🦊"},{n:"Panda Pipoca",e:"🐼"},{n:"Unicórnio Estrela",e:"🦄"},{n:"Gatinha Mel",e:"🐱"}],
+  cheers:["Isso aí!","Arrasou!","Mandou bem!","Genial!"],oops:["Quase!","Tenta de novo!","Vamos pensar juntos!"],
+  games:["tabuada","continhas","quiz","numero","memoria","verdade","intruso","damas","cofrinho","xadrez"]
+}];
+const theme=THEMES[0];
+
+/* ===== 3D: Three.js carregado só quando um jogo 3D abre (não pesa o início) ===== */
+const THREE_URL="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js";
+let threeLoading=null;
+function loadThree(){
+  if(window.THREE)return Promise.resolve(window.THREE);
+  if(threeLoading)return threeLoading;
+  threeLoading=new Promise((ok,no)=>{const s=document.createElement("script");s.src=THREE_URL;
+    s.onload=()=>window.THREE?ok(window.THREE):no(new Error("three"));s.onerror=()=>no(new Error("three"));document.head.appendChild(s);})
+    .catch(e=>{threeLoading=null;throw e;});
+  return threeLoading;
+}
+function webglOK(){try{const c=document.createElement("canvas");return !!(window.WebGLRenderingContext&&(c.getContext("webgl")||c.getContext("experimental-webgl")));}catch(e){return false}}
+/* cria a cena 3D dentro de um elemento; devolve null se não der */
+function make3D(host,camZ){
+  const T=window.THREE;if(!T||!webglOK())return null;
+  let r;try{r=new T.WebGLRenderer({antialias:false,alpha:true,powerPreference:"low-power"});}catch(e){return null;}
+  r.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+  const scene=new T.Scene(),cam=new T.PerspectiveCamera(40,1,.1,100);cam.position.set(0,0,camZ||8);
+  scene.add(new T.AmbientLight(0xffffff,.75));
+  const key=new T.DirectionalLight(0xffffff,.7);key.position.set(3,5,6);scene.add(key);
+  host.innerHTML="";host.appendChild(r.domElement);
+  const ray=new T.Raycaster(),ptr=new T.Vector2();
+  function size(){const w=host.clientWidth||320,h=Math.round(w*.75);r.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
+  size();
+  let raf=0,alive=true;
+  const hooks=[];/* funções chamadas a cada quadro (ex.: girar uma carta) */
+  const tick=()=>{if(!alive)return;hooks.forEach(f=>f());r.render(scene,cam);raf=requestAnimationFrame(tick);};
+  /* toque ou clique → objeto 3D sob o dedo */
+  function pick(ev,list){const b=r.domElement.getBoundingClientRect();const p=ev.touches?ev.touches[0]:ev;
+    ptr.x=((p.clientX-b.left)/b.width)*2-1;ptr.y=-((p.clientY-b.top)/b.height)*2+1;
+    ray.setFromCamera(ptr,cam);const hit=ray.intersectObjects(list,true);return hit.length?hit[0].object:null;}
+  const el=r.domElement;el.style.touchAction="none";el.style.userSelect="none";el.style.webkitUserSelect="none";el.style.webkitTouchCallout="none";
+  el.style.width="100%";el.style.display="block";el.style.borderRadius="18px";
+  const onResize=()=>size();window.addEventListener("resize",onResize);
+  tick();
+  return{T,r,scene,cam,el,pick,size,hooks,
+    dispose(){alive=false;cancelAnimationFrame(raf);window.removeEventListener("resize",onResize);try{r.dispose();}catch(e){}}};
+}
+/* cartão 3D com texto (canvas como textura) */
+function textTex(T,txt,bg,fg,w,h){const c=document.createElement("canvas");c.width=w||512;c.height=h||256;const g=c.getContext("2d");
+  g.fillStyle=bg;g.beginPath();const rr=28;g.roundRect?g.roundRect(6,6,c.width-12,c.height-12,rr):g.rect(6,6,c.width-12,c.height-12);g.fill();
+  g.fillStyle=fg;g.textAlign="center";g.textBaseline="middle";
+  /* diminui a letra até o texto caber na largura do bloco */
+  let size=Math.round(c.height*.42);
+  do{g.font='800 '+size+'px "Baloo 2",system-ui,sans-serif';size-=4;}while(g.measureText(String(txt)).width>c.width*.86&&size>12);
+  String(txt).split("\n").forEach((line,i,arr)=>g.fillText(line,c.width/2,c.height/2+(i-(arr.length-1)/2)*c.height*.44));
+  const t=new T.CanvasTexture(c);t.minFilter=T.LinearFilter;return t;}
+/* ===== fim 3D ===== */
+
+/* ===== util ===== */
+const $=s=>document.querySelector(s);
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+const MUTED=()=>{try{return localStorage.getItem("fx-mute")==="1"}catch(e){return false}};
+const CALM=()=>{try{return localStorage.getItem("fx-calm")==="1"}catch(e){return false}};
+const REDUCE=()=>!!(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);
+const isCalm=()=>CALM()||REDUCE();
+function applyCalm(){document.body.classList.toggle("fx-calm",isCalm());}
+function toggleCalm(){try{localStorage.setItem("fx-calm",CALM()?"0":"1")}catch(e){}applyCalm();home();}
+function toggleMute(){try{localStorage.setItem("fx-mute",MUTED()?"0":"1")}catch(e){}home();}
+let actx;
+function beep(f,d,t){if(MUTED())return;try{actx=actx||new(window.AudioContext||window.webkitAudioContext)();let n=actx.currentTime;
+  f.forEach((h,i)=>{const o=actx.createOscillator(),g=actx.createGain();o.type=t||"triangle";o.frequency.value=h;
+  g.gain.setValueAtTime(.001,n+i*d);g.gain.exponentialRampToValueAtTime(.25,n+i*d+.02);g.gain.exponentialRampToValueAtTime(.001,n+i*d+d);
+  o.connect(g);g.connect(actx.destination);o.start(n+i*d);o.stop(n+i*d+d);});}catch(e){}}
+const sOk=()=>beep([523,659,784],.1),sNo=()=>beep([220,160],.16,"sawtooth"),sTap=()=>beep([440],.05,"square"),sWin=()=>beep([523,659,784,1046],.12);
+const getRec=id=>{try{return +localStorage.getItem("fx-rec-"+id)||0}catch(e){return 0}};
+const setRec=(id,v)=>{try{localStorage.setItem("fx-rec-"+id,v)}catch(e){}};
+
+/* opções numéricas distintas perto da resposta */
+function numOpts(c,near){const s=new Set([c]);let g=0;
+  while(s.size<4&&g++<60){let v=near.length?near[rnd(0,near.length-1)]:c+rnd(-6,6);if(v!==c&&v>=0)s.add(v);}
+  for(let k=1;s.size<4;k++)s.add(c+k);return shuf([...s]).map(String);}
+
+/* ===== figuras (SVG) usadas nas questões ===== */
+const COL=["#38bdf8","#fb7185","#fbbf24","#34d399","#a78bfa","#f97316"];
+const SVG=(w,h,s)=>`<svg viewBox="0 0 ${w} ${h}" style="max-width:${Math.min(340,Math.round(w*1.5))}px" focusable="false" aria-hidden="true">${s}</svg>`;
+const TX=(x,y,s,z=12,a="middle")=>`<text x="${x}" y="${y}" font-size="${z}" font-weight="700" text-anchor="${a}" fill="currentColor">${s}</text>`;
+const nice=m=>{for(const s of[1,2,5,10,20,25,50,100,200,500])if(m/s<=5)return s;return 1000};
+const FIG={
+ bar(f){const d=f.d,mx=Math.max(...d.map(x=>x[1])),st=nice(mx),top=Math.ceil(mx/st)*st,W=320,H=190,L=34,B=30,Tp=26,pw=W-L-8,ph=H-B-Tp,bw=Math.min(46,pw/d.length*.6);
+  let s=TX(W/2,15,f.title,13);
+  for(let v=0;v<=top;v+=st){const y=Tp+ph-v/top*ph;s+=`<line x1="${L}" x2="${W-6}" y1="${y}" y2="${y}" stroke="currentColor" opacity=".18"/>`+TX(L-5,y+4,v,10,"end");}
+  d.forEach((x,i)=>{const cx=L+pw/d.length*(i+.5),h=x[1]/top*ph;s+=`<rect x="${cx-bw/2}" y="${Tp+ph-h}" width="${bw}" height="${h}" rx="3" fill="${COL[i%6]}"/>`+TX(cx,Tp+ph-h-4,x[1],11)+TX(cx,H-10,x[0],11);});
+  return SVG(W,H,s);},
+ line(f){const d=f.d,mx=Math.max(...d.map(x=>x[1])),st=nice(mx),top=Math.ceil(mx/st)*st,W=320,H=190,L=34,B=30,Tp=26,pw=W-L-8,ph=H-B-Tp;
+  let s=TX(W/2,15,f.title,13);
+  for(let v=0;v<=top;v+=st){const y=Tp+ph-v/top*ph;s+=`<line x1="${L}" x2="${W-6}" y1="${y}" y2="${y}" stroke="currentColor" opacity=".18"/>`+TX(L-5,y+4,v,10,"end");}
+  const X=i=>L+pw/d.length*(i+.5),Y=v=>Tp+ph-v/top*ph;
+  s+=`<polyline points="${d.map((x,i)=>X(i)+","+Y(x[1])).join(" ")}" fill="none" stroke="#7c3aed" stroke-width="3"/>`;
+  d.forEach((x,i)=>{s+=`<circle cx="${X(i)}" cy="${Y(x[1])}" r="4.5" fill="#f43f5e" stroke="#fff"/>`+TX(X(i),Y(x[1])-9,x[1],11)+TX(X(i),H-10,x[0],11);});
+  return SVG(W,H,s);},
+ pie(f){const d=f.d,tot=d.reduce((a,x)=>a+x[1],0),cx=88,cy=100,r=64;let a0=-Math.PI/2,s=TX(160,15,f.title,13);
+  d.forEach((x,i)=>{const a1=a0+x[1]/tot*2*Math.PI,lg=a1-a0>Math.PI?1:0;
+   s+=`<path d="M${cx} ${cy}L${cx+r*Math.cos(a0)} ${cy+r*Math.sin(a0)}A${r} ${r} 0 ${lg} 1 ${cx+r*Math.cos(a1)} ${cy+r*Math.sin(a1)}Z" fill="${COL[i%6]}" stroke="#fff" stroke-width="2"/>`;
+   s+=`<rect x="180" y="${48+i*26}" width="14" height="14" rx="3" fill="${COL[i%6]}"/>`+TX(200,60+i*26,x[0]+": "+x[1]+"%",12,"start");a0=a1;});
+  return SVG(320,175,s);},
+ table(f){return`<table class="fx-tb"><caption>${f.title}</caption><thead><tr>${f.h.map(h=>`<th>${h}</th>`).join("")}</tr></thead><tbody>${f.r.map(r=>`<tr>${r.map((c,i)=>i?`<td>${c}</td>`:`<th>${c}</th>`).join("")}</tr>`).join("")}</tbody></table>`;},
+ grid(f){const u=Math.min(34,260/f.w,120/f.h),ox=(300-f.w*u)/2;let s="";
+  for(let i=0;i<f.w;i++)for(let j=0;j<f.h;j++)s+=`<rect x="${ox+i*u}" y="${14+j*u}" width="${u}" height="${u}" fill="#bae6fd" stroke="#0369a1"/>`;
+  return SVG(300,f.h*u+28,s);},
+ rect(f){return SVG(300,150,`<rect x="70" y="35" width="150" height="85" rx="4" fill="#a5f3fc" stroke="#0e7490" stroke-width="4"/>`+TX(145,26,f.top,14)+TX(252,82,f.side,14));},
+ tri(f){return SVG(300,150,`<polygon points="70,125 230,125 70,35" fill="#bbf7d0" stroke="#166534" stroke-width="4"/><path d="M70 113H82V125" fill="none" stroke="#166534" stroke-width="2"/>`+TX(150,143,f.top,14)+TX(46,84,f.side,14));},
+ tri3(f){const[a,b,c]=f.s,x=(a*a+b*b-c*c)/(2*a),y=Math.sqrt(Math.max(b*b-x*x,0)),k=Math.min(200/a,100/y),A=[50,130],B=[50+a*k,130],C=[50+x*k,130-y*k];
+  return SVG(300,160,`<polygon points="${A} ${B} ${C}" fill="#bbf7d0" stroke="#166534" stroke-width="4"/>`+TX((A[0]+B[0])/2,150,a+" cm",13)+TX((A[0]+C[0])/2-10,(A[1]+C[1])/2,b+" cm",13,"end")+TX((B[0]+C[0])/2+10,(B[1]+C[1])/2,c+" cm",13,"start"));},
+ poly(f){const n=f.n,r=62,st=-Math.PI/2+(n%2?0:Math.PI/n),p=[...Array(n)].map((_,i)=>{const a=st+i*2*Math.PI/n;return(150+r*Math.cos(a)).toFixed(1)+","+(78+r*Math.sin(a)).toFixed(1)}).join(" ");
+  return SVG(300,155,`<polygon points="${p}" fill="#c4b5fd" stroke="#5b21b6" stroke-width="3"/>`);},
+ plane(f){const n=f.n||6,W=320,H=190,ox=34,oy=164,u=Math.min((W-ox-16)/n,(oy-16)/n);let s="";
+  for(let i=0;i<=n;i++){s+=`<line x1="${ox+i*u}" y1="${oy}" x2="${ox+i*u}" y2="${oy-n*u}" stroke="currentColor" opacity=".15"/><line x1="${ox}" y1="${oy-i*u}" x2="${ox+n*u}" y2="${oy-i*u}" stroke="currentColor" opacity=".15"/>`+TX(ox+i*u,oy+15,i,10)+(i?TX(ox-8,oy-i*u+4,i,10,"end"):"");}
+  s+=`<line x1="${ox}" y1="${oy}" x2="${ox+n*u+8}" y2="${oy}" stroke="currentColor" stroke-width="2"/><line x1="${ox}" y1="${oy}" x2="${ox}" y2="${oy-n*u-8}" stroke="currentColor" stroke-width="2"/>`;
+  const P=p=>(ox+p[0]*u)+","+(oy-p[1]*u);
+  if(f.poly)s+=`<polygon points="${f.poly.map(P).join(" ")}" fill="#a5f3fc88" stroke="#0e7490" stroke-width="2"/>`;
+  if(f.line)s+=`<polyline points="${f.line.map(P).join(" ")}" fill="none" stroke="#7c3aed" stroke-width="2.5"/>`;
+  (f.p||[]).forEach(p=>{s+=`<circle cx="${ox+p[0]*u}" cy="${oy-p[1]*u}" r="4.5" fill="#f43f5e" stroke="#fff"/>`+(p[2]?TX(ox+p[0]*u+10,oy-p[1]*u-7,p[2],13):"");});
+  return SVG(W,H,s);},
+ nline(f){const a=f.a,b=f.b,L=22,R=298,y=64,X=v=>L+(v-a)/(b-a)*(R-L),dv=f.div||1,ng=v=>v<0?"−"+(-v):v;
+  let s=`<line x1="${L-8}" y1="${y}" x2="${R+8}" y2="${y}" stroke="currentColor" stroke-width="2.5"/>`;
+  for(let v=a;v<=b;v++){s+=`<line x1="${X(v)}" y1="${y-8}" x2="${X(v)}" y2="${y+8}" stroke="currentColor" stroke-width="2"/>`+TX(X(v),y+26,ng(v),12);
+   if(dv>1&&v<b)for(let k=1;k<dv;k++)s+=`<line x1="${X(v+k/dv)}" y1="${y-5}" x2="${X(v+k/dv)}" y2="${y+5}" stroke="currentColor" stroke-width="1.5"/>`;}
+  (f.p||[]).forEach(p=>{s+=`<circle cx="${X(p[0])}" cy="${y}" r="5.5" fill="#f43f5e" stroke="#fff" stroke-width="1.5"/>`+TX(X(p[0]),y-14,p[1],14);});
+  return SVG(320,105,s);},
+ solid(f){let s;
+  if(f.k==="cubo")s=`<polygon points="60,60 130,60 130,130 60,130" fill="#fecaca" stroke="#7f1d1d" stroke-width="3"/><polygon points="60,60 90,30 160,30 130,60" fill="#fca5a5" stroke="#7f1d1d" stroke-width="3"/><polygon points="130,60 160,30 160,100 130,130" fill="#f87171" stroke="#7f1d1d" stroke-width="3"/><path d="M90 30V100M90 100H160M90 100L60 130" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="5 4" fill="none"/>`;
+  else s=`<polygon points="115,125 180,97 145,27 80,55" fill="#f87171" stroke="#7f1d1d" stroke-width="3"/><polygon points="45,125 115,125 80,55" fill="#fecaca" stroke="#7f1d1d" stroke-width="3"/><path d="M45 125L110 97M110 97H180M110 97L145 27" stroke="#7f1d1d" stroke-width="2" stroke-dasharray="5 4" fill="none"/>`;
+  return SVG(220,150,s);},
+ net(f){let s="";
+  if(f.k==="cubo")[[1,0],[0,1],[1,1],[2,1],[3,1],[1,2]].forEach(p=>{s+=`<rect x="${50+p[0]*34}" y="${14+p[1]*34}" width="34" height="34" fill="#fde68a" stroke="#92400e" stroke-width="2.5"/>`;});
+  else s=`<rect x="100" y="60" width="40" height="40" fill="#fde68a" stroke="#92400e" stroke-width="2.5"/>`+[["100,60 140,60 120,20"],["100,100 140,100 120,140"],["100,60 100,100 60,80"],["140,60 140,100 180,80"]].map(p=>`<polygon points="${p}" fill="#fcd34d" stroke="#92400e" stroke-width="2.5"/>`).join("");
+  return SVG(240,160,s);},
+ blocks(f){const c=f.c,l=f.l,a=f.a,u=26,dx=u*.55,dy=u*.45,x0=24,y0=14+l*dy;let s="";
+  for(let i=0;i<c;i++)for(let j=0;j<a;j++)s+=`<rect x="${x0+i*u}" y="${y0+j*u}" width="${u}" height="${u}" fill="#bae6fd" stroke="#0369a1"/>`;
+  for(let i=0;i<c;i++)for(let k=0;k<l;k++){const x=x0+i*u+k*dx,y=y0-k*dy;s+=`<polygon points="${x},${y} ${x+u},${y} ${x+u+dx},${y-dy} ${x+dx},${y-dy}" fill="#e0f2fe" stroke="#0369a1"/>`;}
+  for(let k=0;k<l;k++)for(let j=0;j<a;j++){const x=x0+c*u+k*dx,y=y0+j*u-k*dy;s+=`<polygon points="${x},${y} ${x+dx},${y-dy} ${x+dx},${y+u-dy} ${x},${y+u}" fill="#7dd3fc" stroke="#0369a1"/>`;}
+  return SVG(x0+c*u+l*dx+24,y0+a*u+16,s);},
+ pict(f){const n=f.n,k=f.k;let s="";
+  if(n===100){const u=13;for(let i=0;i<100;i++){s+=`<rect x="${85+(i%10)*u}" y="${8+Math.floor(i/10)*u}" width="${u-1.5}" height="${u-1.5}" fill="${i<k?"#fb7185":"#e2e8f0"}"/>`;}return SVG(300,145,s);}
+  const w=Math.min(34,250/n);for(let i=0;i<n;i++)s+=`<rect x="${20+i*(w+3)}" y="26" width="${w}" height="52" rx="5" fill="${i<k?"#fb7185":"#e2e8f0"}" stroke="#94a3b8" stroke-width="2"/>`;
+  return SVG(300,104,s);},
+ circ(f){return SVG(300,150,`<circle cx="150" cy="75" r="58" fill="#fde68a" stroke="#92400e" stroke-width="3"/><line x1="150" y1="75" x2="208" y2="75" stroke="#92400e" stroke-width="3"/><circle cx="150" cy="75" r="3.5" fill="#92400e"/>`+TX(180,66,f.lab,13));},
+ thales(f){const ys=[30,85,140],x1=y=>70+(y-30)*.35,x2=y=>215-(y-30)*.2;let s="";
+  ys.forEach(y=>{s+=`<line x1="20" y1="${y}" x2="300" y2="${y}" stroke="#0e7490" stroke-width="3"/>`;});
+  s+=`<line x1="${x1(10)}" y1="10" x2="${x1(160)}" y2="160" stroke="currentColor" stroke-width="2"/><line x1="${x2(10)}" y1="10" x2="${x2(160)}" y2="160" stroke="currentColor" stroke-width="2"/>`;
+  s+=TX(x1(57)-14,62,f.a,13,"end")+TX(x1(112)-14,117,f.b,13,"end")+TX(x2(57)+14,62,f.c,13,"start")+TX(x2(112)+14,117,f.d,13,"start");
+  return SVG(320,170,s);},
+ sim(f){const tri=(a,ox)=>{const k=14,p=a[0]*k,q=a[1]*k,oy=146;return`<polygon points="${ox},${oy} ${ox+p},${oy} ${ox},${oy-q}" fill="#bbf7d0" stroke="#166534" stroke-width="3"/>`+TX(ox+p/2,oy+14,a[0],12)+TX(ox-8,oy-q/2+4,a[1],12,"end")+TX(ox+p/2+8,oy-q/2-4,a[2],12,"start");};
+  return SVG(320,165,tri(f.a,40)+tri(f.b,150));},
+ rt(f){const k=Math.min(170/f.da,110/f.db),p=f.da*k,q=f.db*k,ox=60,oy=140;
+  return SVG(300,165,`<polygon points="${ox},${oy} ${ox+p},${oy} ${ox},${oy-q}" fill="#bbf7d0" stroke="#166534" stroke-width="4"/><path d="M${ox} ${oy-12}H${ox+12}V${oy}" fill="none" stroke="#166534" stroke-width="2"/>`+TX(ox+p/2,oy+16,f.a,13)+TX(ox-8,oy-q/2+4,f.b,13,"end")+TX(ox+p/2+10,oy-q/2-6,f.c,13,"start"));},
+ emoji(f){return`<div class="fx-emoji">${f.s}</div>`;}
+};
+const figHTML=f=>FIG[f.t]?FIG[f.t](f):"";
+
+/* ===== banco do Quiz SARESP: 50 questões por ano (descritores do Guia do Currículo Priorizado) =====
+   SD = descritores; SB = questões {a:ano, d:descritor, l:nível 0-3, q, o:opções, c:índice certo, e:explicação, f:figura} */
+const SD={"6.01":["EF06MA02","Resolver problema relacionado ao sistema de numeração decimal."],"6.02":["EF06MA02","Compor OU decompor números naturais e/ou decimais (representação decimal finita)."],"6.03":["EF06MA02 / EF06MA01","Analisar dados estatísticos apresentados em tabelas (simples ou de dupla entrada) e gráficos (colunas, barras ou linhas) em contextos relevantes."],"6.04":["EF06MA02 / EF06MA01","Interpretar dados estatísticos apresentados em tabelas ou gráficos referentes a outras áreas do conhecimento ou a outros contextos, como saúde e trânsito."],"6.05":["EF06MA01","Comparar e ordenar números naturais de diferentes ordens, utilizando, inclusive, a reta numérica como suporte (Aprendizagem Essencial AE2)."],"6.06":["EF06MA03","Resolver problemas envolvendo operações fundamentais com números naturais."],"6.07":["EF06MA06","Resolver problemas que envolvam as ideias de múltiplo e divisor."],"6.08":["EF06MA06","Estabelecer relações entre números, expressas pelos termos “é múltiplo de”, “é divisor de”, “é fator de”, “pode ser decomposto/fatorado como”."],"6.09":["EF06MA09","Associar uma fração ao resultado de uma divisão ou como a representação numérica da ideia parte-todo, utilizando ou não a reta numérica como recurso."],"6.10":["EF06MA09","Resolver problemas simples que envolvam o cálculo da fração de uma quantidade, cujo resultado seja um número natural."],"6.11":["EF06MA07 / EF06MA11","Comparar números racionais, com ou sem apoio da reta numérica."],"6.12":["EF06MA10","Resolver problemas que envolvam adição ou subtração com números racionais positivos na representação fracionária."],"6.13":["EF06MA18","Comparar características de polígonos (lados, vértices e ângulos; regulares e não regulares)."],"6.14":["EF06MA19","Comparar características de polígonos (classificar triângulos quanto às medidas dos lados)."],"6.15":["EF06MA20","Comparar características de polígonos (classificar quadriláteros quanto aos lados e ângulos)."],"6.16":["EF06MA11","Resolver problema envolvendo as operações fundamentais entre números decimais."],"6.17":["EF06MA11","Reconhecer diferentes representações dos números racionais positivos (formas fracionária, decimal, porcentagem e pictórica)."],"6.18":["EF06MA13","Resolver problemas que envolvam porcentagens para cálculo de acréscimos ou decréscimos simples."],"6.19":["EF06MA17","Reconhecer/nomear, contar OU comparar elementos de figuras geométricas espaciais (vértice, aresta, face, base de prismas, pirâmides, cilindros, cones ou esferas)."],"6.20":["EF06MA17","Associar figuras espaciais a suas planificações."],"6.21":["EF06MA24","Resolver problemas que envolvam as grandezas comprimento, massa, tempo, temperatura, área (triângulos e retângulos), capacidade e volume (sólidos formados por blocos retangulares), sem uso de fórmulas."],"6.22":["EF06MA24","Interpretar a localização ou movimentação de objetos ou figuras geométricas no plano cartesiano (1º quadrante), indicando mudanças de direção, sentidos ou giros."],"7.01":["EF07MA01","Resolver problemas que envolvam as ideias de múltiplo e divisor."],"7.02":["EF07MA01","Estabelecer relações entre números, expressas pelos termos “é múltiplo de”, “é divisor de”, “é fator de”, “pode ser decomposto/fatorado como”."],"7.03":["EF07MA03","Comparar números inteiros, com ou sem suporte da reta numérica."],"7.04":["EF07MA04","Calcular o resultado de operações envolvendo números inteiros."],"7.05":["EF07MA04","Resolver problemas envolvendo operações com números inteiros."],"7.06":["EF07MA08","Comparar frações associadas a diferentes ideias, com ou sem apoio da reta numérica."],"7.07":["EF07MA12","Resolver problemas que envolvam adição ou subtração com frações."],"7.08":["EF07MA12","Resolver problemas simples que envolvam o cálculo da fração de uma quantidade, cujo resultado seja um número natural."],"7.09":["EF07MA12","Resolver problemas que envolvam multiplicação ou divisão de frações."],"7.10":["EF07MA12","Resolver e elaborar problemas com números racionais positivos na representação decimal, envolvendo as quatro operações fundamentais ou potenciação."],"7.11":["EF07MA20","Associar pares ordenados a pontos do 1º quadrante do plano cartesiano, em diferentes situações."],"7.12":["EF07MA32","Resolver problema envolvendo área de triângulos ou retângulos ou polígonos que podem ser decompostos por essas duas formas."],"7.13":["EF07MA15","Utilizar a simbologia algébrica para expressar regularidades encontradas em sequências numéricas."],"7.14":["EF07MA18","Resolver problemas que possam ser representados por equações polinomiais de 1º grau, redutíveis à forma ax + b = c."],"7.15":["EF07MA18","Resolver equações do 1º grau com uma incógnita, empregando as propriedades de uma igualdade."],"7.16":["EF07MA27","Resolver problemas envolvendo propriedades angulares de polígonos."],"7.17":["EF07MA17","Resolver problemas significativos que envolvem grandezas de medidas."],"7.18":["EF07MA17","Resolver problemas que envolvam variação de proporcionalidade direta ou inversa entre duas grandezas."],"7.19":["EF07MA17","Resolver problemas que envolvam a partilha de uma quantidade em duas partes desiguais, envolvendo relações aditivas e multiplicativas, bem como a razão entre as partes ou entre uma das partes e o todo."],"7.20":["EF07MA02","Resolver problemas que envolvam porcentagens para cálculo de acréscimos ou decréscimos simples."],"8.01":["EF08MA01","Associar uma fração a um número decimal (finito ou dízima periódica)."],"8.02":["EF08MA01","Resolver problemas de adição, subtração, multiplicação, divisão, potenciação ou radiciação envolvendo números racionais."],"8.03":["EF08MA01","Resolver problemas simples que envolvam o cálculo da fração de uma quantidade."],"8.04":["EF08MA01","Efetuar cálculos envolvendo números racionais."],"8.05":["EF08MA01","Resolver problemas envolvendo potenciação ou radiciação."],"8.06":["EF08MA02","Resolver problemas envolvendo potenciação ou radiciação (relação entre potência e raiz, expoente fracionário)."],"8.07":["EF08MA06","Representar por meio de expressões algébricas regularidades observadas em sequências numéricas."],"8.08":["EF08MA06","Resolver problemas que envolvam cálculo do valor numérico de expressões algébricas."],"8.09":["EF08MA07","Resolver problemas que podem ser modelados por equações do 1º grau, do tipo ax + b = c."],"8.10":["EF08MA08","Resolver problemas que podem ser modelados por sistema de equações do 1º grau com duas incógnitas."],"8.11":["EF08MA22","Resolver problemas envolvendo o cálculo de probabilidade de eventos simples."],"8.12":["EF08MA25","Resolver problemas envolvendo o cálculo de medida central (média simples, média ponderada, mediana ou moda) ou amplitude de um conjunto de dados."],"8.13":["EF08MA13","Reconhecer a expressão algébrica que representa a relação entre duas grandezas."],"8.14":["EF08MA13","Representar no plano cartesiano a relação entre duas grandezas, sejam elas diretamente, inversamente, ou não proporcionais."],"8.15":["EF08MA04","Comparar frações em contextos significativos, abordando seus diferentes significados (parte-todo e razão)."],"8.16":["EF08MA04","Resolver problemas que envolvam porcentagens para cálculo de acréscimos ou decréscimos simples."],"8.17":["EF07MA27 (âncora)","Classificar um triângulo quanto às medidas de seus lados ou quanto às medidas de seus ângulos internos."],"9.01":["EF09MA03 / EF09MA02","Localizar números reais na reta numérica."],"9.02":["EF09MA03","Resolver problema envolvendo as operações fundamentais com números reais."],"9.03":["EF09MA03","Resolver problemas envolvendo potenciação ou radiciação."],"9.04":["EF09MA03 / EF09MA04","Efetuar cálculos entre números reais."],"9.05":["EF09MA12","Resolver problemas envolvendo propriedades angulares de polígonos."],"9.06":["EF09MA12","Resolver problemas que envolvam a aplicação das relações de proporcionalidade abrangendo retas paralelas cortadas por transversais (Teorema de Tales)."],"9.07":["EF09MA12 / EF09MA13","Reconhecer polígonos semelhantes ou as relações existentes entre ângulos e lados correspondentes nesses tipos de polígonos."],"9.08":["EF09MA12 / EF09MA13","Resolver problemas que envolvam polígonos semelhantes."],"9.09":["EF09MA13 / EF09MA14","Resolver problemas que envolvam relações métricas do triângulo retângulo, incluindo o teorema de Pitágoras."],"9.11":["EF09MA04 / EF09MA09","Resolver problemas envolvendo expressões algébricas."],"9.12":["EF09MA04 / EF09MA09","Reconhecer expressões algébricas equivalentes."],"9.13":["EF09MA04 / EF09MA09","Reconhecer a expressão algébrica que representa a relação entre duas grandezas."],"9.14":["EF09MA09","Resolver problemas que podem ser modelados por equações do 1º grau, do tipo ax + b = c."],"9.15":["EF09MA09","Resolver uma equação polinomial de 2º grau."],"9.16":["EF08MA19","Resolver problemas que envolvam relações entre os elementos de uma circunferência/círculo (raio, diâmetro, corda, arco, ângulo central, ângulo inscrito)."],"9.17":["EF09MA20","Calcular a probabilidade de eventos simples."],"9.18":["EF09MA20","Resolver problemas envolvendo o cálculo da probabilidade de eventos dependentes OU independentes."],"9.19":["EF09MA08","Resolver problemas que envolvam variação de proporcionalidade direta ou inversa entre duas grandezas."],"9.20":["EF09MA08","Resolver problemas que envolvam a razão entre duas grandezas de espécies diferentes."],"9.21":["EF08MA04 (âncora)","Resolver problemas que envolvem cálculo de porcentagens."],"9.22":["EF08MA25 (âncora)","Resolver problemas envolvendo o cálculo de medida central (média simples, ponderada, mediana ou moda) ou amplitude de um conjunto de dados."],"9.23":["EF08MA25 (âncora)","Resolver problemas que envolvam dados estatísticos apresentados em tabelas (simples ou de dupla entrada) ou gráficos (barras, colunas, pictóricos, linhas ou setores)."]};
+const SB=[{"a":6,"d":"6.01","l":0,"q":"No número 4.356, qual é o valor do algarismo 3?","o":["30","3","300","3.000"],"c":2,"e":"O 3 está na ordem das centenas: vale 3 × 100 = 300."},{"a":6,"d":"6.01","l":3,"q":"Em um número de quatro algarismos, o algarismo da unidade de milhar é 7, o das dezenas é 3, o das centenas é o dobro do das dezenas e o das unidades é 0. Que número é esse?","o":["7.063","7.360","7.630","7.603"],"c":2,"e":"Dezenas = 3; centenas = 2 × 3 = 6; unidades = 0; milhar = 7. O número é 7.630."},{"a":6,"d":"6.02","l":0,"q":"Qual número é formado por 5 unidades de milhar, 2 centenas e 7 unidades?","o":["5.270","527","5.027","5.207"],"c":3,"e":"5 × 1.000 + 2 × 100 + 7 = 5.207. Como não há dezenas, o algarismo das dezenas é 0."},{"a":6,"d":"6.02","l":1,"q":"A decomposição do número 3.482 é:","o":["3.000 + 40 + 80 + 2","300 + 400 + 80 + 2","3.000 + 400 + 8 + 2","3.000 + 400 + 80 + 2"],"c":3,"e":"3 milhares + 4 centenas + 8 dezenas + 2 unidades = 3.000 + 400 + 80 + 2."},{"a":6,"d":"6.02","l":3,"q":"Qual número é igual a 2 + 0,5 + 0,04 + 0,007?","o":["2,574","2,457","25,47","2,547"],"c":3,"e":"2 inteiros, 5 décimos, 4 centésimos e 7 milésimos formam 2,547."},{"a":6,"d":"6.03","l":0,"q":"O gráfico mostra quantos livros quatro alunos leram. Quem leu mais livros?","o":["Bia","Caio","Davi","Ana"],"c":0,"e":"A coluna mais alta é a da Bia, com 8 livros.","f":{"t":"bar","title":"Livros lidos no mês","d":[["Ana",5],["Bia",8],["Caio",3],["Davi",6]],"alt":"Gráfico de colunas: Livros lidos no mês. Ana: 5; Bia: 8; Caio: 3; Davi: 6"}},{"a":6,"d":"6.03","l":2,"q":"A tabela mostra o número de alunos de três turmas. Quantas meninas há nas três turmas juntas?","o":["39","27","44","30"],"c":2,"e":"16 + 15 + 13 = 44 meninas.","f":{"t":"table","title":"Alunos por turma","h":["Turma","Meninos","Meninas"],"r":[["6º A",14,16],["6º B",12,15],["6º C",13,13]],"alt":"Tabela: Alunos por turma. Colunas: Turma, Meninos, Meninas. 6º A, 14, 16 | 6º B, 12, 15 | 6º C, 13, 13"}},{"a":6,"d":"6.03","l":3,"q":"Em qual mudança de um mês para o seguinte houve o maior aumento nas vendas de sorvete?","o":["De fevereiro para março","De abril para maio","De março para abril","De janeiro para fevereiro"],"c":2,"e":"Aumentos: jan→fev = 15 e mar→abr = 20. De fev→mar e abr→mai as vendas caíram. O maior aumento foi de 20, de março para abril.","f":{"t":"line","title":"Sorvetes vendidos por mês","d":[["Jan",20],["Fev",35],["Mar",30],["Abr",50],["Mai",45]],"alt":"Gráfico de linhas: Sorvetes vendidos por mês. Jan: 20; Fev: 35; Mar: 30; Abr: 50; Mai: 45"}},{"a":6,"d":"6.04","l":0,"q":"O gráfico mostra o número de consultas por dia em um posto de saúde. Em qual dia houve mais consultas?","o":["Terça","Quarta","Segunda","Sexta"],"c":0,"e":"A maior coluna é a de terça-feira: 25 consultas.","f":{"t":"bar","title":"Consultas no posto de saúde","d":[["Seg",18],["Ter",25],["Qua",12],["Qui",20],["Sex",15]],"alt":"Gráfico de colunas: Consultas no posto de saúde. Seg: 18; Ter: 25; Qua: 12; Qui: 20; Sex: 15"}},{"a":6,"d":"6.04","l":2,"q":"Foram contados os veículos que passaram por um cruzamento em uma hora. Quantos veículos motorizados (carros, motos e ônibus) passaram?","o":["75","90","65","50"],"c":0,"e":"40 + 25 + 10 = 75. As bicicletas não são motorizadas.","f":{"t":"bar","title":"Veículos no cruzamento","d":[["Carros",40],["Motos",25],["Ônibus",10],["Bicicletas",15]],"alt":"Gráfico de colunas: Veículos no cruzamento. Carros: 40; Motos: 25; Ônibus: 10; Bicicletas: 15"}},{"a":6,"d":"6.04","l":3,"q":"Uma cidade quer que, em maio, o número de acidentes seja a metade do que houve no pior mês mostrado no gráfico. Qual é a meta para maio?","o":["8","6","3","14"],"c":0,"e":"O pior mês foi março, com 16 acidentes. A metade de 16 é 8.","f":{"t":"line","title":"Acidentes de trânsito por mês","d":[["Jan",12],["Fev",9],["Mar",16],["Abr",6]],"alt":"Gráfico de linhas: Acidentes de trânsito por mês. Jan: 12; Fev: 9; Mar: 16; Abr: 6"}},{"a":6,"d":"6.05","l":0,"q":"Que número natural o ponto A representa na reta numérica?","o":["8","6","7","70"],"c":2,"e":"O ponto A está sobre a marca do 7.","f":{"t":"nline","a":0,"b":10,"p":[[7,"A"]],"div":1,"alt":"Reta numérica de 0 a 10 com pontos marcados."}},{"a":6,"d":"6.05","l":1,"q":"Colocando os números 1.205; 1.052; 1.250 e 1.025 em ordem crescente (do menor para o maior), obtemos:","o":["1.025; 1.205; 1.052; 1.250","1.250; 1.205; 1.052; 1.025","1.052; 1.025; 1.205; 1.250","1.025; 1.052; 1.205; 1.250"],"c":3,"e":"Todos têm 1 milhar. Comparando as centenas (0, 0, 2, 2) e depois as dezenas, a ordem é 1.025 < 1.052 < 1.205 < 1.250."},{"a":6,"d":"6.06","l":0,"q":"Uma padaria fez 48 pães pela manhã e 35 à tarde. Quantos pães fez no total?","o":["93","73","83","13"],"c":2,"e":"48 + 35 = 83 pães."},{"a":6,"d":"6.06","l":1,"q":"Uma caixa tem 12 lápis. Quantos lápis há em 25 caixas iguais?","o":["37","300","240","310"],"c":1,"e":"12 × 25 = 300 lápis."},{"a":6,"d":"6.06","l":3,"q":"Uma escola comprou 15 caixas com 24 cadernos cada e distribuiu todos igualmente entre 18 turmas. Quantos cadernos cada turma recebeu?","o":["20","15","24","360"],"c":0,"e":"15 × 24 = 360 cadernos; 360 ÷ 18 = 20 cadernos por turma."},{"a":6,"d":"6.07","l":1,"q":"Um ônibus passa por um ponto a cada 12 minutos. Se um deles passou às 8h00, a que horas passará o primeiro depois das 8h30?","o":["8h40","8h36","8h32","8h30"],"c":1,"e":"Os horários são 8h00, 8h12, 8h24, 8h36… (múltiplos de 12 minutos). O primeiro depois das 8h30 é 8h36."},{"a":6,"d":"6.07","l":3,"q":"Dois sinais luminosos piscam juntos agora. Um pisca a cada 6 segundos e o outro, a cada 8 segundos. Depois de quantos segundos piscarão juntos de novo?","o":["12","14","24","48"],"c":2,"e":"Procuramos o menor múltiplo comum de 6 e 8: 24 segundos."},{"a":6,"d":"6.08","l":0,"q":"Qual destes números é múltiplo de 5?","o":["41","35","52","23"],"c":1,"e":"35 = 5 × 7, por isso é múltiplo de 5."},{"a":6,"d":"6.08","l":2,"q":"O número 60 pode ser decomposto (fatorado) como:","o":["2 × 2 × 3 × 3","3 × 4 × 6","2 × 2 × 3 × 5","2 × 3 × 5"],"c":2,"e":"2 × 2 × 3 × 5 = 4 × 15 = 60. As outras decomposições dão 30, 36 e 72."},{"a":6,"d":"6.09","l":0,"q":"Que fração da figura está pintada?","o":["5/8","8/3","3/5","3/8"],"c":3,"e":"A figura tem 8 partes iguais e 3 estão pintadas: 3/8.","f":{"t":"pict","n":8,"k":3,"alt":"Figura com partes pintadas."}},{"a":6,"d":"6.09","l":2,"q":"A reta numérica entre 0 e 1 foi dividida em 3 partes iguais. Que fração o ponto A representa?","o":["2/5","2/3","3/2","1/3"],"c":1,"e":"O ponto A está na 2ª marca de 3 partes iguais: 2/3.","f":{"t":"nline","a":0,"b":1,"p":[[0.6666666666666666,"A"]],"div":3,"alt":"Reta numérica de 0 a 1 com pontos marcados."}},{"a":6,"d":"6.10","l":1,"q":"Em uma turma de 40 alunos, 1/4 usam óculos. Quantos alunos usam óculos?","o":["4","10","30","36"],"c":1,"e":"40 ÷ 4 = 10 alunos."},{"a":6,"d":"6.10","l":3,"q":"Um estacionamento tem 120 vagas; 2/3 estão ocupadas e 1/4 das vagas ocupadas são de motos. Quantas motos há?","o":["80","20","30","40"],"c":1,"e":"2/3 de 120 = 80 vagas ocupadas. 1/4 de 80 = 20 motos."},{"a":6,"d":"6.11","l":1,"q":"Qual fração é maior: 2/5 ou 3/5?","o":["2/5","Não é possível comparar","São iguais","3/5"],"c":3,"e":"Com o mesmo denominador, a maior fração é a de maior numerador: 3/5."},{"a":6,"d":"6.11","l":3,"q":"Entre os números 0,6; 5/8 e 60%, qual é o maior?","o":["60%","0,6","5/8","Todos são iguais"],"c":2,"e":"0,6 = 60% = 0,60. Já 5/8 = 0,625, que é maior."},{"a":6,"d":"6.12","l":1,"q":"Uma receita usa 1/4 de xícara de açúcar mascavo e 2/4 de xícara de açúcar branco. Quanto de açúcar a receita leva no total?","o":["3/2 de xícara","3/8 de xícara","1/4 de xícara","3/4 de xícara"],"c":3,"e":"Com o mesmo denominador, somamos os numeradores: 1/4 + 2/4 = 3/4."},{"a":6,"d":"6.12","l":2,"q":"Carlos comeu 2/5 de uma barra de chocolate e Lia comeu 1/5 da mesma barra. Que fração da barra sobrou?","o":["1/5","3/10","3/5","2/5"],"c":3,"e":"Comeram 2/5 + 1/5 = 3/5. Sobrou 5/5 − 3/5 = 2/5."},{"a":6,"d":"6.13","l":1,"q":"O polígono da figura tem 5 lados e 5 vértices. Ele é chamado de:","o":["pentágono","hexágono","triângulo","quadrilátero"],"c":0,"e":"Polígono com 5 lados é um pentágono.","f":{"t":"poly","n":5,"alt":"Polígono de 5 lados."}},{"a":6,"d":"6.13","l":2,"q":"Qual destes polígonos é regular (todos os lados e todos os ângulos iguais)?","o":["Triângulo equilátero","Losango com ângulos diferentes","Retângulo com lados de 3 cm e 5 cm","Trapézio"],"c":0,"e":"O triângulo equilátero tem os 3 lados e os 3 ângulos iguais. Os outros não têm todos os lados e ângulos iguais."},{"a":6,"d":"6.14","l":0,"q":"Quanto às medidas dos lados, o triângulo da figura é:","o":["retângulo","isósceles","escaleno","equilátero"],"c":3,"e":"Os três lados medem 5 cm: o triângulo é equilátero.","f":{"t":"tri3","s":[5,5,5],"alt":"Triângulo com lados de 5 cm, 5 cm, 5 cm."}},{"a":6,"d":"6.14","l":2,"q":"Um triângulo tem lados de 8 cm, 6 cm e 10 cm. Quanto aos lados, ele é:","o":["isósceles","retângulo","escaleno","equilátero"],"c":2,"e":"Os três lados têm medidas diferentes, então o triângulo é escaleno.","f":{"t":"tri3","s":[8,6,10],"alt":"Triângulo com lados de 8 cm, 6 cm, 10 cm."}},{"a":6,"d":"6.15","l":1,"q":"Um quadrilátero com 4 lados iguais e 4 ângulos retos é um:","o":["quadrado","retângulo","trapézio","losango"],"c":0,"e":"Só o quadrado tem os 4 lados iguais e os 4 ângulos retos ao mesmo tempo."},{"a":6,"d":"6.15","l":3,"q":"Qual afirmação é verdadeira?","o":["Todo retângulo é também um quadrado.","Todo quadrado é também um retângulo.","O trapézio tem dois pares de lados paralelos.","Todo losango tem os quatro ângulos retos."],"c":1,"e":"O quadrado tem 4 ângulos retos, então também é retângulo. Já o retângulo só é quadrado se tiver os 4 lados iguais."},{"a":6,"d":"6.16","l":1,"q":"Marina comprou 3 cadernos de R$ 12,50 cada. Quanto ela pagou?","o":["R$ 37,50","R$ 15,50","R$ 375,00","R$ 36,50"],"c":0,"e":"3 × 12,50 = 37,50."},{"a":6,"d":"6.16","l":3,"q":"Uma corda de 12,6 m foi cortada em 3 partes iguais. Depois, uma dessas partes foi cortada ao meio. Quanto mede o menor pedaço?","o":["6,3 m","1,4 m","2,1 m","4,2 m"],"c":2,"e":"12,6 ÷ 3 = 4,2 m; 4,2 ÷ 2 = 2,1 m."},{"a":6,"d":"6.17","l":0,"q":"Qual número decimal representa a fração 1/2?","o":["2,0","1,2","0,5","0,2"],"c":2,"e":"1 ÷ 2 = 0,5."},{"a":6,"d":"6.17","l":2,"q":"Que porcentagem da figura (100 quadradinhos) está pintada?","o":["65%","3,5%","53%","35%"],"c":3,"e":"35 quadradinhos em 100: 35/100 = 35%.","f":{"t":"pict","n":100,"k":35,"alt":"Figura com partes pintadas."}},{"a":6,"d":"6.18","l":1,"q":"Uma loja dá 10% de desconto em um produto de R$ 50,00. Qual é o preço final?","o":["R$ 55,00","R$ 40,00","R$ 5,00","R$ 45,00"],"c":3,"e":"10% de 50 = 5. Preço final: 50 − 5 = 45."},{"a":6,"d":"6.18","l":2,"q":"Um produto de R$ 60,00 teve um acréscimo de 20%. Qual é o novo preço?","o":["R$ 72,00","R$ 62,00","R$ 12,00","R$ 80,00"],"c":0,"e":"20% de 60 = 12. Novo preço: 60 + 12 = 72."},{"a":6,"d":"6.19","l":0,"q":"Quantas faces tem um cubo?","o":["8","12","6","4"],"c":2,"e":"O cubo tem 6 faces quadradas.","f":{"t":"solid","k":"cubo","alt":"Desenho de um sólido geométrico."}},{"a":6,"d":"6.19","l":2,"q":"Quantas arestas tem um prisma de base triangular?","o":["6","9","12","5"],"c":1,"e":"3 arestas em cada base (6) + 3 arestas laterais = 9.","f":{"t":"solid","k":"prisma3","alt":"Desenho de um sólido geométrico."}},{"a":6,"d":"6.20","l":1,"q":"Esta planificação, ao ser montada, forma qual sólido?","o":["cubo","cone","cilindro","pirâmide"],"c":0,"e":"São 6 quadrados iguais: a planificação forma um cubo.","f":{"t":"net","k":"cubo","alt":"Desenho de uma planificação."}},{"a":6,"d":"6.20","l":3,"q":"A planificação da figura tem 1 quadrado e 4 triângulos. Que sólido ela forma?","o":["cone","prisma de base triangular","cubo","pirâmide de base quadrada"],"c":3,"e":"O quadrado é a base e os 4 triângulos são as faces laterais: pirâmide de base quadrada.","f":{"t":"net","k":"piramide","alt":"Desenho de uma planificação."}},{"a":6,"d":"6.21","l":0,"q":"Quantos minutos há em 2 horas?","o":["200","100","120","60"],"c":2,"e":"1 hora tem 60 minutos; 2 × 60 = 120."},{"a":6,"d":"6.21","l":1,"q":"Às 6h, a temperatura era 14 °C e, às 14h, chegou a 23 °C. Quantos graus a temperatura subiu?","o":["37 °C","9 °C","11 °C","8 °C"],"c":1,"e":"23 − 14 = 9 °C."},{"a":6,"d":"6.21","l":2,"q":"Cada quadradinho da figura tem 1 cm² de área. Qual é a área do retângulo?","o":["20 cm²","28 cm²","10 cm²","24 cm²"],"c":3,"e":"São 6 colunas com 4 quadradinhos cada: 6 × 4 = 24 cm².","f":{"t":"grid","w":6,"h":4,"alt":"Retângulo dividido em quadradinhos: 6 por 4."}},{"a":6,"d":"6.21","l":2,"q":"O bloco da figura foi montado com cubinhos de 1 cm³. Qual é o volume desse bloco?","o":["12 cm³","24 cm³","10 cm³","7 cm³"],"c":0,"e":"3 cubinhos de comprimento × 2 de largura × 2 de altura = 12 cubinhos = 12 cm³.","f":{"t":"blocks","c":3,"l":2,"a":2,"alt":"Bloco montado com cubinhos: 3 de comprimento, 2 de largura e 2 de altura."}},{"a":6,"d":"6.22","l":2,"q":"Um robô está no ponto A (2, 1) do plano. Ele anda 3 unidades para a direita e 2 unidades para cima. Em que ponto ele chega?","o":["(5, 1)","(5, 3)","(4, 2)","(3, 5)"],"c":1,"e":"Direita soma no x: 2 + 3 = 5. Para cima soma no y: 1 + 2 = 3. Chega em (5, 3).","f":{"t":"plane","n":6,"p":[[2,1,"A"]],"line":null,"poly":null,"alt":"Plano cartesiano no primeiro quadrante com pontos marcados."}},{"a":6,"d":"6.22","l":3,"q":"Um drone sai do ponto A (1, 1), anda 4 unidades para a direita, depois 3 para cima e, por fim, vira e anda 2 unidades para a esquerda. Em que ponto ele para?","o":["(5, 4)","(3, 4)","(7, 4)","(3, 3)"],"c":1,"e":"(1,1) → (5,1) → (5,4) → (3,4).","f":{"t":"plane","n":6,"p":[[1,1,"A"]],"line":null,"poly":null,"alt":"Plano cartesiano no primeiro quadrante com pontos marcados."}},{"a":7,"d":"7.01","l":0,"q":"Uma caixa comporta exatamente 6 ovos. Qual destas quantidades de ovos pode ser guardada em caixas completas, sem sobrar nenhum?","o":["20","24","34","28"],"c":1,"e":"24 é múltiplo de 6 (6 × 4). Os outros números não são."},{"a":7,"d":"7.01","l":1,"q":"48 alunos serão divididos em equipes com o mesmo número de alunos, sem sobrar ninguém. Qual destes NÃO pode ser o número de alunos de uma equipe?","o":["4","5","3","6"],"c":1,"e":"48 ÷ 3 = 16, 48 ÷ 4 = 12 e 48 ÷ 6 = 8 são divisões exatas. Já 48 ÷ 5 não é exata."},{"a":7,"d":"7.01","l":3,"q":"Duas linhas de ônibus saem do terminal juntas às 6h. A linha A sai a cada 15 minutos e a linha B, a cada 20 minutos. A que horas sairão juntas novamente?","o":["6h45","7h30","7h00","6h35"],"c":2,"e":"O menor múltiplo comum de 15 e 20 é 60. Depois de 60 minutos, às 7h00."},{"a":7,"d":"7.02","l":0,"q":"Qual dos números abaixo é divisor de 20?","o":["6","3","7","4"],"c":3,"e":"20 ÷ 4 = 5, divisão exata. Portanto 4 é divisor de 20."},{"a":7,"d":"7.02","l":2,"q":"A decomposição em fatores primos do número 72 é:","o":["2 × 2 × 2 × 3 × 3","2 × 3 × 3 × 3","2 × 2 × 3 × 3 × 3","2 × 2 × 2 × 2 × 3"],"c":0,"e":"2 × 2 × 2 × 3 × 3 = 8 × 9 = 72. As outras opções dão 108, 54 e 48."},{"a":7,"d":"7.03","l":0,"q":"Que número inteiro o ponto A representa na reta numérica?","o":["−2","−3","−4","3"],"c":1,"e":"O ponto A está três marcas à esquerda do zero: −3.","f":{"t":"nline","a":-5,"b":5,"p":[[-3,"A"]],"div":1,"alt":"Reta numérica de -5 a 5 com pontos marcados."}},{"a":7,"d":"7.03","l":0,"q":"Quatro cidades registraram estas temperaturas mínimas: Gramado −3 °C, Curitiba 2 °C, Bariloche −8 °C e São Paulo 9 °C. Qual cidade teve a menor temperatura?","o":["São Paulo","Bariloche","Curitiba","Gramado"],"c":1,"e":"Entre os números negativos, o menor é o que está mais longe do zero: −8."},{"a":7,"d":"7.04","l":0,"q":"Qual é o resultado de (−8) + 5?","o":["−3","−13","3","13"],"c":0,"e":"−8 + 5 = −3."},{"a":7,"d":"7.04","l":1,"q":"Quanto é (−6) × (−4)?","o":["−10","−24","10","24"],"c":3,"e":"Sinais iguais na multiplicação dão resultado positivo: 6 × 4 = 24."},{"a":7,"d":"7.04","l":2,"q":"Qual é o valor de (−20) ÷ 4 + (−3)?","o":["8","2","−2","−8"],"c":3,"e":"(−20) ÷ 4 = −5; depois −5 + (−3) = −8."},{"a":7,"d":"7.05","l":0,"q":"Um mergulhador está a 12 metros abaixo do nível do mar e sobe 5 metros. Em que posição ele fica?","o":["−17 m","7 m","−5 m","−7 m"],"c":3,"e":"−12 + 5 = −7: ele ainda está 7 m abaixo do nível do mar."},{"a":7,"d":"7.05","l":1,"q":"Rafaela tinha R$ 150,00 na conta e pagou um boleto de R$ 200,00. Qual ficou sendo o saldo?","o":["−R$ 350,00","−R$ 50,00","R$ 50,00","R$ 350,00"],"c":1,"e":"150 − 200 = −50. O saldo ficou negativo."},{"a":7,"d":"7.05","l":3,"q":"Um elevador parte do 3º andar, desce 5 andares, depois sobe 8 andares e, por fim, desce 2 andares. Em que andar ele está? (Andares abaixo do térreo têm números negativos.)","o":["4º andar","6º andar","2º andar","−2º andar"],"c":0,"e":"3 − 5 = −2; −2 + 8 = 6; 6 − 2 = 4. Ele está no 4º andar."},{"a":7,"d":"7.06","l":1,"q":"Qual fração é maior: 3/4 ou 2/3?","o":["2/3","São iguais","Não dá para comparar","3/4"],"c":3,"e":"3/4 = 9/12 e 2/3 = 8/12. Logo, 3/4 é maior."},{"a":7,"d":"7.06","l":2,"q":"Em ordem crescente, as frações 1/2, 2/5 e 3/4 ficam:","o":["1/2, 2/5, 3/4","2/5, 3/4, 1/2","3/4, 1/2, 2/5","2/5, 1/2, 3/4"],"c":3,"e":"Em decimais: 2/5 = 0,4; 1/2 = 0,5; 3/4 = 0,75."},{"a":7,"d":"7.06","l":3,"q":"Ana acertou 7/10 das questões de uma prova e Beto acertou 4/5 das questões de outra prova, com o mesmo número de questões. Quem teve o melhor desempenho?","o":["Ana","Os dois tiveram o mesmo desempenho","Não é possível comparar","Beto"],"c":3,"e":"7/10 = 0,7 e 4/5 = 0,8. Beto foi melhor."},{"a":7,"d":"7.07","l":0,"q":"Uma pizza foi dividida em 8 fatias iguais. Pedro comeu 3/8 da pizza e Lia comeu 2/8. Que fração da pizza eles comeram juntos?","o":["5/16","5/8","1/8","6/8"],"c":1,"e":"3/8 + 2/8 = 5/8."},{"a":7,"d":"7.07","l":2,"q":"Uma tábua tinha 5/6 de metro de comprimento. Cortaram 1/3 de metro. Quanto sobrou?","o":["1/2 metro","4/6 de metro","4/3 de metro","1/3 de metro"],"c":0,"e":"1/3 = 2/6. Então 5/6 − 2/6 = 3/6 = 1/2 metro."},{"a":7,"d":"7.07","l":3,"q":"Marta gastou 1/4 da mesada com lanche e 2/5 com transporte. Que fração da mesada sobrou?","o":["13/20","7/20","7/9","3/9"],"c":1,"e":"1/4 + 2/5 = 5/20 + 8/20 = 13/20. Sobrou 20/20 − 13/20 = 7/20."},{"a":7,"d":"7.08","l":1,"q":"Uma turma tem 36 alunos e 2/3 deles são meninas. Quantas meninas há na turma?","o":["24","34","12","18"],"c":0,"e":"36 ÷ 3 = 12 e 12 × 2 = 24 meninas."},{"a":7,"d":"7.08","l":2,"q":"Em uma viagem de 240 km, já foi percorrido 3/8 do caminho. Quantos quilômetros ainda faltam?","o":["30 km","90 km","150 km","210 km"],"c":2,"e":"3/8 de 240 = 90 km já percorridos. Faltam 240 − 90 = 150 km."},{"a":7,"d":"7.09","l":1,"q":"Quanto é 2/3 × 3/4?","o":["1/2","6/7","1/4","5/7"],"c":0,"e":"(2 × 3)/(3 × 4) = 6/12 = 1/2."},{"a":7,"d":"7.09","l":2,"q":"Uma receita usa 3/4 de xícara de farinha. Para fazer apenas metade da receita, quanto de farinha é necessário?","o":["1/2 de xícara","3/2 de xícara","3/8 de xícara","1/4 de xícara"],"c":2,"e":"Metade de 3/4 é 3/4 × 1/2 = 3/8 de xícara."},{"a":7,"d":"7.10","l":1,"q":"Um litro de gasolina custa R$ 6,20. Quanto custam 5 litros?","o":["R$ 30,00","R$ 62,00","R$ 31,00","R$ 11,20"],"c":2,"e":"5 × 6,20 = 31,00."},{"a":7,"d":"7.10","l":3,"q":"Um quadrado tem lado de 1,5 m. Qual é a sua área?","o":["2,25 m²","2,5 m²","3 m²","6 m²"],"c":0,"e":"Área = 1,5 × 1,5 = 2,25 m²."},{"a":7,"d":"7.11","l":0,"q":"Quais são as coordenadas do ponto A no plano cartesiano?","o":["(4, 4)","(3, 4)","(3, 3)","(4, 3)"],"c":3,"e":"Primeiro lemos o x (horizontal) e depois o y (vertical): A está em (4, 3).","f":{"t":"plane","n":6,"p":[[4,3,"A"]],"line":null,"poly":null,"alt":"Plano cartesiano no primeiro quadrante com pontos marcados."}},{"a":7,"d":"7.11","l":2,"q":"Os pontos A, B e C são três vértices de um retângulo ABCD. Quais são as coordenadas do ponto D?","o":["(1, 3)","(3, 1)","(1, 4)","(3, 4)"],"c":0,"e":"D fica acima de A (mesmo x = 1) e na altura de C (y = 3): D = (1, 3).","f":{"t":"plane","n":6,"p":[[1,1,"A"],[4,1,"B"],[4,3,"C"]],"line":null,"poly":null,"alt":"Plano cartesiano no primeiro quadrante com pontos marcados."}},{"a":7,"d":"7.12","l":0,"q":"Qual é a área do retângulo da figura?","o":["45 cm²","13 cm²","40 cm²","26 cm²"],"c":2,"e":"Área = base × altura = 8 × 5 = 40 cm².","f":{"t":"rect","top":"8 cm","side":"5 cm","alt":"Retângulo com lados de 8 cm e 5 cm."}},{"a":7,"d":"7.12","l":2,"q":"Qual é a área do triângulo da figura?","o":["16 cm²","30 cm²","50 cm²","60 cm²"],"c":1,"e":"Área = (base × altura) ÷ 2 = (10 × 6) ÷ 2 = 30 cm².","f":{"t":"tri","top":"10 cm","side":"6 cm","alt":"Triângulo com base de 10 cm e altura de 6 cm."}},{"a":7,"d":"7.12","l":3,"q":"Um painel retangular mede 3 m por 2 m. Dele foi retirado um triângulo de base 2 m e altura 1,5 m. Qual é a área que sobrou do painel?","o":["3 m²","4,5 m²","1,5 m²","6 m²"],"c":1,"e":"Painel: 3 × 2 = 6 m². Triângulo: (2 × 1,5) ÷ 2 = 1,5 m². Sobrou 6 − 1,5 = 4,5 m²."},{"a":7,"d":"7.13","l":1,"q":"Na sequência 3, 6, 9, 12, … o termo da posição n é dado por:","o":["n ÷ 3","n + 3","3n","3n + 1"],"c":2,"e":"Cada termo é 3 vezes a posição: 3 × 1, 3 × 2, 3 × 3… Logo, 3n."},{"a":7,"d":"7.13","l":2,"q":"Na sequência 5, 7, 9, 11, … o termo da posição n é dado por:","o":["2n + 3","n + 4","3n + 2","2n + 5"],"c":0,"e":"Para n = 1: 2 × 1 + 3 = 5; para n = 2: 2 × 2 + 3 = 7. A regra é 2n + 3."},{"a":7,"d":"7.14","l":2,"q":"Pensei em um número, multipliquei por 3 e somei 5. O resultado foi 20. Qual é esse número?","o":["5","8","25","15"],"c":0,"e":"3x + 5 = 20 → 3x = 15 → x = 5."},{"a":7,"d":"7.14","l":3,"q":"Uma corrida de táxi custa R$ 4,00 de bandeirada mais R$ 3,00 por quilômetro rodado. Ana pagou R$ 25,00. Quantos quilômetros ela rodou?","o":["7 km","8 km","6 km","9 km"],"c":0,"e":"4 + 3x = 25 → 3x = 21 → x = 7 km."},{"a":7,"d":"7.15","l":0,"q":"Qual é o valor de x na equação x + 5 = 12?","o":["5","6","17","7"],"c":3,"e":"x = 12 − 5 = 7."},{"a":7,"d":"7.15","l":1,"q":"Qual é a solução da equação 3x − 2 = 13?","o":["x = 4","x = 3","x = 5","x = 11"],"c":2,"e":"3x = 13 + 2 = 15, então x = 15 ÷ 3 = 5."},{"a":7,"d":"7.15","l":3,"q":"Qual é a solução da equação 2(x + 3) = 18?","o":["x = 9","x = 12","x = 6","x = 3"],"c":2,"e":"x + 3 = 18 ÷ 2 = 9, então x = 9 − 3 = 6."},{"a":7,"d":"7.16","l":0,"q":"Em um triângulo, dois ângulos medem 50° e 60°. Quanto mede o terceiro ângulo?","o":["110°","90°","70°","50°"],"c":2,"e":"A soma dos ângulos de um triângulo é 180°. 180° − 50° − 60° = 70°."},{"a":7,"d":"7.16","l":1,"q":"Qual é a soma dos ângulos internos de um pentágono?","o":["450°","360°","540°","720°"],"c":2,"e":"(5 − 2) × 180° = 3 × 180° = 540°."},{"a":7,"d":"7.16","l":3,"q":"Quanto mede cada ângulo interno de um hexágono regular?","o":["120°","60°","135°","108°"],"c":0,"e":"A soma é (6 − 2) × 180° = 720°. Dividindo por 6 ângulos iguais: 120°.","f":{"t":"poly","n":6,"alt":"Polígono de 6 lados."}},{"a":7,"d":"7.17","l":1,"q":"Uma caixa-d’água tem capacidade de 1.500 litros. Sabendo que 1 m³ equivale a 1.000 litros, quantos m³ ela comporta?","o":["150 m³","0,15 m³","15 m³","1,5 m³"],"c":3,"e":"1.500 ÷ 1.000 = 1,5 m³."},{"a":7,"d":"7.17","l":2,"q":"Um carro percorre 12 km com 1 litro de combustível. Quantos quilômetros ele percorre com 30 litros?","o":["360 km","42 km","240 km","3.600 km"],"c":0,"e":"12 × 30 = 360 km."},{"a":7,"d":"7.18","l":1,"q":"3 kg de arroz custam R$ 18,00. Quanto custam 5 kg do mesmo arroz?","o":["R$ 36,00","R$ 30,00","R$ 15,00","R$ 24,00"],"c":1,"e":"1 kg custa 18 ÷ 3 = 6. Então 5 kg custam 5 × 6 = R$ 30,00."},{"a":7,"d":"7.18","l":2,"q":"Uma torneira enche 120 litros em 15 minutos. Mantendo a mesma vazão, quantos litros ela enche em 40 minutos?","o":["300 litros","320 litros","240 litros","45 litros"],"c":1,"e":"A vazão é 120 ÷ 15 = 8 litros por minuto. Em 40 minutos: 8 × 40 = 320 litros."},{"a":7,"d":"7.18","l":3,"q":"4 pedreiros constroem um muro em 12 dias. Trabalhando no mesmo ritmo, em quantos dias 6 pedreiros construiriam o mesmo muro?","o":["8 dias","6 dias","16 dias","18 dias"],"c":0,"e":"Mais pedreiros, menos dias (grandezas inversas). 4 × 12 = 48; 48 ÷ 6 = 8 dias."},{"a":7,"d":"7.19","l":2,"q":"Uma quantia de R$ 300,00 será dividida entre dois irmãos na razão de 2 para 1. Quanto recebe cada um?","o":["R$ 250,00 e R$ 50,00","R$ 180,00 e R$ 120,00","R$ 150,00 e R$ 150,00","R$ 200,00 e R$ 100,00"],"c":3,"e":"São 2 + 1 = 3 partes. Cada parte vale 300 ÷ 3 = 100. Um recebe 2 × 100 = 200 e o outro, 100."},{"a":7,"d":"7.19","l":3,"q":"Em uma turma, a razão entre o número de meninas e o de meninos é 3 para 2. Sabendo que a turma tem 30 alunos, quantas são as meninas?","o":["15","12","18","20"],"c":2,"e":"São 3 + 2 = 5 partes; cada parte vale 30 ÷ 5 = 6. Meninas: 3 × 6 = 18."},{"a":7,"d":"7.20","l":0,"q":"Uma loja oferece 10% de desconto em um produto que custa R$ 80,00. Qual é o preço com desconto?","o":["R$ 70,00","R$ 72,00","R$ 8,00","R$ 88,00"],"c":1,"e":"10% de 80 = 8. Preço: 80 − 8 = 72."},{"a":7,"d":"7.20","l":1,"q":"Um produto que custava R$ 40,00 teve um acréscimo de 25%. Qual é o novo preço?","o":["R$ 10,00","R$ 50,00","R$ 65,00","R$ 45,00"],"c":1,"e":"25% de 40 = 10. Novo preço: 40 + 10 = 50."},{"a":7,"d":"7.20","l":3,"q":"Um produto de R$ 200,00 recebe um desconto de 10% e, sobre o novo preço, outro desconto de 10%. Qual é o preço final?","o":["R$ 180,00","R$ 170,00","R$ 160,00","R$ 162,00"],"c":3,"e":"Primeiro: 200 − 20 = 180. Depois: 10% de 180 = 18; 180 − 18 = 162."},{"a":8,"d":"8.01","l":0,"q":"A fração 1/4, escrita na forma decimal, é:","o":["0,4","0,25","0,14","2,5"],"c":1,"e":"1 ÷ 4 = 0,25."},{"a":8,"d":"8.01","l":1,"q":"A fração 3/5, escrita na forma decimal, é:","o":["3,5","0,6","0,35","0,53"],"c":1,"e":"3 ÷ 5 = 0,6."},{"a":8,"d":"8.01","l":3,"q":"Qual fração é igual à dízima periódica 0,666…?","o":["6/10","66/100","1/6","2/3"],"c":3,"e":"2 ÷ 3 = 0,666… A dízima 0,666… corresponde a 2/3."},{"a":8,"d":"8.02","l":1,"q":"Uma torneira goteja 0,25 litro de água por hora. Quantos litros pingam em 6 horas?","o":["1,5 L","15 L","6,25 L","0,15 L"],"c":0,"e":"6 × 0,25 = 1,5 litro."},{"a":8,"d":"8.02","l":2,"q":"Júlia tinha R$ 120,00 e gastou 3/8 desse valor com livros. Quanto sobrou?","o":["R$ 45,00","R$ 117,00","R$ 75,00","R$ 80,00"],"c":2,"e":"3/8 de 120 = 45 (gasto). Sobrou 120 − 45 = 75."},{"a":8,"d":"8.02","l":2,"q":"Um terreno quadrado tem área de 2,25 km². Quanto mede cada lado?","o":["1,5 km","1,125 km","2,25 km","0,75 km"],"c":0,"e":"1,5 × 1,5 = 2,25. O lado é a raiz quadrada da área."},{"a":8,"d":"8.03","l":0,"q":"Em uma escola com 300 alunos, 1/5 faltou à aula. Quantos alunos faltaram?","o":["60","50","15","150"],"c":0,"e":"300 ÷ 5 = 60 alunos."},{"a":8,"d":"8.03","l":1,"q":"Um tanque de 480 litros está com 5/8 da sua capacidade ocupada. Quantos litros há no tanque?","o":["384 litros","300 litros","60 litros","180 litros"],"c":1,"e":"480 ÷ 8 = 60 e 60 × 5 = 300 litros."},{"a":8,"d":"8.03","l":3,"q":"Marcos gasta 1/3 do salário com aluguel e 1/4 do salário com mercado. Se o salário é de R$ 2.400,00, quanto sobra depois dessas duas despesas?","o":["R$ 600,00","R$ 1.000,00","R$ 1.400,00","R$ 800,00"],"c":1,"e":"1/3 de 2.400 = 800 e 1/4 de 2.400 = 600. Gastos: 1.400. Sobra 2.400 − 1.400 = 1.000."},{"a":8,"d":"8.04","l":0,"q":"Quanto é 1/2 + 1/4?","o":["3/4","2/6","1/4","2/4"],"c":0,"e":"1/2 = 2/4, e 2/4 + 1/4 = 3/4."},{"a":8,"d":"8.04","l":2,"q":"Qual é o resultado de (−3/4) × (2/3)?","o":["−1/2","−6/7","1/2","−5/7"],"c":0,"e":"(−3 × 2)/(4 × 3) = −6/12 = −1/2."},{"a":8,"d":"8.05","l":0,"q":"Quanto vale 2⁵?","o":["32","10","25","16"],"c":0,"e":"2 × 2 × 2 × 2 × 2 = 32."},{"a":8,"d":"8.05","l":0,"q":"Quanto vale √81?","o":["40,5","9","8","18"],"c":1,"e":"9 × 9 = 81, então a raiz quadrada de 81 é 9."},{"a":8,"d":"8.05","l":1,"q":"Quanto vale 10⁻²?","o":["−100","0,1","−20","0,01"],"c":3,"e":"Expoente negativo inverte a base: 10⁻² = 1/10² = 1/100 = 0,01."},{"a":8,"d":"8.06","l":0,"q":"A raiz cúbica de 27 é:","o":["6","3","9","13,5"],"c":1,"e":"3 × 3 × 3 = 27."},{"a":8,"d":"8.06","l":2,"q":"A raiz cúbica de 8 também pode ser escrita como uma potência de expoente fracionário. Qual é essa potência?","o":["8³","8^(−3)","8^(1/3)","3^8"],"c":2,"e":"A raiz de índice 3 equivale ao expoente 1/3: ∛8 = 8^(1/3) = 2."},{"a":8,"d":"8.06","l":3,"q":"Um cubo tem volume de 125 cm³. Quanto mede a aresta desse cubo?","o":["12,5 cm","25 cm","15 cm","5 cm"],"c":3,"e":"5 × 5 × 5 = 125, então a aresta é ∛125 = 5 cm."},{"a":8,"d":"8.07","l":0,"q":"Na sequência 2, 4, 6, 8, … o termo da posição n é:","o":["n/2","2n","n²","n + 2"],"c":1,"e":"Cada termo é 2 vezes a posição: 2 × 1, 2 × 2, 2 × 3… Logo, 2n."},{"a":8,"d":"8.07","l":2,"q":"Na sequência 4, 7, 10, 13, … o termo da posição n é:","o":["n + 3","3n + 1","3n","4n − 1"],"c":1,"e":"Para n = 1: 3 + 1 = 4; para n = 2: 6 + 1 = 7. A regra é 3n + 1."},{"a":8,"d":"8.07","l":3,"q":"O termo geral de uma sequência é 5n − 2. Qual é o 10º termo?","o":["52","48","50","46"],"c":1,"e":"5 × 10 − 2 = 48."},{"a":8,"d":"8.08","l":0,"q":"Se x = 3, qual é o valor de 2x + 1?","o":["6","5","7","9"],"c":2,"e":"2 × 3 + 1 = 7."},{"a":8,"d":"8.08","l":2,"q":"Qual é o valor numérico de 3a + b² quando a = −2 e b = 5?","o":["−31","−1","19","31"],"c":2,"e":"3 × (−2) + 5² = −6 + 25 = 19."},{"a":8,"d":"8.08","l":3,"q":"O perímetro de um retângulo de lados x e y é P = 2x + 2y. Se x = 7,5 cm e y = 4,5 cm, qual é o perímetro?","o":["48 cm","24 cm","12 cm","33,75 cm"],"c":1,"e":"P = 2 × 7,5 + 2 × 4,5 = 15 + 9 = 24 cm."},{"a":8,"d":"8.09","l":1,"q":"Qual é a solução da equação 2x − 4 = 10?","o":["x = 6","x = 3","x = 5","x = 7"],"c":3,"e":"2x = 14, então x = 7."},{"a":8,"d":"8.09","l":2,"q":"Júlia pensou em um número, multiplicou por 3, subtraiu 4 e obteve 20. Em que número ela pensou?","o":["8","6","7","12"],"c":0,"e":"3x − 4 = 20 → 3x = 24 → x = 8."},{"a":8,"d":"8.09","l":3,"q":"O triplo de um número, diminuído de 7, é igual ao dobro desse número aumentado de 5. Qual é esse número?","o":["17","2","12","7"],"c":2,"e":"3x − 7 = 2x + 5 → 3x − 2x = 5 + 7 → x = 12."},{"a":8,"d":"8.10","l":2,"q":"Dois números têm soma 10 e diferença 2. Qual é o maior deles?","o":["8","5","6","4"],"c":2,"e":"x + y = 10 e x − y = 2. Somando as equações: 2x = 12, então x = 6."},{"a":8,"d":"8.10","l":2,"q":"A soma de dois números é 15 e um deles é o dobro do outro. Quais são esses números?","o":["3 e 12","6 e 9","5 e 10","7 e 8"],"c":2,"e":"x + 2x = 15 → 3x = 15 → x = 5. Os números são 5 e 10."},{"a":8,"d":"8.10","l":3,"q":"Em uma lanchonete, 2 sucos e 1 sanduíche custam R$ 11,00. Já 1 suco e 1 sanduíche custam R$ 8,00. Quanto custa um suco?","o":["R$ 3,00","R$ 4,00","R$ 2,00","R$ 5,00"],"c":0,"e":"Subtraindo as duas compras: a diferença é 1 suco, que custa 11 − 8 = R$ 3,00."},{"a":8,"d":"8.11","l":0,"q":"Ao lançar um dado comum de 6 faces, qual é a probabilidade de sair o número 4?","o":["1/4","1/2","1/6","4/6"],"c":2,"e":"Há 1 face com o número 4 entre 6 faces possíveis: 1/6."},{"a":8,"d":"8.11","l":1,"q":"Uma urna tem 4 bolas azuis e 6 bolas vermelhas, como na figura. Qual é a probabilidade de sortear uma bola azul?","o":["1/4","3/5","4/6","2/5"],"c":3,"e":"São 4 bolas azuis em um total de 10: 4/10 = 2/5.","f":{"t":"emoji","s":"🔵🔵🔵🔵🔴🔴🔴🔴🔴🔴","alt":"Figura com bolinhas coloridas."}},{"a":8,"d":"8.11","l":3,"q":"Uma moeda é lançada duas vezes. Qual é a probabilidade de sair “cara” nas duas vezes?","o":["1/4","1/3","1/2","3/4"],"c":0,"e":"Os resultados possíveis são CC, CK, KC e KK (4 casos). Só um deles é CC: 1/4."},{"a":8,"d":"8.12","l":0,"q":"As notas de uma turma em um trabalho foram 6, 7, 8, 7 e 7. Qual é a moda dessas notas?","o":["7","Não há moda","8","6"],"c":0,"e":"A moda é o valor que mais se repete: o 7 aparece 3 vezes."},{"a":8,"d":"8.12","l":1,"q":"Em uma semana, a temperatura máxima foi 28 °C e a mínima foi 17 °C. Qual é a amplitude dessas temperaturas?","o":["10 °C","11 °C","22,5 °C","45 °C"],"c":1,"e":"Amplitude = maior valor − menor valor = 28 − 17 = 11 °C."},{"a":8,"d":"8.12","l":2,"q":"Qual é a mediana do conjunto de números 3, 7, 5, 9 e 1?","o":["3","25","5","7"],"c":2,"e":"Em ordem crescente: 1, 3, 5, 7, 9. O valor central é 5."},{"a":8,"d":"8.12","l":3,"q":"Em uma disciplina, a prova tem peso 2 e o trabalho tem peso 3. Se Lia tirou 6 na prova e 8 no trabalho, qual é a média ponderada dela?","o":["6,8","7,2","14","7,0"],"c":1,"e":"(2 × 6 + 3 × 8) ÷ (2 + 3) = (12 + 24) ÷ 5 = 36 ÷ 5 = 7,2."},{"a":8,"d":"8.13","l":1,"q":"Um aplicativo de transporte cobra R$ 5,00 fixos mais R$ 2,00 por quilômetro rodado. Qual expressão dá o preço p de uma corrida de x quilômetros?","o":["p = 2x + 5","p = 7x","p = 5x + 2","p = x + 7"],"c":0,"e":"O valor fixo (5) é somado ao valor que varia com a distância (2 por km): p = 2x + 5."},{"a":8,"d":"8.13","l":2,"q":"A tabela mostra a relação entre duas grandezas x e y. Qual expressão representa essa relação?","o":["y = x + 2","y = 3x","y = x + 3","y = 3x + 1"],"c":1,"e":"Em todos os casos y é 3 vezes x: 3 = 3×1, 6 = 3×2, 9 = 3×3, 12 = 3×4.","f":{"t":"table","title":"Relação entre x e y","h":["x","1","2","3","4"],"r":[["y",3,6,9,12]],"alt":"Tabela: Relação entre x e y. Colunas: x, 1, 2, 3, 4. y, 3, 6, 9, 12"}},{"a":8,"d":"8.13","l":3,"q":"Marcelo tinha R$ 200,00 guardados e gasta R$ 15,00 por semana. Qual expressão dá o dinheiro D que resta após s semanas?","o":["D = 215s","D = 200 + 15s","D = 15 − 200s","D = 200 − 15s"],"c":3,"e":"Ele começa com 200 e perde 15 a cada semana: D = 200 − 15s."},{"a":8,"d":"8.14","l":1,"q":"O gráfico mostra a relação entre as grandezas x e y. Qual expressão representa essa relação?","o":["y = x + 2","y = 2 − x","y = x/2","y = 2x"],"c":3,"e":"Para x = 1, y = 2; para x = 2, y = 4; para x = 3, y = 6. Logo, y = 2x.","f":{"t":"plane","n":6,"p":[[1,2,""],[2,4,""],[3,6,""]],"line":[[0,0],[3,6]],"poly":null,"alt":"Plano cartesiano no primeiro quadrante com pontos marcados."}},{"a":8,"d":"8.14","l":2,"q":"O gráfico de uma relação entre duas grandezas é uma reta que passa pela origem (0, 0) e pelo ponto (4, 8). Essas grandezas são:","o":["constantes","sem nenhuma relação","diretamente proporcionais","inversamente proporcionais"],"c":2,"e":"Uma reta que passa pela origem indica proporcionalidade direta: aqui, y = 2x.","f":{"t":"plane","n":8,"p":[[4,8,""]],"line":[[0,0],[4,8]],"poly":null,"alt":"Plano cartesiano no primeiro quadrante com pontos marcados."}},{"a":8,"d":"8.14","l":3,"q":"Uma reta passa pelos pontos (0, 5) e (2, 9) do plano cartesiano. Podemos afirmar que a relação entre as grandezas:","o":["não é de proporcionalidade direta, pois a reta não passa pela origem","é constante, pois y não muda","é de proporcionalidade inversa","é de proporcionalidade direta"],"c":0,"e":"A reta tem equação y = 2x + 5. Como não passa por (0, 0), as grandezas não são diretamente proporcionais.","f":{"t":"plane","n":9,"p":[[0,5,""],[2,9,""]],"line":[[0,5],[2,9]],"poly":null,"alt":"Plano cartesiano no primeiro quadrante com pontos marcados."}},{"a":8,"d":"8.15","l":1,"q":"Em uma pesquisa, 3/8 dos alunos preferem cinema e 1/2 preferem jogos. Qual preferência foi escolhida por mais alunos?","o":["Não é possível saber","Jogos","Cinema","As duas igualmente"],"c":1,"e":"1/2 = 4/8, que é maior que 3/8."},{"a":8,"d":"8.15","l":1,"q":"Em uma sala há 12 meninas e 8 meninos. Qual é a razão entre o número de meninas e o total de alunos?","o":["3/5","3/2","2/5","8/12"],"c":0,"e":"O total é 20. A razão é 12/20 = 3/5."},{"a":8,"d":"8.15","l":3,"q":"Qual das frações é maior: 5/6 ou 7/9?","o":["7/9","Depende do contexto","São iguais","5/6"],"c":3,"e":"5/6 = 15/18 e 7/9 = 14/18. Logo, 5/6 é maior."},{"a":8,"d":"8.16","l":0,"q":"Quanto é 30% de R$ 90,00?","o":["R$ 60,00","R$ 27,00","R$ 30,00","R$ 270,00"],"c":1,"e":"10% de 90 = 9; então 30% = 3 × 9 = 27."},{"a":8,"d":"8.16","l":2,"q":"Pagando à vista, um produto de R$ 150,00 tem 15% de desconto. Quanto se paga à vista?","o":["R$ 22,50","R$ 165,00","R$ 127,50","R$ 135,00"],"c":2,"e":"15% de 150 = 22,50. Preço à vista: 150 − 22,50 = 127,50."},{"a":8,"d":"8.17","l":0,"q":"Observe as medidas dos lados do triângulo da figura. Quanto aos lados, ele é:","o":["equilátero","isósceles","escaleno","retângulo"],"c":1,"e":"Dois lados medem 6 cm e o terceiro mede 4 cm: o triângulo é isósceles.","f":{"t":"tri3","s":[6,6,4],"alt":"Triângulo com lados de 6 cm, 6 cm, 4 cm."}},{"a":8,"d":"8.17","l":1,"q":"O triângulo da figura tem lados de 3 cm, 4 cm e 5 cm e um ângulo reto. Ele é:","o":["isósceles e retângulo","equilátero e acutângulo","escaleno e retângulo","escaleno e obtusângulo"],"c":2,"e":"Os três lados são diferentes (escaleno) e há um ângulo de 90° (retângulo).","f":{"t":"tri3","s":[4,3,5],"alt":"Triângulo com lados de 4 cm, 3 cm, 5 cm."}},{"a":8,"d":"8.17","l":1,"q":"Um triângulo tem ângulos internos de 40°, 70° e 70°. Ele é:","o":["isósceles e acutângulo","escaleno e retângulo","equilátero e acutângulo","isósceles e obtusângulo"],"c":0,"e":"Dois ângulos iguais (70°) indicam dois lados iguais: isósceles. Todos os ângulos são menores que 90°: acutângulo."},{"a":9,"d":"9.01","l":1,"q":"Na reta numérica, o ponto A representa o número √5. Entre quais números inteiros ele está?","o":["1 e 2","4 e 5","2 e 3","3 e 4"],"c":2,"e":"2² = 4 e 3² = 9. Como 4 < 5 < 9, √5 está entre 2 e 3 (aproximadamente 2,24).","f":{"t":"nline","a":0,"b":5,"p":[[2.236,"A"]],"div":1,"alt":"Reta numérica de 0 a 5 com pontos marcados."}},{"a":9,"d":"9.01","l":0,"q":"Qual dos números abaixo é irracional?","o":["π","4","9/2","0,5"],"c":0,"e":"π tem infinitas casas decimais sem repetição, por isso é irracional. Os outros podem ser escritos como fração."},{"a":9,"d":"9.01","l":2,"q":"Na reta numérica, qual ponto representa melhor o número √2 (aproximadamente 1,41)?","o":["D","C","A","B"],"c":3,"e":"O ponto B está um pouco depois do 1, em cerca de 1,4: é onde fica √2.","f":{"t":"nline","a":0,"b":3,"p":[[1,"A"],[1.4,"B"],[1.7,"C"],[2,"D"]],"div":1,"alt":"Reta numérica de 0 a 3 com pontos marcados."}},{"a":9,"d":"9.02","l":0,"q":"Quanto é √9 + √16?","o":["7","25","5","12"],"c":0,"e":"√9 = 3 e √16 = 4; 3 + 4 = 7."},{"a":9,"d":"9.02","l":3,"q":"Qual é o resultado de 2√3 + 5√3?","o":["10√6","7√3","7√6","10√3"],"c":1,"e":"Radicais iguais somam-se como termos semelhantes: (2 + 5)√3 = 7√3."},{"a":9,"d":"9.03","l":0,"q":"A raiz quadrada de 169 é:","o":["14","12","13","84,5"],"c":2,"e":"13 × 13 = 169."},{"a":9,"d":"9.03","l":1,"q":"Quanto vale 2⁻³?","o":["−6","−8","1/8","1/6"],"c":2,"e":"Expoente negativo inverte a base: 2⁻³ = 1/2³ = 1/8."},{"a":9,"d":"9.04","l":1,"q":"Qual é o valor de (−2)² + 3?","o":["7","−1","−7","1"],"c":0,"e":"(−2)² = 4 e 4 + 3 = 7."},{"a":9,"d":"9.04","l":3,"q":"Qual é o valor de (√3 + 1)(√3 − 1)?","o":["3","2","4","√3"],"c":1,"e":"Produto notável: (a + b)(a − b) = a² − b² = 3 − 1 = 2."},{"a":9,"d":"9.05","l":0,"q":"Qual é a soma dos ângulos internos de um quadrilátero?","o":["270°","360°","180°","540°"],"c":1,"e":"(4 − 2) × 180° = 360°."},{"a":9,"d":"9.05","l":2,"q":"Quanto mede cada ângulo interno de um octógono regular (8 lados)?","o":["140°","150°","135°","120°"],"c":2,"e":"Soma = (8 − 2) × 180° = 1.080°. Dividindo por 8 ângulos iguais: 135°."},{"a":9,"d":"9.05","l":3,"q":"Em um triângulo, dois ângulos medem x e 2x, e o terceiro mede 60°. Qual é o valor de x?","o":["30°","40°","20°","60°"],"c":1,"e":"x + 2x + 60° = 180° → 3x = 120° → x = 40°."},{"a":9,"d":"9.06","l":2,"q":"Na figura, as três retas horizontais são paralelas e cortam duas transversais. Qual é o valor de x?","o":["13,5","9","3","6"],"c":3,"e":"Teorema de Tales: 6/9 = 4/x. Então x = (9 × 4) ÷ 6 = 6.","f":{"t":"thales","a":"6","b":"9","c":"4","d":"x","alt":"Três retas paralelas cortadas por duas transversais, com medidas indicadas."}},{"a":9,"d":"9.06","l":3,"q":"Três ruas paralelas cortam duas avenidas. Na avenida A, os quarteirões medem 20 m e 30 m. Na avenida B, o primeiro quarteirão mede 28 m. Quanto mede o segundo quarteirão da avenida B?","o":["42 m","50 m","38 m","18,7 m"],"c":0,"e":"Pelo Teorema de Tales: 20/30 = 28/x → x = (30 × 28) ÷ 20 = 42 m."},{"a":9,"d":"9.07","l":1,"q":"Dois polígonos são semelhantes quando:","o":["têm a mesma área","têm apenas o mesmo número de lados","têm ângulos correspondentes iguais e lados correspondentes proporcionais","têm o mesmo tamanho"],"c":2,"e":"Semelhança mantém a forma: ângulos iguais e lados proporcionais."},{"a":9,"d":"9.07","l":2,"q":"Um retângulo de 4 cm por 6 cm é semelhante a outro de 8 cm por 12 cm. Qual é a razão de semelhança do maior para o menor?","o":["2","8","4","1/2"],"c":0,"e":"8 ÷ 4 = 2 e 12 ÷ 6 = 2. A razão de semelhança é 2."},{"a":9,"d":"9.08","l":2,"q":"Os dois triângulos da figura são semelhantes. Qual é o valor de x?","o":["10","7","9","12"],"c":0,"e":"A razão de semelhança é 2 (6 ÷ 3 = 2 e 8 ÷ 4 = 2). Então x = 2 × 5 = 10.","f":{"t":"sim","a":[3,4,5],"b":[6,8,"x"],"alt":"Dois triângulos retângulos semelhantes com medidas indicadas."}},{"a":9,"d":"9.08","l":3,"q":"No mesmo instante, um prédio projeta uma sombra de 12 m e uma pessoa de 1,8 m de altura projeta uma sombra de 2,4 m. Qual é a altura do prédio?","o":["16 m","9 m","6,4 m","14,4 m"],"c":1,"e":"Triângulos semelhantes: h/12 = 1,8/2,4 → h = 12 × 0,75 = 9 m."},{"a":9,"d":"9.09","l":0,"q":"Qual é a medida da hipotenusa do triângulo retângulo da figura?","o":["9 cm","12 cm","14 cm","10 cm"],"c":3,"e":"6² + 8² = 36 + 64 = 100; a raiz de 100 é 10.","f":{"t":"rt","a":"6 cm","b":"8 cm","c":"?","da":6,"db":8,"alt":"Triângulo retângulo com medidas indicadas."}},{"a":9,"d":"9.09","l":1,"q":"Uma escada de 5 m está apoiada em uma parede, com o pé a 3 m da parede. A que altura da parede a escada chega?","o":["3 m","2 m","4 m","8 m"],"c":2,"e":"5² = 3² + h² → h² = 25 − 9 = 16 → h = 4 m.","f":{"t":"rt","a":"3 m","b":"h","c":"5 m","da":3,"db":4,"alt":"Triângulo retângulo com medidas indicadas."}},{"a":9,"d":"9.09","l":3,"q":"Qual é a medida da diagonal de um quadrado de lado 5 cm?","o":["25√2 cm","5 cm","5√2 cm","10 cm"],"c":2,"e":"d² = 5² + 5² = 50, então d = √50 = 5√2 cm."},{"a":9,"d":"9.11","l":1,"q":"Se a = 3 e b = −2, qual é o valor de a² − b?","o":["11","−11","7","13"],"c":0,"e":"a² = 9 e −b = +2; 9 + 2 = 11."},{"a":9,"d":"9.11","l":2,"q":"Uma loja cobra R$ 8,00 por camiseta e mais R$ 15,00 de frete fixo. Qual expressão dá o valor total V para n camisetas?","o":["V = 15n + 8","V = 8 + 15 + n","V = 8n + 15","V = 23n"],"c":2,"e":"Cada camiseta custa 8 (8n) e o frete fixo é 15: V = 8n + 15."},{"a":9,"d":"9.12","l":0,"q":"Qual expressão é equivalente a 2(x + 3)?","o":["2x + 3","x + 6","2x + 6","2x + 5"],"c":2,"e":"Distribuindo o 2: 2 × x + 2 × 3 = 2x + 6."},{"a":9,"d":"9.12","l":3,"q":"A expressão (x + 2)² é equivalente a:","o":["2x + 4","x² + 4x + 4","x² + 2x + 4","x² + 4"],"c":1,"e":"(x + 2)² = x² + 2·x·2 + 2² = x² + 4x + 4."},{"a":9,"d":"9.13","l":1,"q":"O perímetro P de um quadrado de lado ℓ é dado pela expressão:","o":["P = 4ℓ","P = ℓ²","P = ℓ + 4","P = 2ℓ"],"c":0,"e":"O quadrado tem 4 lados iguais a ℓ: P = ℓ + ℓ + ℓ + ℓ = 4ℓ."},{"a":9,"d":"9.13","l":3,"q":"Um tanque tem 50 litros de água e uma torneira o enche com 12 litros por minuto. Qual expressão dá o volume V (em litros) após t minutos?","o":["V = 12 + 50t","V = 62t","V = 50 + 12t","V = 50 − 12t"],"c":2,"e":"Começa com 50 litros e acrescenta 12 a cada minuto: V = 50 + 12t."},{"a":9,"d":"9.14","l":0,"q":"Qual é a solução da equação 5x − 3 = 22?","o":["x = 6","x = 19","x = 5","x = 4"],"c":2,"e":"5x = 25, então x = 5."},{"a":9,"d":"9.14","l":1,"q":"A soma de um número com o seu triplo é 48. Qual é esse número?","o":["16","24","12","9"],"c":2,"e":"x + 3x = 48 → 4x = 48 → x = 12."},{"a":9,"d":"9.15","l":1,"q":"Quais são as soluções da equação x² − 9 = 0?","o":["x = 3 ou x = −3","x = 0","apenas x = 3","x = 9 ou x = −9"],"c":0,"e":"x² = 9, e tanto 3 quanto −3 elevados ao quadrado dão 9."},{"a":9,"d":"9.15","l":2,"q":"Quais são as raízes da equação x² − 5x + 6 = 0?","o":["−1 e 6","1 e 6","2 e 3","−2 e −3"],"c":2,"e":"Procuramos dois números com soma 5 e produto 6: 2 e 3."},{"a":9,"d":"9.15","l":3,"q":"Um retângulo tem lados x e x + 3 (em cm) e área de 28 cm². Qual é o valor de x?","o":["7 cm","3 cm","4 cm","5 cm"],"c":2,"e":"x(x + 3) = 28 → x² + 3x − 28 = 0. A solução positiva é x = 4 (4 × 7 = 28)."},{"a":9,"d":"9.16","l":0,"q":"Uma circunferência tem raio de 5 cm. Quanto mede seu diâmetro?","o":["10 cm","2,5 cm","15 cm","5 cm"],"c":0,"e":"O diâmetro é o dobro do raio: 2 × 5 = 10 cm.","f":{"t":"circ","lab":"raio = 5 cm","alt":"Circunferência com raio = 5 cm."}},{"a":9,"d":"9.16","l":2,"q":"Em uma circunferência, um ângulo inscrito determina um arco de 80°. Quanto mede esse ângulo inscrito?","o":["80°","40°","20°","160°"],"c":1,"e":"O ângulo inscrito mede a metade do arco que ele enxerga: 80° ÷ 2 = 40°."},{"a":9,"d":"9.17","l":0,"q":"Em um saco há 3 bolas vermelhas e 2 azuis, como na figura. Qual é a probabilidade de retirar, sem olhar, uma bola vermelha?","o":["3/2","2/5","1/3","3/5"],"c":3,"e":"São 3 vermelhas em um total de 5 bolas: 3/5.","f":{"t":"emoji","s":"🔴🔴🔴🔵🔵","alt":"Figura com bolinhas coloridas."}},{"a":9,"d":"9.17","l":1,"q":"Ao lançar um dado comum, qual é a probabilidade de obter um múltiplo de 3?","o":["2/3","1/2","1/6","1/3"],"c":3,"e":"Múltiplos de 3: 3 e 6, ou seja, 2 em 6 casos = 1/3."},{"a":9,"d":"9.18","l":2,"q":"Ao lançar uma moeda e um dado, qual é a probabilidade de sair “cara” na moeda e o número 5 no dado?","o":["1/8","1/2","1/12","1/6"],"c":2,"e":"Eventos independentes: 1/2 × 1/6 = 1/12."},{"a":9,"d":"9.18","l":3,"q":"Uma caixa tem 3 bolas vermelhas e 2 azuis. Duas bolas são retiradas, uma após a outra, sem reposição. Qual é a probabilidade de as duas serem vermelhas?","o":["3/5","9/25","6/25","3/10"],"c":3,"e":"Eventos dependentes: 3/5 × 2/4 = 6/20 = 3/10."},{"a":9,"d":"9.19","l":0,"q":"Se 5 cadernos iguais custam R$ 40,00, quanto custam 8 desses cadernos?","o":["R$ 48,00","R$ 56,00","R$ 80,00","R$ 64,00"],"c":3,"e":"Cada caderno custa 40 ÷ 5 = 8. Então 8 cadernos custam 8 × 8 = R$ 64,00."},{"a":9,"d":"9.19","l":2,"q":"6 máquinas iguais fazem um trabalho em 10 horas. Em quantas horas 4 dessas máquinas fariam o mesmo trabalho?","o":["6,7 horas","12 horas","8 horas","15 horas"],"c":3,"e":"Menos máquinas, mais horas (grandezas inversas): 6 × 10 = 60; 60 ÷ 4 = 15 horas."},{"a":9,"d":"9.20","l":1,"q":"Um carro percorre 300 km com 25 litros de combustível. Qual é o consumo médio desse carro?","o":["15 km/L","8 km/L","10 km/L","12 km/L"],"c":3,"e":"300 ÷ 25 = 12 km por litro."},{"a":9,"d":"9.20","l":1,"q":"Em um mapa de escala 1:100.000, a distância entre duas cidades é de 3 cm. Qual é a distância real?","o":["0,3 km","30 km","3 km","300 km"],"c":2,"e":"3 × 100.000 = 300.000 cm = 3.000 m = 3 km."},{"a":9,"d":"9.20","l":3,"q":"Um objeto tem massa de 540 g e volume de 200 cm³. Qual é a densidade desse objeto?","o":["2,7 g/cm³","0,37 g/cm³","27 g/cm³","3,7 g/cm³"],"c":0,"e":"Densidade = massa ÷ volume = 540 ÷ 200 = 2,7 g/cm³."},{"a":9,"d":"9.21","l":0,"q":"Quanto é 10% de R$ 250,00?","o":["R$ 2,50","R$ 10,00","R$ 25,00","R$ 100,00"],"c":2,"e":"10% de 250 = 250 ÷ 10 = 25."},{"a":9,"d":"9.21","l":2,"q":"Um salário de R$ 2.000,00 recebeu aumento de 8%. Qual é o novo salário?","o":["R$ 2.016,00","R$ 2.080,00","R$ 2.160,00","R$ 2.800,00"],"c":2,"e":"8% de 2.000 = 160. Novo salário: 2.000 + 160 = 2.160."},{"a":9,"d":"9.21","l":3,"q":"O preço de um produto subiu 20% e, depois, caiu 20% sobre o novo preço. Em relação ao preço original, o preço final ficou:","o":["igual","4% maior","4% menor","20% menor"],"c":2,"e":"Multiplicadores: 1,2 × 0,8 = 0,96. O preço final é 96% do original: 4% menor."},{"a":9,"d":"9.22","l":0,"q":"As notas 5, 7, 8, 9 e 6 têm qual média?","o":["8","6","35","7"],"c":3,"e":"(5 + 7 + 8 + 9 + 6) ÷ 5 = 35 ÷ 5 = 7."},{"a":9,"d":"9.22","l":2,"q":"Qual é a mediana do conjunto 3, 9, 4, 7, 5, 8?","o":["6","5","7","6,5"],"c":0,"e":"Em ordem: 3, 4, 5, 7, 8, 9. Com 6 valores, a mediana é a média dos dois centrais: (5 + 7) ÷ 2 = 6."},{"a":9,"d":"9.23","l":1,"q":"O gráfico mostra o esporte preferido de 200 alunos. Quantos alunos preferem vôlei?","o":["40","50","25","80"],"c":1,"e":"25% de 200 = 50 alunos.","f":{"t":"pie","title":"Esporte preferido","d":[["Futebol",40],["Vôlei",25],["Basquete",20],["Outros",15]],"alt":"Gráfico de setores: Esporte preferido. Futebol: 40%; Vôlei: 25%; Basquete: 20%; Outros: 15%"}},{"a":9,"d":"9.23","l":2,"q":"Qual foi a média mensal de vendas nos três meses mostrados no gráfico?","o":["30","120","45","40"],"c":3,"e":"(30 + 45 + 45) ÷ 3 = 120 ÷ 3 = 40.","f":{"t":"bar","title":"Vendas de uma loja","d":[["Jan",30],["Fev",45],["Mar",45]],"alt":"Gráfico de colunas: Vendas de uma loja. Jan: 30; Fev: 45; Mar: 45"}}];
+const LVN=["🌱 Abaixo do básico","🌿 Básico","🌳 Adequado","🏆 Avançado","🎯 Misto"];
+const LVD=["Reconhecer e fazer contas simples","Resolver problemas em uma etapa","Interpretar e combinar ideias","Desafios com várias etapas","Do mais fácil ao mais difícil"];
+
+/* ===== JOGOS: para criar outro, adicione um objeto com next() =====
+   next(g) devolve {q, opts:[texto], c:índice, exp?, small?}  */
+const GAMES={
+ tabuada:{emoji:"✖️",name:"Tabuada Turbo",desc:"10 contas, 10 segundos cada!",time:10,maxQ:10,lives:3,
+  init(g){},
+  next(g){const a=rnd(2,9),b=rnd(1,10),c=a*b,o=numOpts(c,[a*(b+1),a*(b-1),(a+1)*b,(a-1)*b,c+rnd(1,9)]);
+    return{q:`${a} × ${b} = ?`,opts:o,c:o.indexOf(String(c))};}},
+ continhas:{emoji:"➕",name:"Continhas Sem Fim",desc:"Mais, menos, vezes e dividir. Vai ficando difícil!",time:14,maxQ:0,lives:3,
+  init(g){g.ok=0;},
+  next(g){const L=1+Math.floor(g.ok/4);let a,b,c,s;const t=rnd(0,Math.min(L,3));
+    if(t===0){a=rnd(2,10*L+10);b=rnd(2,10*L+10);c=a+b;s="+";}
+    else if(t===1){a=rnd(10,20*L+20);b=rnd(2,a-1);c=a-b;s="−";}
+    else if(t===2){a=rnd(2,4+L*2);b=rnd(2,9);c=a*b;s="×";}
+    else{b=rnd(2,9);c=rnd(2,4+L*2);a=b*c;s="÷";}
+    const o=numOpts(c,[]);return{q:`${a} ${s} ${b} = ?`,opts:o,c:o.indexOf(String(c)),tag:"Nível "+L};}},
+ quiz:{emoji:"🧠",name:"Quiz SARESP",desc:"Questões dos descritores do SARESP, por ano e nível",time:0,maxQ:10,lives:3,pre:true,lvl:true,free:true,study:true,
+  init(g){const all=SB.filter(x=>x.a===g.ano);
+    if(g.lv<4)g.pool=shuf(all.filter(x=>x.l===g.lv)).slice(0,10);
+    else{const by=[0,1,2,3].map(l=>shuf(all.filter(x=>x.l===l)));g.pool=[...by[0].slice(0,2),...by[1].slice(0,3),...by[2].slice(0,3),...by[3].slice(0,2)];}
+    g.i=0;g.maxQ=g.pool.length;},
+  next(g){const x=g.pool[g.i++],right=x.o[x.c],o=shuf(x.o);
+    return{q:x.q,opts:o,c:o.indexOf(right),exp:x.e,fig:x.f,study:x,small:true,tag:LVN[x.l]+" · "+SD[x.d][0]};}},
+ numero:{emoji:"🔢",name:"Que Número Sou Eu?",desc:"Decifre as pistas e descubra o número secreto!",time:0,maxQ:8,lives:3,pre:true,
+  init(g){g.max=({6:50,7:100,8:300,9:999})[g.ano]||200;},
+  next(g){const n=rnd(10,g.max);const clues=[];
+    clues.push(n%2===0?"sou par":"sou ímpar");
+    const divs=[3,4,5,6,7,8,9].filter(d=>n%d===0&&d<n);
+    if(divs.length&&Math.random()<.8)clues.push("sou múltiplo de "+divs[rnd(0,divs.length-1)]);
+    else{const s=String(n).split("").reduce((a,d)=>a+ +d,0);clues.push("a soma dos meus algarismos é "+s);}
+    if(Math.random()<.6){const lo=Math.max(0,n-rnd(6,18));clues.push("sou maior que "+lo);}
+    else clues.push("estou entre "+Math.max(0,n-10)+" e "+(n+10));
+    const o=numOpts(n,[n+rnd(1,9),n-rnd(1,9),n+10,n-10,n+rnd(10,20)]);
+    return{q:`🔎 Pensei em um número secreto: ${clues.join(", ")}. Quem sou eu?`,opts:o,c:o.indexOf(String(n)),small:true};}},
+ memoria:{emoji:"🧩",name:"Jogo da Memória",desc:"Ache os pares: a conta e o resultado!",custom:true},
+ xadrez:{emoji:"♟️",name:"Xadrez",desc:"Partida completa contra o computador",custom:true},
+ damas:{emoji:"♟️",name:"Damas",desc:"Partida de tabuleiro contra o computador!",custom:true},
+ cofrinho:{emoji:"🐷",name:"Cofrinho Matemático",desc:"Role o dado e responda pra juntar moedas!",custom:true},
+ verdade:{emoji:"✅",name:"Verdade ou Mentira?",desc:"A conta está certa ou errada? Decida rápido!",time:8,maxQ:10,lives:3,pre:true,
+  init(g){g.max=({6:12,7:15,8:20,9:30})[g.ano]||20;},
+  next(g){const a=rnd(2,g.max),b=rnd(2,g.max),op=rnd(0,1);let real,shown,txt;
+    if(op===0){real=a+b;shown=Math.random()<.5?real:real+rnd(1,5)*(Math.random()<.5?1:-1);txt=`${a} + ${b} = ${shown}`;}
+    else{real=a*b;shown=Math.random()<.5?real:real+rnd(1,6)*(Math.random()<.5?1:-1);txt=`${a} × ${b} = ${shown}`;}
+    return{q:txt,opts:["Verdadeiro","Falso"],c:shown===real?0:1,small:true};}},
+ intruso:{emoji:"🕵️",name:"Qual é o Intruso?",desc:"3 números têm algo em comum. Ache o que não combina!",time:12,maxQ:8,lives:3,
+  init(g){},
+  next(g){const d=rnd(2,9),base=[];while(base.length<3){const v=d*rnd(2,12);if(!base.includes(v))base.push(v);}
+    let intruder;do{intruder=rnd(10,100);}while(intruder%d===0||base.includes(intruder));
+    const o=shuf([...base,intruder]).map(String);
+    return{q:`Três destes números são múltiplos de ${d}. Qual NÃO é?`,opts:o,c:o.indexOf(String(intruder))};}}
+};
+
+/* ===== perfil do jogador ===== */
+const getProfile=()=>{try{return JSON.parse(localStorage.getItem("fx-profile"))}catch(e){return null}};
+const setProfile=p=>{try{localStorage.setItem("fx-profile",JSON.stringify(p))}catch(e){}};
+const EMOJIS=["🦸","🦸‍♀️","🐱","🦄","🐶","🐼","🐸","🦊","🐵","🐰","🦋","👧"];
+let tempEmo=null;
+function showWho(){const p=getProfile(),el=$("#fx-who");if(!el)return;
+  if(p){el.style.display="flex";el.innerHTML=`<span>${p.emo}</span>${p.name}`;}else el.style.display="none";}
+function updateGreet(){const n=($("#fx-name")&&$("#fx-name").value||"").trim();const g=$("#fx-greet");
+  if(g)g.textContent=n?`Oi, ${n}! Escolha seu personagem 👋`:"Oi! Escolha seu nome e seu personagem 👋";}
+function chooseEmo(e){tempEmo=e;document.querySelectorAll(".fx-emobtn").forEach(b=>b.classList.toggle("fx-sel",b.dataset.e===e));
+  const prev=$("#fx-preview");if(prev){prev.textContent=e;prev.style.animation="none";prev.offsetHeight;prev.style.animation="fxpreviewpop .5s";}
+  updateGreet();sTap();
+  const r=prev?prev.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/3,width:0,height:0};
+  const cx=r.left+r.width/2,cy=r.top+r.height/2,box=$("#fx-bg");
+  if(box&&!document.body.classList.contains("fx-calm"))for(let i=0;i<8;i++){const b=document.createElement("span");b.className="fx-burst";b.textContent="✨";
+    const ang=Math.random()*Math.PI*2,dist=40+Math.random()*50;
+    b.style.left=cx+"px";b.style.top=cy+"px";b.style.setProperty("--dx",Math.cos(ang)*dist+"px");b.style.setProperty("--dy",Math.sin(ang)*dist+"px");
+    box.appendChild(b);setTimeout(()=>b.remove(),650);}}
+function saveProfile(){const name=($("#fx-name").value||"Jogador").trim().slice(0,14)||"Jogador";
+  setProfile({name,emo:tempEmo||EMOJIS[0]});sWin();showWho();home();}
+function profileScreen(){clearInterval(timer);const cur=getProfile();tempEmo=cur?cur.emo:EMOJIS[0];
+  app().innerHTML=`<h1 class="fx-title"><span class="animtitle">${theme.emoji} Quem vai jogar?</span></h1>
+  <div class="fx-sub">Escolha seu nome e seu personagem!</div>
+  <div class="fx-card fx-center"><div id="fx-preview" class="fx-pet">${tempEmo}</div>
+  <p id="fx-greet">${cur?`Oi, ${cur.name}! Escolha seu personagem 👋`:"Oi! Escolha seu nome e seu personagem 👋"}</p>
+  <input id="fx-name" class="fx-input" maxlength="14" placeholder="Seu nome" value="${cur?cur.name:""}" oninput="updateGreet()">
+  <div class="fx-emogrid">${EMOJIS.map(e=>`<button class="fx-tile fx-emobtn ${e===tempEmo?"fx-sel":""}" data-e="${e}" onclick="chooseEmo('${e}')">${e}</button>`).join("")}</div></div>
+  <button class="fx-big" onclick="sTap();saveProfile()">🚀 Salvar e jogar</button>`;}
+
+/* ===== fundo interativo (flutuante + confete ao tocar) ===== */
+(function bg(){const box=$("#fx-bg");const pool=[...theme.items.map(i=>i.e),"✨","⭐","➕","➖","✖️","➗"];
+  for(let i=0;i<14;i++){const s=document.createElement("span");s.className="fx-float";s.textContent=pool[rnd(0,pool.length-1)];
+    s.style.left=Math.random()*94+"%";s.style.fontSize=(1.2+Math.random()*1.6)+"rem";
+    s.style.animationDuration=(10+Math.random()*12)+"s";s.style.animationDelay=(Math.random()*10)+"s";box.appendChild(s);}
+  document.addEventListener("pointerdown",e=>{if(document.body.classList.contains("fx-calm"))return;for(let i=0;i<6;i++){const b=document.createElement("span");b.className="fx-burst";b.textContent="✨";
+    const ang=Math.random()*Math.PI*2,dist=40+Math.random()*50;
+    b.style.left=e.clientX+"px";b.style.top=e.clientY+"px";
+    b.style.setProperty("--dx",Math.cos(ang)*dist+"px");b.style.setProperty("--dy",Math.sin(ang)*dist+"px");
+    box.appendChild(b);setTimeout(()=>b.remove(),650);}});
+})();
+
+/* ===== jogo da memória ===== */
+let M=null;
+function memoriaStart(){clearInterval(timer);const pairsN=6,usedP=new Set(),facts=[];
+  while(facts.length<pairsN){const a=rnd(2,9),b=rnd(2,9),p=a*b;if(usedP.has(p))continue;usedP.add(p);facts.push([a,b,p]);}
+  let cards=[];facts.forEach((f,idx)=>{cards.push({pid:idx,label:f[0]+" × "+f[1]});cards.push({pid:idx,label:String(f[2])});});
+  cards=shuf(cards).map((c,i)=>({...c,id:i,open:false,done:false}));
+  M={cards,openIdx:[],moves:0,matched:0,total:pairsN,busy:false};
+  if(webglOK())return memory3D();
+  memoriaBuild();}
+/* Memória 3D: cada carta é um bloco 3D que gira para mostrar o verso (calmo: sem giro se o modo calmo estiver ligado) */
+async function memory3D(){
+  if(CUR3D){CUR3D.dispose();CUR3D=null;}showWho();
+  const cards=M.cards;
+  app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr 1fr auto"><div class="fx-pill" id="fx-mm">🔄 0</div>
+   <div class="fx-pill" id="fx-mp">✅ 0/${M.total}</div><button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+   <div class="fx-card fx-still" style="padding:10px"><div id="t3-stage"><p class="fx-center">Preparando o jogo 3D…</p></div><div class="fx-msg" id="fx-msg"></div></div>`;
+  const me=M;
+  let S=null;
+  try{await loadThree();S=make3D($("#t3-stage"),9);}catch(e){S=null;}
+  if(M!==me)return;
+  if(!S){$("#t3-stage").innerHTML=`<p class="fx-center">😕 Não consegui abrir o jogo 3D neste aparelho.</p>
+    <button class="fx-big" onclick="sTap();memoriaBuild()">Jogar a versão 2D</button>`;return;}
+  CUR3D=S;
+  const T=S.T,scene=S.scene;
+  const cols=4,gx=1.2,gy=1.42;
+  const meshes=cards.map((c,i)=>{
+    const front=new T.MeshBasicMaterial({map:textTex(T,theme.emoji,"#7c3aed","#ffffff",256,256)});
+    const back=new T.MeshBasicMaterial({map:textTex(T,c.label,"#ede9fe","#312e81",256,256)});
+    const side=new T.MeshBasicMaterial({color:0x7c3aed});
+    const m=new T.Mesh(new T.BoxGeometry(1,1.3,.08),[side,side,side,side,front,back]);
+    const col=i%cols,row=Math.floor(i/cols);
+    m.position.set((col-(cols-1)/2)*gx,((1-row)-.5)*gy+.3,0);
+    m.userData={id:c.id};
+    scene.add(m);return m;});
+  /* gira suavemente até o lado certo (vira o verso para a câmera quando aberta ou encontrada) */
+  S.hooks.push(()=>{
+    meshes.forEach((m,i)=>{const c=cards[i];const target=c.open||c.done?Math.PI:0;
+      if(isCalm()){m.rotation.y=target;return;}
+      m.rotation.y+=(target-m.rotation.y)*.22;
+      if(Math.abs(target-m.rotation.y)<.002)m.rotation.y=target;});
+  });
+  function sync(){const m=$("#fx-mm"),p=$("#fx-mp");if(m)m.textContent="🔄 "+M.moves;if(p)p.textContent="✅ "+M.matched+"/"+M.total;
+    meshes.forEach((mesh,i)=>{if(cards[i].done)mesh.material[5].color.set(0x86efac);});}
+  function flip(id){if(M!==me||M.busy)return;const c=cards.find(x=>x.id===id);if(!c||c.open||c.done)return;
+    c.open=true;M.openIdx.push(id);sTap();
+    if(M.openIdx.length===2){M.busy=true;M.moves++;const[i1,i2]=M.openIdx,c1=cards.find(x=>x.id===i1),c2=cards.find(x=>x.id===i2);sync();
+      setTimeout(()=>{if(M!==me)return;if(c1.pid===c2.pid){c1.done=true;c2.done=true;M.matched++;sOk();}else{c1.open=false;c2.open=false;sNo();}
+        M.openIdx=[];M.busy=false;if(M.matched===M.total){if(CUR3D){CUR3D.dispose();CUR3D=null;}return memoriaOver();}sync();},800);}
+    else sync();}
+  S.el.addEventListener("pointerdown",ev=>{
+    const obj=S.pick(ev,meshes);if(!obj)return;
+    let b=obj;while(b&&b.userData.id===undefined)b=b.parent;
+    if(b)flip(b.userData.id);
+  });
+  sync();
+}
+function memoriaBuild(){showWho();
+  app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr 1fr auto"><div class="fx-pill" id="fx-mm">🔄 0</div>
+   <div class="fx-pill" id="fx-mp">✅ 0/${M.total}</div><button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+   <div class="fx-card fx-still"><div class="fx-mem">${M.cards.map(c=>`<button class="fx-mcard" id="fx-mc${c.id}" onclick="memoriaFlip(${c.id})" aria-label="Carta virada para baixo"><span class="fx-mfront">${theme.emoji}</span><span class="fx-mback">${c.label}</span></button>`).join("")}</div></div>`;}
+function memoriaSync(){if(!M)return;M.cards.forEach(c=>{const el=$("#fx-mc"+c.id);if(!el)return;const on=c.open||c.done;
+  el.classList.toggle("fx-flip",on);el.classList.toggle("fx-done",c.done);el.setAttribute("aria-label",on?"Carta: "+c.label:"Carta virada para baixo");});
+  const m=$("#fx-mm"),p=$("#fx-mp");if(m)m.textContent="🔄 "+M.moves;if(p)p.textContent="✅ "+M.matched+"/"+M.total;}
+function memoriaFlip(id){if(!M||M.busy)return;const c=M.cards.find(x=>x.id===id);if(!c||c.open||c.done)return;
+  c.open=true;M.openIdx.push(id);sTap();
+  if(M.openIdx.length===2){M.busy=true;M.moves++;const[i1,i2]=M.openIdx,c1=M.cards.find(x=>x.id===i1),c2=M.cards.find(x=>x.id===i2);memoriaSync();
+    setTimeout(()=>{if(!M)return;if(c1.pid===c2.pid){c1.done=true;c2.done=true;M.matched++;sOk();}else{c1.open=false;c2.open=false;sNo();}
+      M.openIdx=[];M.busy=false;if(M.matched===M.total)return memoriaOver();memoriaSync();},800);}
+  else memoriaSync();}
+function memoriaOver(){const key="fx-rec-memoria-moves";let best=+localStorage.getItem(key)||0;const nova=!best||M.moves<best;
+  if(nova)try{localStorage.setItem(key,M.moves)}catch(e){}sWin();
+  app().innerHTML=`<h1 class="fx-title">🎉 Parabéns!</h1><div class="fx-card fx-center"><div class="fx-pet">🧩</div>
+   <p class="fx-score">${M.moves}</p><p>jogadas ${nova?"· Novo recorde!":"· Recorde: "+best}</p>
+   <button class="fx-big" onclick="sTap();memoriaStart()">Jogar de novo</button>
+   <button class="fx-big fx-ghost" onclick="sTap();menu()">Outro jogo</button></div>`;}
+
+/* ===== DAMAS (simplificada: captura obrigatória, 1 salto por jogada, dama anda 1 casa em qualquer diagonal) ===== */
+const sDice=()=>beep([300,250,400,350],.05,"square"),sCap=()=>beep([200,150,120],.08,"sawtooth");
+let DA=null;
+const inB=(r,c)=>r>=0&&r<8&&c>=0&&c<8;
+function mkBoard(){const b=Array.from({length:8},()=>Array(8).fill(null));
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)if((r+c)%2===1){if(r<3)b[r][c]={s:"cpu",k:false};else if(r>4)b[r][c]={s:"me",k:false};}
+  return b;}
+function pDirs(p){return p.k?[[-1,-1],[-1,1],[1,-1],[1,1]]:p.s==="me"?[[-1,-1],[-1,1]]:[[1,-1],[1,1]];}
+function pMoves(b,r,c){const p=b[r][c],out=[];if(!p)return out;
+  for(const[dr,dc]of pDirs(p)){const nr=r+dr,nc=c+dc;
+    if(inB(nr,nc)&&!b[nr][nc])out.push({r,c,tr:nr,tc:nc,cap:null});
+    const jr=r+2*dr,jc=c+2*dc;
+    if(inB(jr,jc)&&!b[jr][jc]&&b[nr][nc]&&b[nr][nc].s!==p.s)out.push({r,c,tr:jr,tc:jc,cap:[nr,nc]});}
+  return out;}
+function allMoves(b,side){let out=[];
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c]&&b[r][c].s===side)out=out.concat(pMoves(b,r,c));
+  const caps=out.filter(m=>m.cap);return caps.length?caps:out;}
+function applyMove(b,m){const p=b[m.r][m.c];b[m.r][m.c]=null;b[m.tr][m.tc]=p;if(m.cap)b[m.cap[0]][m.cap[1]]=null;
+  if((p.s==="me"&&m.tr===0)||(p.s==="cpu"&&m.tr===7))p.k=true;}
+const countSide=(b,s)=>b.flat().filter(p=>p&&p.s===s).length;
+function damasStart(){clearInterval(timer);DA={board:mkBoard(),turn:"me",sel:null,legal:[],msg:""};
+  if(webglOK())return damas3D();
+  damasRender();}
+/* Damas 3D: tabuleiro 3D de 64 casas e peças 3D; a lógica das jogadas é a mesma */
+async function damas3D(){
+  if(CUR3D){CUR3D.dispose();CUR3D=null;}showWho();
+  const me=DA;
+  app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr 1fr auto"><div class="fx-pill" id="d3-me">🔴 12</div>
+   <div class="fx-pill" id="d3-cpu">🔵 12</div><button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+   <div class="fx-card fx-still" style="padding:10px"><div id="t3-stage"><p class="fx-center">Preparando o tabuleiro 3D…</p></div>
+   <div class="fx-msg" id="fx-msg"></div></div>`;
+  let S=null;
+  try{await loadThree();S=make3D($("#t3-stage"),9);}catch(e){S=null;}
+  if(DA!==me)return;
+  if(!S){$("#t3-stage").innerHTML=`<p class="fx-center">😕 Não consegui abrir o tabuleiro 3D neste aparelho.</p>
+    <button class="fx-big" onclick="sTap();damasRender()">Jogar a versão 2D</button>`;return;}
+  CUR3D=S;
+  const T=S.T,scene=S.scene;
+  const tiles=[];
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const dark=(r+c)%2===1;
+    const m=new T.Mesh(new T.BoxGeometry(.96,.96,.12),new T.MeshBasicMaterial({color:dark?0x92400e:0xfde68a}));
+    m.position.set(c-3.5,3.5-r,0);m.userData={r,c,dark};scene.add(m);tiles.push(m);}
+  const pg=new T.Group();scene.add(pg);
+  DA.s3={S,T,tiles,pg,hi:null};
+  S.el.addEventListener("pointerdown",ev=>{
+    if(DA!==me||!DA.s3)return;
+    const obj=S.pick(ev,tiles.concat(pg.children));if(!obj)return;
+    let b=obj;while(b&&b.userData.r===undefined)b=b.parent;
+    if(b&&DA.turn==="me")damasClick(b.userData.r,b.userData.c);
+  });
+  damasRender();
+}
+function damasDraw3D(){
+  const s=DA.s3,T=s.T;
+  $("#d3-me").textContent="🔴 "+countSide(DA.board,"me");
+  $("#d3-cpu").textContent="🔵 "+countSide(DA.board,"cpu");
+  $("#fx-msg").textContent=DA.msg||(DA.turn==="me"?"Sua vez! Toque numa peça vermelha 🔴":"A CPU está pensando... 🔵");
+  s.tiles.forEach(t=>{const {r,c,dark}=t.userData;
+    const sel=DA.sel&&DA.sel[0]===r&&DA.sel[1]===c,can=DA.legal.some(m=>m.tr===r&&m.tc===c);
+    t.material.color.set(sel?0x22d3ee:can?0xa7f3d0:dark?0x92400e:0xfde68a);});
+  while(s.pg.children.length){const m=s.pg.children.pop();m.geometry.dispose();}
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=DA.board[r][c];if(!p)continue;
+    const col=p.s==="me"?0xdc2626:0x1d4ed8;
+    const side=new T.MeshBasicMaterial({color:col});
+    const top=p.k?new T.MeshBasicMaterial({map:textTex(T,"★","#ffffff","#facc15",128,128)}):new T.MeshBasicMaterial({color:col});
+    const m=new T.Mesh(new T.CylinderGeometry(.38,.38,.2,28),[side,top,side]);
+    m.rotation.x=Math.PI/2;/* tampa de cima voltada para a câmera */
+    m.position.set(c-3.5,3.5-r,.22);m.userData={r,c};s.pg.add(m);}
+}
+function damasRender(){
+  if(DA&&DA.s3)return damasDraw3D();
+  showWho();
+  app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr 1fr auto"><div class="fx-pill">🔴 ${countSide(DA.board,"me")}</div>
+   <div class="fx-pill">🔵 ${countSide(DA.board,"cpu")}</div><button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+   <div class="fx-card fx-still"><div class="fx-board">${DA.board.map((row,r)=>row.map((p,c)=>{
+     const dark=(r+c)%2===1,sel=DA.sel&&DA.sel[0]===r&&DA.sel[1]===c,can=DA.legal.some(m=>m.tr===r&&m.tc===c);
+     return`<button class="fx-sq ${dark?"fx-dark":"fx-light"} ${sel?"fx-sel":""} ${can?"fx-can":""}" onclick="damasClick(${r},${c})">${p?`<div class="fx-pc fx-${p.s}">${p.k?"★":""}</div>`:""}</button>`;}).join("")).join("")}</div>
+   <div class="fx-msg">${DA.msg||(DA.turn==="me"?"Sua vez! Toque numa peça vermelha 🔴":"A CPU está pensando... 🔵")}</div></div>
+   <button class="fx-big fx-ghost" onclick="sTap();menu()">‹ Sair</button>`;}
+function damasSelect(r,c){const all=allMoves(DA.board,"me"),mine=all.filter(m=>m.r===r&&m.c===c);
+  if(!mine.length){DA.msg=all.some(m=>m.cap)?"Captura obrigatória em outra peça!":"Essa peça não pode se mover agora.";DA.sel=null;DA.legal=[];sNo();damasRender();return;}
+  DA.sel=[r,c];DA.legal=mine;DA.msg="";sTap();damasRender();}
+function damasClick(r,c){if(!DA||DA.turn!=="me")return;const cell=DA.board[r][c];
+  if(DA.sel){const mv=DA.legal.find(m=>m.tr===r&&m.tc===c);
+    if(mv){applyMove(DA.board,mv);mv.cap?sCap():sTap();DA.sel=null;DA.legal=[];DA.msg="";
+      if(countSide(DA.board,"cpu")===0||!allMoves(DA.board,"cpu").length)return damasOver(true);
+      DA.turn="cpu";damasRender();setTimeout(damasCpu,700);return;}
+    if(cell&&cell.s==="me")return damasSelect(r,c);
+    DA.sel=null;DA.legal=[];damasRender();return;}
+  if(cell&&cell.s==="me")damasSelect(r,c);}
+function damasCpu(){if(!DA||DA.turn!=="cpu")return;const mv=allMoves(DA.board,"cpu");if(!mv.length)return damasOver(true);
+  const m=mv[rnd(0,mv.length-1)];applyMove(DA.board,m);m.cap?sCap():sTap();
+  if(countSide(DA.board,"me")===0||!allMoves(DA.board,"me").length)return damasOver(false);
+  DA.turn="me";damasRender();}
+function damasOver(win){if(win)setRec("damas",getRec("damas")+1);win?sWin():sNo();
+  if(CUR3D){CUR3D.dispose();CUR3D=null;}
+  app().innerHTML=`<h1 class="fx-title">${win?"🎉 Você ganhou!":"Boa tentativa!"}</h1><div class="fx-card fx-center">
+   <div class="fx-pet">${win?"🏆":"♟️"}</div><p>${win?"Vitórias no total: "+getRec("damas"):"A CPU venceu desta vez. Quer a revanche?"}</p>
+   <button class="fx-big" onclick="sTap();damasStart()">Jogar de novo</button>
+   <button class="fx-big fx-ghost" onclick="sTap();menu()">Outro jogo</button></div>`;}
+
+/* ===== COFRINHO MATEMÁTICO (trilha com dado) ===== */
+const PATH=["start","n","n","q","n","n","q","bonus","n","q","slow","n","q","n","n","finish"];
+const PICON={start:"🏁",n:"⬜",q:"🧮",bonus:"🎁",slow:"🐌",finish:"🏆"};
+let C=null;
+function cofrinhoStart(){clearInterval(timer);C={pos:0,coins:0,skip:false,busy:false,die:null,msg:"",dead:false};
+  if(webglOK())return cofrinho3D();
+  cofrinhoRender();}
+/* Cofrinho 3D: trilha 3D em zigue-zague, peão 3D e dado 3D; perguntas continuam com botões */
+async function cofrinho3D(){
+  if(CUR3D){CUR3D.dispose();CUR3D=null;}showWho();
+  const me=C;
+  app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr auto"><div class="fx-pill" id="t3-coins">🪙 0 moedas</div>
+   <button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+   <div class="fx-card fx-still" style="padding:10px"><div id="t3-q"></div><div id="t3-stage"><p class="fx-center">Preparando o jogo 3D…</p></div>
+   <div class="fx-msg" id="fx-msg"></div><div id="fx-nav"></div>
+   <div class="fx-center" style="font-size:.8rem;margin-top:8px">🧮 pergunta · 🎁 +5 · 🐌 perde a vez</div></div>`;
+  let S=null;
+  try{await loadThree();S=make3D($("#t3-stage"),9);}catch(e){S=null;}
+  if(C!==me)return;
+  if(!S){$("#t3-stage").innerHTML=`<p class="fx-center">😕 Não consegui abrir o jogo 3D neste aparelho.</p>
+    <button class="fx-big" onclick="sTap();cofrinhoStart2D()">Jogar a versão 2D</button>`;return;}
+  CUR3D=S;
+  const T=S.T,scene=S.scene,p=getProfile();
+  const cell=(t,txt,bg)=>new T.MeshBasicMaterial({map:textTex(T,txt,bg,"#312e81",256,256)});
+  /* trilha: 4 linhas em zigue-zague */
+  const tiles=PATH.map((t,i)=>{
+    const row=Math.floor(i/4),col=row%2===0?i%4:3-(i%4);
+    const side=new T.MeshBasicMaterial({color:0xc4b5fd});
+    const m=new T.Mesh(new T.BoxGeometry(1.1,1.1,.14),[side,side,side,side,cell(t,PICON[t],t==="bonus"?"#fef08a":t==="slow"?"#fecaca":t==="q"?"#ddd6fe":"#ffffff"),side]);
+    m.position.set((col-1.5)*1.45,(1.5-row)*1.5,0);
+    scene.add(m);return m;});
+  const tokenMat=new T.MeshBasicMaterial({map:textTex(T,p?p.emo:"🙂","#ffffff","#312e81",256,256)});
+  const token=new T.Mesh(new T.CylinderGeometry(.42,.42,.14,28),[new T.MeshBasicMaterial({color:0xffffff}),tokenMat,new T.MeshBasicMaterial({color:0xffffff})]);
+  token.rotation.x=Math.PI/2;token.position.set(tiles[0].position.x,tiles[0].position.y,.4);scene.add(token);
+  const dieMats=[0,1,2,3,4,5].map((k,i)=>new T.MeshBasicMaterial({map:textTex(T,i===4?"🎲":"","#ffffff","#312e81",256,256)}));
+  const die=new T.Mesh(new T.BoxGeometry(.85,.85,.85),dieMats);die.position.set(0,-2.6,.3);scene.add(die);
+  let rolling=false;
+  S.hooks.push(()=>{
+    if(rolling){die.rotation.x+=.3;die.rotation.y+=.42;}
+    const tg=tiles[C.pos].position;
+    const k=isCalm()?1:.25;
+    token.position.x+=(tg.x-token.position.x)*k;token.position.y+=(tg.y-token.position.y)*k;
+  });
+  function setDieFace(v){const f=new T.MeshBasicMaterial({map:textTex(T,String(v),"#ffffff","#312e81",256,256)});
+    if(die.material[4].map)die.material[4].map.dispose();die.material[4]=f;die.material[4].needsUpdate=true;}
+  function paint(){$("#t3-coins").textContent="🪙 "+C.coins+" moedas";}
+  function ask(){
+    const mx=12+C.pos*3,a=rnd(2,mx),mul=Math.random()<.5,b=mul?rnd(2,9):rnd(2,mx),real=mul?a*b:a+b;
+    const o=numOpts(real,[real+rnd(1,6),real-rnd(1,6),real+10]);
+    C.q={txt:`${a} ${mul?"×":"+"} ${b} = ?`,opts:o,c:o.indexOf(String(real))};
+    $("#t3-q").innerHTML=`<div class="fx-pet">🧮</div><div class="fx-q">${C.q.txt}</div>
+      <div class="fx-opts" id="t3-opts">${C.q.opts.map((x,i)=>`<button class="fx-opt" data-i="${i}">${x}</button>`).join("")}</div>`;
+    $("#t3-opts").addEventListener("click",ev=>{const b=ev.target.closest(".fx-opt");if(!b)return;
+      const ok=+b.dataset.i===C.q.c;$("#t3-q").innerHTML="";
+      if(ok){C.coins+=3;C.msg="✅ Acertou! +3 moedas";sOk();}else{C.skip=true;C.msg="❌ Errou! Perde a próxima rodada.";sNo();}
+      paint();$("#fx-msg").textContent=C.msg;$("#fx-nav").innerHTML="";C.busy=false;showBtn();});
+    $("#fx-msg").textContent="";$("#fx-nav").innerHTML="";
+  }
+  function showBtn(){
+    const btn=document.createElement("button");btn.className="fx-big";
+    btn.textContent=C.skip?"Passar a vez 😴":"🎲 Rolar o dado";btn.disabled=C.busy;
+    btn.onclick=()=>{sTap();roll();};
+    $("#fx-nav").innerHTML="";$("#fx-nav").appendChild(btn);
+  }
+  function roll(){
+    if(C.busy)return;
+    if(C.skip){C.skip=false;C.msg="Você passou a vez. Agora role!";sNo();$("#fx-msg").textContent=C.msg;showBtn();return;}
+    C.busy=true;C.msg="";$("#fx-msg").textContent="";$("#fx-nav").innerHTML="";
+    rolling=true;sDice();
+    setTimeout(()=>{if(C!==me||me.dead)return;const v=rnd(1,6);C.die=v;rolling=false;setDieFace(v);step(v,0);},600);
+  }
+  function step(left,n){
+    if(C!==me||me.dead)return;
+    if(left>0&&C.pos<PATH.length-1){C.pos++;sTap();setTimeout(()=>step(left-1,n+1),220);return;}
+    land();
+  }
+  function land(){
+    const t=PATH[C.pos];C.busy=false;
+    if(t==="finish")return finish();
+    if(t==="bonus"){C.coins+=5;C.msg="🎁 Bônus! +5 moedas";sWin();}
+    else if(t==="slow"){C.skip=true;C.msg="🐌 Espaço lento! Você perde a próxima rodada.";sNo();}
+    paint();
+    if(t==="q"){C.busy=true;$("#fx-msg").textContent="🧮 Responda para ganhar moedas!";ask();return;}
+    $("#fx-msg").textContent=C.msg;showBtn();
+  }
+  function finish(){
+    if(CUR3D){CUR3D.dispose();CUR3D=null;}
+    cofrinhoOver();
+  }
+  paint();showBtn();
+}
+function cofrinhoStart2D(){clearInterval(timer);C={pos:0,coins:0,skip:false,busy:false,die:null,msg:"",dead:false};cofrinhoRender();}
+function cofrinhoRender(){showWho();const p=getProfile();
+  app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr auto"><div class="fx-pill">🪙 ${C.coins} moedas</div>
+   <button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+   <div class="fx-card fx-still"><div class="fx-path">${PATH.map((t,i)=>`<div class="fx-cell ${i===C.pos?"fx-here":""}">${i===C.pos?(p?p.emo:"🙂"):PICON[t]}</div>`).join("")}</div>
+   <div id="fx-die" class="fx-die">${C.die||"🎲"}</div><div class="fx-msg" id="fx-msg">${C.msg}</div>
+   <button class="fx-big" onclick="cofrinhoRoll()" ${C.busy?"disabled":""}>${C.skip?"Passar a vez 😴":"🎲 Rolar o dado"}</button>
+   <div class="fx-center" style="font-size:.8rem;margin-top:8px">🧮 pergunta · 🎁 +5 · 🐌 perde a vez</div></div>`;}
+function cofrinhoRoll(){if(C.busy)return;
+  if(C.skip){C.skip=false;C.msg="Você passou a vez. Agora role!";sNo();cofrinhoRender();return;}
+  C.busy=true;C.msg="";const die=$("#fx-die");die.classList.add("fx-rolling");sDice();
+  die.textContent="🎲";
+  setTimeout(()=>{if(!C||C.dead)return;const v=rnd(1,6);C.die=v;die.textContent=v;die.classList.remove("fx-rolling");cofrinhoMove(v);},600);}
+function cofrinhoMove(steps){let n=0;const step=()=>{if(!C||C.dead)return;
+  if(n<steps&&C.pos<PATH.length-1){C.pos++;n++;sTap();cofrinhoRender();C.busy=true;
+    const b=document.querySelector(".fx-big");if(b)b.disabled=true;setTimeout(step,220);}
+  else cofrinhoLand();};step();}
+function cofrinhoLand(){const t=PATH[C.pos];C.busy=false;
+  if(t==="finish")return cofrinhoOver();
+  if(t==="bonus"){C.coins+=5;C.msg="🎁 Bônus! +5 moedas";sWin();}
+  else if(t==="slow"){C.skip=true;C.msg="🐌 Espaço lento! Você perde a próxima rodada.";sNo();}
+  else if(t==="q")return cofrinhoAsk();
+  cofrinhoRender();}
+function cofrinhoAsk(){const mx=12+C.pos*3,a=rnd(2,mx),mul=Math.random()<.5,b=mul?rnd(2,9):rnd(2,mx),real=mul?a*b:a+b;
+  const o=numOpts(real,[real+rnd(1,6),real-rnd(1,6),real+10]);
+  C.q={txt:`${a} ${mul?"×":"+"} ${b} = ?`,opts:o,c:o.indexOf(String(real))};
+  app().innerHTML=`<div class="fx-card"><div class="fx-pet">🧮</div><div class="fx-q">${C.q.txt}</div>
+   <div class="fx-opts">${C.q.opts.map((x,i)=>`<button class="fx-opt" onclick="cofrinhoAnswer(${i})">${x}</button>`).join("")}</div></div>`;}
+function cofrinhoAnswer(i){const ok=i===C.q.c;
+  if(ok){C.coins+=3;C.msg="✅ Acertou! +3 moedas";sOk();}else{C.skip=true;C.msg="❌ Errou! Perde a próxima rodada.";sNo();}
+  cofrinhoRender();}
+function cofrinhoOver(){const rec=getRec("cofrinho"),nova=C.coins>rec;if(nova)setRec("cofrinho",C.coins);sWin();
+  app().innerHTML=`<h1 class="fx-title">🏆 Chegou lá!</h1><div class="fx-card fx-center"><div class="fx-pet">🐷</div>
+   <p class="fx-score">${C.coins}</p><p>moedas no cofrinho ${nova?"· Novo recorde!":"· Recorde: "+rec}</p>
+   <button class="fx-big" onclick="sTap();cofrinhoStart()">Jogar de novo</button>
+   <button class="fx-big fx-ghost" onclick="sTap();menu()">Outro jogo</button></div>`;}
+
+/* ===== estado e telas ===== */
+let G=null,timer=null;
+const app=()=>$("#fx-app");
+document.documentElement.style.setProperty("--main",theme.main);
+
+function leave(){clearInterval(timer);M=null;DA=null;if(C)C.dead=true;X=null;if(CUR3D){CUR3D.dispose();CUR3D=null;}}
+function home(){leave();showWho();const p=getProfile();
+  app().innerHTML=`<h1 class="fx-title">${theme.emoji} ${theme.name}</h1><div class="fx-sub">Jogos de matemática para treinar brincando</div>
+  <div class="fx-card fx-center"><div class="fx-pet">${theme.items[0].e}</div>
+  <p>${p?`Oi, ${p.name} ${p.emo}! `:`Oi! Eu sou ${theme.items[0].n}. `}Bora jogar?</p>
+  <button class="fx-big" onclick="sTap();menu()">Começar</button>
+  <button class="fx-big fx-ghost" onclick="sTap();profileScreen()">${p?"Trocar nome/emoji":"Escolher nome e emoji"}</button>
+  <div class="fx-chips" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-top:8px"><button class="fx-big fx-ghost" onclick="toggleCalm()">🐢 Modo calmo: ${isCalm()?"ligado":"desligado"}</button>
+  <button class="fx-big fx-ghost" onclick="toggleMute()">${MUTED()?"🔇 Som: desligado":"🔊 Som: ligado"}</button></div></div>`;}
+
+/* categorias do menu (todos os jogos são de matemática) */
+const MENU_CATS=[["todos","Todos"],["quiz","Quiz SARESP"],["tab","Tabuleiro e Cartas"],["contas","Contas"]];
+const MENU_CAT_OF={tabuada:"contas",continhas:"contas",quiz:"quiz",numero:"quiz",memoria:"quiz",verdade:"quiz",intruso:"quiz",damas:"tab",xadrez:"tab",cofrinho:"tab"};
+let menuCat="todos";
+function menuSet(c){sTap();menuCat=c;menu();}
+function menu(){leave();showWho();
+  const list=theme.games.filter(id=>menuCat==="todos"||MENU_CAT_OF[id]===menuCat);
+  app().innerHTML=`<h1 class="fx-title">Escolha um jogo</h1><div class="fx-sub">${theme.items.map(i=>i.e).join(" ")}</div>
+  <div class="fx-chips" style="grid-template-columns:repeat(2,minmax(0,1fr));margin-bottom:10px">${MENU_CATS.map(([k,n])=>`<button class="fx-big ${menuCat===k?"":"fx-ghost"}" style="margin:0;font-size:.95rem" onclick="menuSet('${k}')">${n}</button>`).join("")}</div>
+  <div class="fx-menu">${list.map(id=>{const g=GAMES[id];
+    const stat=id==="damas"?"🏆 "+getRec("damas")+" vitórias":id==="memoria"?(()=>{const b=+localStorage.getItem("fx-rec-memoria-moves")||0;return b?"🔄 "+b+" jog.":"🔄 novo!";})():"🏆 "+getRec(id);
+    return`<button class="fx-tile" onclick="sTap();pick('${id}')">
+  <span class="fx-emo">${g.emoji}</span><b>${g.name}</b><small>${g.desc}</small><small>${stat}</small></button>`}).join("")}</div>
+  <button class="fx-big fx-ghost" onclick="sTap();home()">‹ Início</button>`;}
+
+function pick(id){const d=GAMES[id];
+  if(d.custom)return({memoria:memoriaStart,damas:damasStart,cofrinho:cofrinhoStart,xadrez:xadrez3D})[id]();
+  if(d.pre){app().innerHTML=`<h1 class="fx-title">${d.emoji} ${d.name}</h1><div class="fx-sub">Qual ano você quer treinar?</div>
+   <div class="fx-card"><div class="fx-chips">${[6,7,8,9].map(a=>`<button class="fx-big" onclick="sTap();${d.lvl?`pickLevel('${id}',${a})`:`play('${id}',${a})`}">${a}º</button>`).join("")}
+   ${d.lvl?"":`<button class="fx-big" style="grid-column:span 2" onclick="sTap();play('${id}',0)">Todos os anos</button>`}</div></div>
+   <button class="fx-big fx-ghost" onclick="sTap();menu()">‹ Voltar</button>`;}
+  else play(id,0);}
+
+function pickLevel(id,ano){const d=GAMES[id];
+  app().innerHTML=`<h1 class="fx-title">${d.emoji} ${ano}º ano</h1><div class="fx-sub">Escolha o nível de proficiência</div>
+   <div class="fx-card">${LVN.map((n,i)=>`<button class="fx-big fx-lv ${i===4?"":"fx-ghost"}" style="margin-top:${i?8:0}px" onclick="sTap();play('${id}',${ano},${i})">${n}<small>${LVD[i]}</small></button>`).join("")}</div>
+   <button class="fx-big fx-ghost" onclick="sTap();pick('${id}')">‹ Voltar</button>`;}
+
+function play(id,ano,lv){
+  if(GAME3D.includes(id)&&webglOK())return play3D(id,ano,lv);
+  return playClassic(id,ano,lv);}
+
+function nextQ(){clearInterval(timer);showWho();
+  if(G.lives<=0||(G.maxQ&&G.n>=G.maxQ))return over();
+  G.n++;G.locked=false;G.cur=G.d.next(G);
+  const q=G.cur,rec=Math.max(getRec(G.id),G.score);
+  app().innerHTML=`<div class="fx-bar"><div class="fx-pill">⭐ ${G.score}</div><div class="fx-pill">🏆 ${rec}</div>
+   <div class="fx-pill">${G.d.free?"📖 "+G.n+"/"+G.maxQ:("❤️".repeat(G.lives)||"💔")}</div><button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+   ${G.d.time?`<div class="fx-time"><i id="fx-tbar"></i></div>`:""}
+   <div class="fx-card"><div class="fx-pet">${theme.items[G.n%theme.items.length].e}</div>
+   ${q.tag?`<div class="fx-center" style="font-size:.85rem;font-weight:700">${q.tag}</div>`:""}
+   ${q.fig?`<div class="fx-fig" role="img" aria-label="${(q.fig.alt||"Figura").replace(/"/g,"&quot;")}">${figHTML(q.fig)}</div>`:""}
+   <div class="fx-q ${q.small?"fx-qs":""}">${q.q}</div>
+   <div class="fx-opts ${q.opts.some(o=>o.length>16)?"fx-one":""}">${q.opts.map((o,i)=>`<button class="fx-opt" id="fx-o${i}" onclick="ans(${i})">${o}</button>`).join("")}</div>
+   <div class="fx-msg" id="fx-msg"></div><div class="fx-study" id="fx-study" style="display:none"></div><div id="fx-nav"></div></div>`;
+  if(G.d.time){G.left=G.d.time*10;timer=setInterval(()=>{G.left--;const b=$("#fx-tbar");if(b)b.style.width=(G.left/(G.d.time*10)*100)+"%";
+    if(G.left<=0){clearInterval(timer);ans(-1);}},100);}}
+
+function ans(i){if(G.locked)return;G.locked=true;clearInterval(timer);
+  const q=G.cur,ok=i===q.c;
+  document.querySelectorAll(".fx-opt").forEach(b=>b.disabled=true);
+  $("#fx-o"+q.c).classList.add("fx-right");
+  if(ok){G.score+=10+(G.d.time?Math.ceil(G.left/10):0);G.ok++;sOk();}
+  else{if(!G.d.free)G.lives--;sNo();if(i>=0)$("#fx-o"+i).classList.add("fx-wrong");}
+  const pool=ok?theme.cheers:theme.oops;
+  $("#fx-msg").textContent=(i<0?"Acabou o tempo! ":"")+pool[rnd(0,pool.length-1)]+(q.exp&&!ok?" 💡 "+q.exp:(q.exp?" "+q.exp:""));
+  if(!ok&&q.study){const sd=SD[q.study.d];G.miss.set(q.study.d,{hab:sd[0],txt:sd[1]});
+    const st=$("#fx-study");st.innerHTML="📚 <b>Para estudar:</b> "+sd[0]+" — "+sd[1];st.style.display="block";}
+  $("#fx-nav").innerHTML=`<button class="fx-big" onclick="sTap();nextQ()">${G.lives<=0||(G.maxQ&&G.n>=G.maxQ)?"Ver resultado":"Próxima ➜"}</button>`;}
+
+function over(){clearInterval(timer);const rec=getRec(G.id),nova=G.score>rec;if(nova)setRec(G.id,G.score);sWin();
+  let extra="";
+  if(G.d.study){const pct=G.maxQ?G.ok/G.maxQ:0,L=G.lv;let sug;
+    if(L===4)sug=pct>=.8?"🌟 Ótimo desempenho! Tente o nível 🏆 Avançado deste ano.":pct>=.5?"👍 Bom caminho! Revise os descritores abaixo e refaça o Misto.":"🌱 Fortaleça a base: comece pelo nível 🌱 Abaixo do básico ou 🌿 Básico.";
+    else if(pct>=.8)sug=L<3?"🚀 Mandou bem! Agora tente o nível "+LVN[L+1]+".":"🏆 Você domina o Avançado deste ano! Experimente o 🎯 Misto ou outro ano.";
+    else if(pct>=.5)sug="👍 Quase lá! Revise os descritores abaixo e repita o nível "+LVN[L]+".";
+    else sug=L>0?"🌱 Vamos fortalecer a base: tente o nível "+LVN[L-1]+" e depois volte aqui.":"🌱 Leia as dicas de estudo abaixo e tente de novo — você consegue!";
+    const mi=[...G.miss.values()];
+    extra=`<div class="fx-study"><b>Próximo passo:</b> ${sug}</div>`+(mi.length?`<div class="fx-study"><b>📚 Para revisar:</b><ul>${mi.map(m=>`<li><b>${m.hab}</b> — ${m.txt}</li>`).join("")}</ul></div>`:"");}
+  app().innerHTML=`<h1 class="fx-title">${G.lives>0?"🎉 Parabéns!":"Fim de jogo"}</h1>
+  <div class="fx-card fx-center"><div class="fx-pet">${nova?"🏆":"⭐"}</div><p class="fx-score">${G.score}</p>
+  <p>${nova?"Novo recorde!":"Recorde: "+rec} · Acertos: ${G.ok}${G.d.study?" de "+G.maxQ:""}</p>${extra}
+  <button class="fx-big" onclick="sTap();play('${G.id}',${G.ano},${G.lv||0})">Jogar de novo</button>
+  ${G.d.lvl?`<button class="fx-big fx-ghost" onclick="sTap();pickLevel('${G.id}',${G.ano})">Escolher outro nível</button>`:""}
+  <button class="fx-big fx-ghost" onclick="sTap();menu()">Outro jogo</button></div>`;}
+
+/* ===== Jogos de matemática em 3D: o enunciado fica no texto da tela e as respostas são blocos 3D que se tocam ===== */
+const GAME3D=["tabuada","continhas","quiz","numero","verdade","intruso"];
+let CUR3D=null;
+/* posições dos blocos: 2 lado a lado, 2x2 ou uma coluna (respostas longas) */
+function layout3D(n,long){
+  if(n<=2)return{w:2.6,h:1.5,p:[[-1.45,0],[1.45,0]]};
+  if(long||n>4)return{w:4.6,h:.8,p:[[0,1.45],[0,.5],[0,-.45],[0,-1.4]]};
+  return{w:2.2,h:1.2,p:[[-1.25,.7],[1.25,.7],[-1.25,-.7],[1.25,-.7]]};
+}
+async function play3D(id,ano,lv){
+  leave();showWho();
+  const d=GAMES[id];
+  G={id,d,ano,lv:lv||0,score:0,lives:d.lives,n:0,maxQ:d.maxQ,locked:false,left:d.time*10,ok:0,miss:new Map(),cur:null};
+  d.init(G);
+  const me=G;
+  app().innerHTML=`<div class="fx-bar"><div class="fx-pill" id="t3-score">⭐ 0</div><div class="fx-pill" id="t3-rec">🏆 ${getRec(id)}</div>
+    <div class="fx-pill" id="t3-lives"></div><button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+    ${d.time?`<div class="fx-time"><i id="fx-tbar"></i></div>`:""}
+    <div class="fx-card" style="padding:12px 12px 16px"><div id="t3-q"></div>
+    <div id="t3-stage"><p class="fx-center">Preparando o jogo 3D…</p></div>
+    <div class="fx-msg" id="fx-msg"></div><div class="fx-study" id="fx-study" style="display:none"></div><div id="fx-nav"></div></div>`;
+  let S=null;
+  try{await loadThree();S=make3D($("#t3-stage"),7);}catch(e){S=null;}
+  if(G!==me)return;
+  if(!S){
+    $("#t3-stage").innerHTML=`<p class="fx-center">😕 Não consegui abrir o jogo 3D neste aparelho (WebGL desligado ou Three.js não carregou).</p>
+      <button class="fx-big" onclick="sTap();play3D('${id}',${ano},${lv||0})">Tentar de novo</button>
+      <button class="fx-big fx-ghost" onclick="sTap();playClassic('${id}',${ano},${lv||0})">Jogar a versão 2D</button>`;
+    return;
+  }
+  CUR3D=S;
+  const T=S.T,scene=S.scene;
+  /* 4 blocos de resposta: frente com texto, laterais na cor do tema */
+  const blocks=[0,1,2,3].map(i=>{
+    const mats=[0,1,2,3,4,5].map(()=>new T.MeshBasicMaterial({color:0x7c3aed}));
+    const m=new T.Mesh(new T.BoxGeometry(1,1,.35),mats);m.userData={i};
+    const tint=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({color:0x10b981,transparent:true,opacity:0,depthWrite:false}));
+    tint.position.z=.19;m.add(tint);m.userData.tint=tint;m.visible=false;
+    scene.add(m);return m;});
+  function place(n,long){
+    const L=layout3D(n,long);
+    blocks.forEach((b,i)=>{
+      if(i>=n){b.visible=false;return;}
+      b.visible=true;b.position.set(L.p[i][0],L.p[i][1],0);b.scale.set(L.w,L.h,1);
+      b.rotation.set(-.22,0,0);/* inclinação fixa: mostra a lateral do bloco, sem animação */
+    });
+    return L;
+  }
+  function setBlockText(b,txt,L){
+    const front=b.material[4];
+    const aspect=L.w/L.h;
+    const W=Math.round(512*Math.max(1,aspect/1.8)),H=Math.round(W/aspect);
+    if(front.map)front.map.dispose();
+    front.map=textTex(T,txt,"#ede9fe","#312e81",W,H);front.needsUpdate=true;
+    b.userData.tint.material.opacity=0;
+    b.material.forEach(m=>m.color.set(0x7c3aed));
+    front.color.set(0xffffff);
+  }
+  function paintBar(){
+    $("#t3-score").textContent="⭐ "+G.score;
+    $("#t3-rec").textContent="🏆 "+Math.max(getRec(id),G.score);
+    $("#t3-lives").textContent=d.free?"📖 "+G.n+"/"+G.maxQ:("❤️".repeat(G.lives)||"💔");
+  }
+  function nextQ3(){
+    clearInterval(timer);
+    if(G.lives<=0||(G.maxQ&&G.n>=G.maxQ))return finish3();
+    G.n++;G.locked=false;G.cur=d.next(G);
+    const q=G.cur,long=q.opts.some(o=>String(o).length>14);
+    const L=place(q.opts.length,long);
+    $("#t3-q").innerHTML=`${q.tag?`<div class="fx-center" style="font-size:.85rem;font-weight:700">${q.tag}</div>`:""}
+      ${q.fig?`<div class="fx-fig" role="img" aria-label="${(q.fig.alt||"Figura").replace(/"/g,"&quot;")}">${figHTML(q.fig)}</div>`:""}
+      <div class="fx-q ${q.small?"fx-qs":""}">${q.q}</div>`;
+    q.opts.forEach((o,i)=>setBlockText(blocks[i],o,L));
+    $("#fx-msg").textContent="";$("#fx-nav").innerHTML="";
+    const st=$("#fx-study");st.style.display="none";
+    paintBar();
+    if(d.time){
+      G.left=d.time*10;const bar=$("#fx-tbar");if(bar)bar.style.width="100%";
+      timer=setInterval(()=>{G.left--;if(bar)bar.style.width=(G.left/(d.time*10)*100)+"%";
+        if(G.left<=0){clearInterval(timer);ans3(-1);}},100);
+    }
+  }
+  function ans3(i){
+    if(G.locked)return;G.locked=true;clearInterval(timer);
+    const q=G.cur,ok=i===q.c;
+    blocks.forEach((b,k)=>{if(!b.visible)return;
+      if(k===q.c){b.userData.tint.material.color.set(0x10b981);b.userData.tint.material.opacity=.55;}
+      else if(k===i){b.userData.tint.material.color.set(0xf43f5e);b.userData.tint.material.opacity=.55;}});
+    if(ok){G.score+=10+(d.time?Math.ceil(G.left/10):0);G.ok++;sOk();}
+    else{if(!d.free)G.lives--;sNo();}
+    paintBar();
+    const pool=ok?theme.cheers:theme.oops;
+    $("#fx-msg").textContent=(i<0?"Acabou o tempo! ":"")+pool[rnd(0,pool.length-1)]+(q.exp&&!ok?" 💡 "+q.exp:(q.exp?" "+q.exp:""));
+    if(!ok&&q.study){const sd=SD[q.study.d];G.miss.set(q.study.d,{hab:sd[0],txt:sd[1]});
+      const st=$("#fx-study");st.innerHTML="📚 <b>Para estudar:</b> "+sd[0]+" — "+sd[1];st.style.display="block";}
+    const last=G.lives<=0||(G.maxQ&&G.n>=G.maxQ);
+    const btn=document.createElement("button");btn.className="fx-big";btn.textContent=last?"Ver resultado":"Próxima ➜";
+    btn.onclick=()=>{sTap();nextQ3();};
+    $("#fx-nav").innerHTML="";$("#fx-nav").appendChild(btn);
+  }
+  function finish3(){
+    if(CUR3D){CUR3D.dispose();CUR3D=null;}
+    over();
+  }
+  /* toque em um bloco visível */
+  S.el.addEventListener("pointerdown",ev=>{
+    if(G!==me||G.locked)return;
+    const obj=S.pick(ev,blocks);if(!obj)return;
+    let b=obj;while(b&&b.userData.i===undefined)b=b.parent;
+    if(b&&b.visible)ans3(b.userData.i);
+  });
+  nextQ3();
+}
+/* jogo 2D clássico (usado quando o 3D não abre) */
+function playClassic(id,ano,lv){const d=GAMES[id];
+  G={id,d,ano,lv:lv||0,score:0,lives:d.lives,n:0,maxQ:d.maxQ,locked:false,left:d.time*10,ok:0,miss:new Map()};
+  d.init(G);nextQ();}
+
+/* ===== Xadrez: regras e IA do motor de referência (lógica pura, sem tela) ===== */
+const CHESS_PVAL={P:100,N:320,B:330,R:500,Q:900,K:0};
+const CHESS_GLYPH={wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙',bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟'};
+const chessOpp=c=>c==='w'?'b':'w';
+const chessColor=p=>p?p[0]:null;
+const chessType=p=>p?p[1]:null;
+const chessInb=(r,c)=>r>=0&&r<8&&c>=0&&c<8;
+function chessInitBoard(){
+  const b=Array.from({length:8},()=>Array(8).fill(null));
+  const back=['R','N','B','Q','K','B','N','R'];
+  for(let c=0;c<8;c++){b[0][c]='b'+back[c];b[1][c]='bP';b[6][c]='wP';b[7][c]='w'+back[c]}
+  return b;
+}
+function chessCloneState(st){return{board:st.board.map(row=>row.slice()),turn:st.turn,castle:{...st.castle},ep:st.ep?[...st.ep]:null,halfmove:st.halfmove}}
+function chessNewState(){return{board:chessInitBoard(),turn:'w',castle:{wK:true,wQ:true,bK:true,bQ:true},ep:null,halfmove:0}}
+function chessIsAttacked(st,r,c,byColor){
+  const b=st.board;
+  const pd=byColor==='w'?1:-1;
+  for(const dc of[-1,1]){const pr=r+pd,pc=c+dc;if(chessInb(pr,pc)&&b[pr][pc]===byColor+'P')return true}
+  const kn=[[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]];
+  for(const[dr,dc]of kn){const tr=r+dr,tc=c+dc;if(chessInb(tr,tc)&&b[tr][tc]===byColor+'N')return true}
+  for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(!dr&&!dc)continue;const tr=r+dr,tc=c+dc;if(chessInb(tr,tc)&&b[tr][tc]===byColor+'K')return true}
+  for(const[dr,dc]of[[1,0],[-1,0],[0,1],[0,-1]]){let tr=r+dr,tc=c+dc;while(chessInb(tr,tc)){const p=b[tr][tc];if(p){if(chessColor(p)===byColor&&(chessType(p)==='R'||chessType(p)==='Q'))return true;break}tr+=dr;tc+=dc}}
+  for(const[dr,dc]of[[1,1],[1,-1],[-1,1],[-1,-1]]){let tr=r+dr,tc=c+dc;while(chessInb(tr,tc)){const p=b[tr][tc];if(p){if(chessColor(p)===byColor&&(chessType(p)==='B'||chessType(p)==='Q'))return true;break}tr+=dr;tc+=dc}}
+  return false;
+}
+function chessFindKing(st,col){for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(st.board[r][c]===col+'K')return[r,c];return null}
+function chessInCheck(st,col){const k=chessFindKing(st,col);return k?chessIsAttacked(st,k[0],k[1],chessOpp(col)):false}
+function chessGenPseudo(st,r,c){
+  const b=st.board,p=b[r][c];if(!p)return[];
+  const col=p[0],t=p[1],moves=[],enemy=chessOpp(col);
+  const add=(tr,tc,extra)=>{if(chessInb(tr,tc))moves.push(Object.assign({from:[r,c],to:[tr,tc],piece:p,capture:b[tr][tc]||null},extra))};
+  if(t==='P'){
+    const dir=col==='w'?-1:1,startRow=col==='w'?6:1,promoRow=col==='w'?0:7;
+    if(chessInb(r+dir,c)&&!b[r+dir][c]){
+      add(r+dir,c,r+dir===promoRow?{promo:true}:null);
+      if(r===startRow&&!b[r+2*dir][c])add(r+2*dir,c,{double:true});
+    }
+    [c-1,c+1].forEach(cc=>{
+      if(chessInb(r+dir,cc)&&b[r+dir][cc]&&chessColor(b[r+dir][cc])===enemy)add(r+dir,cc,r+dir===promoRow?{promo:true}:null);
+      else if(st.ep&&st.ep[0]===r+dir&&st.ep[1]===cc)add(r+dir,cc,{epCapture:true});
+    });
+  }else if(t==='N'){
+    [[1,2],[2,1],[-1,2],[-2,1],[1,-2],[2,-1],[-1,-2],[-2,-1]].forEach(([dr,dc])=>{const tr=r+dr,tc=c+dc;if(chessInb(tr,tc)&&chessColor(b[tr][tc])!==col)add(tr,tc)});
+  }else if(t==='K'){
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){if(!dr&&!dc)continue;const tr=r+dr,tc=c+dc;if(chessInb(tr,tc)&&chessColor(b[tr][tc])!==col)add(tr,tc)}
+  }else{
+    const dirs=t==='B'?[[1,1],[1,-1],[-1,1],[-1,-1]]:t==='R'?[[1,0],[-1,0],[0,1],[0,-1]]:[[1,1],[1,-1],[-1,1],[-1,-1],[1,0],[-1,0],[0,1],[0,-1]];
+    dirs.forEach(([dr,dc])=>{let tr=r+dr,tc=c+dc;while(chessInb(tr,tc)){if(chessColor(b[tr][tc])===col)break;add(tr,tc);if(b[tr][tc])break;tr+=dr;tc+=dc}});
+  }
+  return moves;
+}
+function chessAddCastling(st,col,moves){
+  const row=col==='w'?7:0,r=st.castle;
+  if(chessColor(st.board[row][4])!==col||chessType(st.board[row][4])!=='K')return;
+  if(chessIsAttacked(st,row,4,chessOpp(col)))return;
+  if((col==='w'?r.wK:r.bK)&&!st.board[row][5]&&!st.board[row][6]&&st.board[row][7]===col+'R'){
+    if(!chessIsAttacked(st,row,5,chessOpp(col))&&!chessIsAttacked(st,row,6,chessOpp(col)))moves.push({from:[row,4],to:[row,6],piece:col+'K',castle:'K',capture:null});
+  }
+  if((col==='w'?r.wQ:r.bQ)&&!st.board[row][1]&&!st.board[row][2]&&!st.board[row][3]&&st.board[row][0]===col+'R'){
+    if(!chessIsAttacked(st,row,3,chessOpp(col))&&!chessIsAttacked(st,row,2,chessOpp(col)))moves.push({from:[row,4],to:[row,2],piece:col+'K',castle:'Q',capture:null});
+  }
+}
+function chessGenAllPseudo(st,col){
+  const moves=[];
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=st.board[r][c];if(p&&chessColor(p)===col)moves.push(...chessGenPseudo(st,r,c))}
+  chessAddCastling(st,col,moves);
+  return moves;
+}
+function chessApplyMove(st,m){
+  const ns=chessCloneState(st),b=ns.board;
+  const[fr,fc]=m.from,[tr,tc]=m.to,p=b[fr][fc];
+  const isCapture=!!b[tr][tc]||m.epCapture;
+  b[fr][fc]=null;
+  if(m.epCapture)b[fr][tc]=null;
+  b[tr][tc]=m.promo?p[0]+(m.promoPiece||'Q'):p;
+  if(m.castle==='K'){b[fr][7]=null;b[tr][5]=p[0]+'R'}
+  if(m.castle==='Q'){b[fr][0]=null;b[tr][3]=p[0]+'R'}
+  if(chessType(p)==='K'){if(p[0]==='w'){ns.castle.wK=false;ns.castle.wQ=false}else{ns.castle.bK=false;ns.castle.bQ=false}}
+  if((fr===7&&fc===0)||(tr===7&&tc===0))ns.castle.wQ=false;
+  if((fr===7&&fc===7)||(tr===7&&tc===7))ns.castle.wK=false;
+  if((fr===0&&fc===0)||(tr===0&&tc===0))ns.castle.bQ=false;
+  if((fr===0&&fc===7)||(tr===0&&tc===7))ns.castle.bK=false;
+  ns.ep=m.double?[(fr+tr)/2,fc]:null;
+  ns.halfmove=(chessType(p)==='P'||isCapture)?0:st.halfmove+1;
+  ns.turn=chessOpp(st.turn);
+  return ns;
+}
+function chessLegalMoves(st,col){
+  return chessGenAllPseudo(st,col).filter(m=>!chessInCheck(chessApplyMove(st,m),col));
+}
+function chessInsufficientMaterial(st){
+  const pieces=[];for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(st.board[r][c])pieces.push(st.board[r][c]);
+  if(pieces.length>4)return false;
+  const nk=pieces.filter(p=>chessType(p)!=='K');
+  if(nk.length===0)return true;
+  if(nk.length===1&&(chessType(nk[0])==='B'||chessType(nk[0])==='N'))return true;
+  return false;
+}
+function chessEval(st){let s=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=st.board[r][c];if(!p)continue;const v=CHESS_PVAL[chessType(p)];s+=chessColor(p)==='b'?v:-v}return s}
+function chessOrder(moves){return moves.slice().sort((a,b)=>(b.capture?CHESS_PVAL[chessType(b.capture)]:0)-(a.capture?CHESS_PVAL[chessType(a.capture)]:0))}
+function chessMinimax(st,depth,alpha,beta,maximizing){
+  const col=maximizing?'b':'w',moves=chessLegalMoves(st,col);
+  if(moves.length===0)return chessInCheck(st,col)?(maximizing?-9000-depth:9000+depth):0;
+  if(depth===0)return chessEval(st);
+  const ordered=chessOrder(moves);
+  if(maximizing){let best=-Infinity;for(const m of ordered){const v=chessMinimax(chessApplyMove(st,m),depth-1,alpha,beta,false);best=Math.max(best,v);alpha=Math.max(alpha,v);if(beta<=alpha)break}return best}
+  let best=Infinity;for(const m of ordered){const v=chessMinimax(chessApplyMove(st,m),depth-1,alpha,beta,true);best=Math.min(best,v);beta=Math.min(beta,v);if(beta<=alpha)break}return best;
+}
+function chessAiMove(st){
+  const moves=chessOrder(chessLegalMoves(st,'b'));
+  if(!moves.length)return null;
+  let bestScore=-Infinity,bestMoves=[];
+  moves.forEach(m=>{
+    const v=chessMinimax(chessApplyMove(st,m),2,-Infinity,Infinity,false)+Math.random()*6;
+    if(v>bestScore+3){bestScore=v;bestMoves=[m]}else if(Math.abs(v-bestScore)<=3)bestMoves.push(m);
+  });
+  return bestMoves[Math.floor(Math.random()*bestMoves.length)];
+}
+/* ===== Xadrez 3D: regras e IA vêm do motor de referência (sem tela); aqui só o tabuleiro 3D ===== */
+let X=null;
+async function xadrez3D(){
+  if(CUR3D){CUR3D.dispose();CUR3D=null;}showWho();
+  X={st:chessNewState(),sel:null,legal:[],busy:false,over:false,last:null};
+  const me=X;
+  app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr auto"><div class="fx-pill" id="x3-turn">Sua vez ♔</div>
+   <button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+   <div class="fx-card fx-still" style="padding:10px"><div id="t3-stage"><p class="fx-center">Preparando o tabuleiro 3D…</p></div>
+   <div class="fx-msg" id="fx-msg"></div><div id="fx-nav"></div></div>`;
+  let S=null;
+  try{await loadThree();S=make3D($("#t3-stage"),9);}catch(e){S=null;}
+  if(X!==me)return;
+  if(!S){$("#t3-stage").innerHTML=`<p class="fx-center">😕 Não consegui abrir o tabuleiro 3D neste aparelho.</p>
+    <button class="fx-big" onclick="sTap();xadrez3D()">Tentar de novo</button>`;return;}
+  CUR3D=S;
+  const T=S.T,scene=S.scene;
+  const tiles=[];
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
+    const dark=(r+c)%2===1;
+    const m=new T.Mesh(new T.BoxGeometry(.96,.96,.12),new T.MeshBasicMaterial({color:dark?0x8b5a2b:0xf1e4c7}));
+    m.position.set(c-3.5,3.5-r,0);m.userData={r,c,dark};scene.add(m);tiles.push(m);}
+  const pg=new T.Group();scene.add(pg);
+  function tileColor(r,c,dark){
+    const sel=X.sel&&X.sel[0]===r&&X.sel[1]===c;
+    const tgt=X.legal.find(m=>m.to[0]===r&&m.to[1]===c);
+    if(sel)return 0x22d3ee;
+    if(tgt)return tgt.capture?0xfca5a5:0xa7f3d0;
+    if(X.last&&((X.last.from[0]===r&&X.last.from[1]===c)||(X.last.to[0]===r&&X.last.to[1]===c)))return 0xfde047;
+    return dark?0x8b5a2b:0xf1e4c7;
+  }
+  function draw(){
+    tiles.forEach(t=>{const {r,c,dark}=t.userData;t.material.color.set(tileColor(r,c,dark));});
+    while(pg.children.length){const m=pg.children.pop();m.geometry.dispose();}
+    const b=X.st.board;
+    for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=b[r][c];if(!p)continue;
+      const white=p[0]==="w";
+      const body=new T.MeshBasicMaterial({color:white?0xfef3c7:0x1f2937});
+      const top=new T.MeshBasicMaterial({map:textTex(T,CHESS_GLYPH[p],white?"#fef3c7":"#1f2937",white?"#1f2937":"#fef3c7",128,128)});
+      const m=new T.Mesh(new T.CylinderGeometry(.34,.36,.22,24),[body,top,body]);
+      m.rotation.x=Math.PI/2;m.position.set(c-3.5,3.5-r,.2);m.userData={r,c};pg.add(m);}
+    const turn=X.st.turn==="w"?"Sua vez ♔":"Vez do computador ♚";
+    $("#x3-turn").textContent=turn;
+  }
+  function status(){
+    const st=X.st,col=st.turn;
+    if(chessInsufficientMaterial(st)){X.over=true;return"Empate: sobrou material insuficiente. 🤝";}
+    if(!chessLegalMoves(st,col).length){X.over=true;
+      if(chessInCheck(st,col)){setRec("xadrez",getRec("xadrez")+(col==="b"?1:0));return col==="b"?"Xeque-mate! Você venceu! 🎉":"Xeque-mate! O computador venceu desta vez.";}
+      return"Empate por afogamento. 🤝";}
+    if(chessInCheck(st,col))return col==="w"?"Xeque! Sua vez.":"Xeque! Vez do computador…";
+    return null;
+  }
+  function endGame(msg){
+    $("#fx-msg").textContent=msg;
+    const btn=document.createElement("button");btn.className="fx-big";btn.textContent="Jogar de novo";
+    btn.onclick=()=>{sTap();xadrez3D();};
+    const b2=document.createElement("button");b2.className="fx-big fx-ghost";b2.textContent="Outro jogo";b2.onclick=()=>{sTap();menu();};
+    $("#fx-nav").innerHTML="";$("#fx-nav").append(btn,b2);
+  }
+  function play(mv){
+    X.st=chessApplyMove(X.st,mv);X.last=mv;X.sel=null;X.legal=[];
+    draw();
+  }
+  function aiTurn(){
+    if(X!==me||X.over)return;
+    const mv=chessAiMove(X.st);
+    if(!mv){X.over=true;return endGame("Sem lances para o computador.");}
+    X.busy=true;
+    setTimeout(()=>{if(X!==me)return;X.busy=false;play(mv);sTap();
+      const s=status();if(s)return endGame(s);
+      $("#fx-msg").textContent=s||"Sua vez! Toque numa peça branca ♔";},450);
+  }
+  S.el.addEventListener("pointerdown",ev=>{
+    if(X!==me||X.over||X.busy||X.st.turn!=="w")return;
+    const obj=S.pick(ev,tiles.concat(pg.children));if(!obj)return;
+    let b=obj;while(b&&b.userData.r===undefined)b=b.parent;
+    if(!b)return;
+    const r=b.userData.r,c=b.userData.c,p=X.st.board[r][c];
+    const tgt=X.legal.find(m=>m.to[0]===r&&m.to[1]===c);
+    if(X.sel&&tgt){
+      const mv=Object.assign({},tgt,{promoPiece:"Q"});
+      if(tgt.capture)sNo();else sTap();
+      play(mv);
+      const s=status();
+      if(s&&X.over)return endGame(s);
+      $("#fx-msg").textContent="Vez do computador…";
+      return aiTurn();
+    }
+    if(p&&p[0]==="w"){
+      X.sel=[r,c];X.legal=chessLegalMoves(X.st,"w").filter(m=>m.from[0]===r&&m.from[1]===c);
+      sTap();draw();
+      $("#fx-msg").textContent=X.legal.length?"Toque numa casa destacada.":"Essa peça não pode se mover agora.";
+    }else if(X.sel){X.sel=null;X.legal=[];draw();$("#fx-msg").textContent="";}
+  });
+  draw();
+  $("#fx-msg").textContent="Você joga com as brancas. Toque numa peça branca ♔";
+}
+applyCalm();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js").catch(()=>{});
+if(getProfile())home();else profileScreen();
+</script>
+</body>
+</html>

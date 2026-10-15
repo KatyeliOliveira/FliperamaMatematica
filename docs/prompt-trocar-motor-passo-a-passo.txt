@@ -1,0 +1,112 @@
+Você está na pasta LOCAL do jogo da Milena. NÃO use GitHub. O repositório é privado e você NÃO vai conseguir clonar.
+
+A implementação de referência (motor, 3D, tipos de jogo, menu, PWA, save) está PUBLICADA em:
+https://jogosmilena.felipe-conhariki.workers.dev/
+
+Trabalhe só com arquivos locais + esse site. Sem git, sem commit, sem push, sem pedir login.
+
+================================================================
+PASSO 1 — Baixar o motor publicado
+================================================================
+Baixe com o terminal (PowerShell) para uma pasta TEMP, NÃO em cima do jogo ainda:
+
+$ref = "$env:TEMP\jogos-ref"
+New-Item -ItemType Directory -Force -Path $ref | Out-Null
+$base = "https://jogosmilena.felipe-conhariki.workers.dev"
+Invoke-WebRequest "$base/" -OutFile "$ref\index.html" -UseBasicParsing
+try { Invoke-WebRequest "$base/manifest.json" -OutFile "$ref\manifest.json" -UseBasicParsing } catch {}
+try { Invoke-WebRequest "$base/sw.js" -OutFile "$ref\sw.js" -UseBasicParsing } catch {}
+try { Invoke-WebRequest "$base/worker.js" -OutFile "$ref\worker.js" -UseBasicParsing } catch {}
+try { Invoke-WebRequest "$base/wrangler.jsonc" -OutFile "$ref\wrangler.jsonc" -UseBasicParsing } catch {}
+
+Leia o index.html baixado. Ele é um app único (HTML+CSS+JS). Confirme que existem:
+- const THEMES={...}
+- function buildGames()
+- Mundo Aberto (openWorld, Three.js voxel)
+- Pinball 3D (pinball / pinball2d)
+- Stick Fight (stickArena / stickFighter)
+- Cat Escape (catEscape)
+- Estúdio do Avatar (dressUp / avatarStudio)
+- Xadrez e Dama
+- sync de progresso (SV_ / jp_sv)
+
+Se o download falhar, tente de novo. Não invente o 3D do zero.
+
+================================================================
+PASSO 2 — Inventariar ESTA pasta (o jogo dela)
+================================================================
+Liste os arquivos da pasta aberta. Ache o HTML/JS principal.
+
+Extraia e GUARDE (em memória / arquivo temporário) o conteúdo DELA, que não pode se perder:
+- Objeto THEMES (personagens, cores, palavras, quiz, falas, ícones)
+- Personagens extras (TORAJO_EXTRA ou equivalente dela)
+- Título, manifest name, theme-color, ícones PNG se forem dela
+- Qualquer texto/nota específica (nome das crianças, etc.)
+- worker/sync URLs se ela já tiver nuvem própria
+
+Se ela NÃO tiver THEMES estruturado, extraia personagens/perguntas do jeito que estiver e monte no formato do motor novo.
+
+================================================================
+PASSO 3 — Trocar o motor, manter o conteúdo
+================================================================
+Substitua o motor local pelo index.html de referência (o baixado).
+
+DEPOIS, recoloque o THEMES DELA no lugar do THEMES de referência.
+NÃO deixe os temas do site (Torajo, Demon Slayer, Naruto, etc.) a menos que ela já tivesse esses temas.
+
+Formato obrigatório de cada tema (preencha o que faltar com conteúdo original, sem copiar letra de música nem fala oficial):
+
+chave: {
+  name, short, icon, tune, sym ('fruta' ou 'símbolo'), art ('a' ou 'o'),
+  bg, acc, accD, line, cream,
+  float: [6 emojis de fundo],
+  cheer, gameIcons: {memory, catcher, slicer, simon, cards, domino},
+  note,
+  chars: [ mk('Nome','emoji','tag',[3 pistas],[3 falas],pitch,rate), ... ],
+  words: [['palavra','dica'], ...],   // ~16+
+  quiz: [{q,a,o:[4 opções]}],         // ~6+
+  tf: [{t,a:true/false}],             // ~6+
+  intr: [{q,o,a,x}],                  // 3+
+  mil: { med:[], hard:[], top:[] }    // Rumo ao Milhão
+}
+
+Função mk já existe no motor. Personagens: 7–13 por tema.
+
+Ajuste também:
+- applyTheme default para o tema principal DELA (não 'torajo', a menos que seja o dela)
+- manifest.json: name/short_name/cores/ícones do jogo DELA
+- sw.js: nome do cache diferente (ex: jogos-milena-v25) para forçar atualização no celular
+- FS_SITE e URLs de sync: mantenha as dela se existirem; senão use o próprio workers.dev em que ela publica
+- Título <title> e h1 “Jogos de …”
+
+NÃO apague: Mundo Aberto, Pinball 3D, Stick Fight, Cat Escape, Avatar, Tetris, Dança, Xadrez, Dama, Bingo, etc.
+
+================================================================
+PASSO 4 — Jogos que o menu TEM que listar (buildGames)
+================================================================
+Quiz e Palavras: Memória, Quiz, Quem é?, De quem é a fala?, Corrida contra o tempo, Verdade ou mentira, Forca, Caça-palavras, Embaralhadas, Qual é o intruso?, Cruzadinha, Rumo ao Milhão, Genius.
+
+Tabuleiro e Cartas: Jogo da velha, Dominó, Última Carta, Cofrinho, Bingo, Resta 1, Xadrez, Dama.
+
+Ação: Pega-símbolos, Corte rápido, Tetris, Dança, Labirinto, Pinball 3D, Stick Fight, Cat Escape.
+
+Criar: Ateliê, Pixel Art das Contas, Estúdio do Avatar, Mundo Aberto 3D.
+
+Ícones/nomes de Pega/Corta/Genius/Última Carta mudam com T.sym (fruta vs símbolo).
+
+================================================================
+PASSO 5 — 3D (já vem no HTML baixado; só não quebrar)
+================================================================
+Three.js carrega SOB DEMANDA. Se WebGL falhar: mensagem amigável + “Tentar de novo” + fallback 2D no Pinball.
+Não reescreva o voxel, o pinball 3D, o Stick Fight nem o Cat Escape. Só garanta que usam T (cores/tema) onde o motor original já usa.
+
+================================================================
+PASSO 6 — Conferir
+================================================================
+- Abrir o index.html no navegador (arquivo local ou live server).
+- Trocar de tema e ver menu, personagens e um quiz mudarem.
+- Menu mostra as 4 categorias e os jogos 3D.
+- Não restou tema Torajo/anime se não era dela.
+- Sem erro de THEMES[id] undefined.
+
+No final, liste: arquivos alterados, temas preservados, o que veio do site, e se algum jogo ficou de fora.
