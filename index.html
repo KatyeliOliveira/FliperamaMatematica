@@ -170,6 +170,42 @@ background:var(--gbg);box-shadow:0 6px 0 var(--gsh),0 10px 18px -9px rgba(0,0,0,
 .fx-big{background-image:linear-gradient(180deg,rgba(255,255,255,.24),rgba(255,255,255,0) 60%);transition:transform .14s,box-shadow .14s}
 @media (hover:hover){.fx-big:hover{transform:translateY(-2px)}}
 .fx-x{box-shadow:0 4px 0 rgba(0,0,0,.12)}
+/* quiz 3D: progresso, sequência de acertos, personagem e ferramentas (dinâmica do jogo de referência) */
+.fx-top{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.fx-dots{flex:1;min-width:0;display:flex;gap:3px;background:var(--card);border-radius:999px;padding:7px 10px;box-shadow:0 2px 0 rgba(0,0,0,.1)}
+.fx-dots i{flex:1;height:9px;border-radius:5px;background:var(--soft);transition:background .25s}
+.fx-dots i.ok{background:#10b981}.fx-dots i.no{background:#f43f5e}.fx-dots i.sk{background:#94a3b8}
+.fx-dots i.cur{background:#f59e0b;transform:scaleY(1.5)}
+.fx-fire{flex:none;display:flex;align-items:center;gap:4px;background:var(--card);border-radius:999px;padding:3px 11px 3px 8px;font:800 15px "Baloo 2",sans-serif;box-shadow:0 2px 0 rgba(0,0,0,.1)}
+.fx-fire span{filter:grayscale(1) opacity(.5)}
+.fx-fire.l1{background:#fff1dc;color:#c4620a;box-shadow:0 2px 0 #ff9a2e}
+.fx-fire.l2{background:#ffe3cf;color:#b93a05;box-shadow:0 2px 0 #ff5a1f;transform:scale(1.08)}
+.fx-fire.l3{background:linear-gradient(135deg,#ff7a18,#e2384f);color:#fff;box-shadow:0 2px 0 #a3202f;transform:scale(1.15)}
+.fx-fire.l1 span,.fx-fire.l2 span,.fx-fire.l3 span{filter:none}
+.fx-host{position:relative;display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fx-av{width:58px;height:58px;flex:none;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;background:linear-gradient(150deg,var(--main),#4c1d95);border:3px solid #fff;box-shadow:0 4px 0 rgba(0,0,0,.12)}
+.fx-mood{position:absolute;left:44px;top:-4px;font-size:22px}
+.fx-bub{flex:1;min-width:0;font:800 14px/1.2 Nunito,sans-serif;background:var(--card);border-radius:14px 14px 14px 3px;padding:8px 12px;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.fx-bub.ok{color:#2c7a37}.fx-bub.no{color:#b3243a}
+.fx-clue{display:flex;align-items:center;gap:8px;background:var(--card);border-radius:14px;padding:7px 10px;margin:6px 0;font:700 14px/1.2 Nunito,sans-serif;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+.fx-clue b{flex:none;width:26px;height:26px;border-radius:9px;background:var(--main);color:#fff;display:flex;align-items:center;justify-content:center;font:800 14px "Baloo 2",sans-serif}
+.fx-clue.lock{opacity:.5}.fx-clue.lock b{background:#94a3b8}
+.fx-tools{display:flex;gap:8px;margin-top:8px}
+.fx-tools .fx-big{flex:1;margin:0;padding:10px 6px;font-size:.95rem}
+/* Cofrinho: painel de jogadores e dica */
+.cf-players{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-bottom:8px}
+.cf-pc{background:var(--card);border-radius:14px;padding:6px 8px;font:700 12.5px/1.25 Nunito,sans-serif;box-shadow:0 3px 0 rgba(0,0,0,.08);display:flex;flex-direction:column;gap:1px;min-width:0}
+.cf-pc b{font:800 14px "Baloo 2",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cf-pc.on{outline:3px solid #f59e0b}
+.cf-tip{font:700 13px/1.3 Nunito,sans-serif;margin-top:8px;opacity:.85;text-align:center}
+/* seleção de nível e linha de mensagem (Memória) */
+.fx-lvs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:10px}
+.fx-lvbtn{border:2px solid var(--soft);background:var(--card);color:var(--ink);border-radius:14px;padding:6px 2px 5px;cursor:pointer;font:800 14px/1.05 "Baloo 2",sans-serif;box-shadow:0 3px 0 rgba(0,0,0,.1);min-width:0}
+.fx-lvbtn small{display:block;font:800 10.5px Nunito,sans-serif;opacity:.85}
+.fx-lvbtn[aria-pressed=true]{background:linear-gradient(160deg,var(--main),#4c1d95);color:#fff;border-color:transparent;box-shadow:0 3px 0 #3b0764}
+.fx-msgrow{display:flex;align-items:center;gap:8px;min-height:38px;margin-bottom:6px}
+.fx-msgrow .fx-msg{flex:1;min-width:0;margin:0}
+.fx-msgrow .fx-big{width:auto;margin:0;padding:8px 12px;font-size:.95rem}
 /* xadrez 3D (palco, legendas, fim de partida e escolha da promoção) */
 .x3-stage{position:relative;width:100%;max-width:520px;aspect-ratio:1/1;margin:0 auto;border-radius:22px;overflow:hidden;border:3px solid var(--ink);
 background:radial-gradient(120% 90% at 50% 40%,#6d4a31 0%,#2b1a10 62%,#130a05 100%)}
@@ -402,7 +438,7 @@ const GAMES={
     if(Math.random()<.6){const lo=Math.max(0,n-rnd(6,18));clues.push("sou maior que "+lo);}
     else clues.push("estou entre "+Math.max(0,n-10)+" e "+(n+10));
     const o=numOpts(n,[n+rnd(1,9),n-rnd(1,9),n+10,n-10,n+rnd(10,20)]);
-    return{q:`🔎 Pensei em um número secreto: ${clues.join(", ")}. Quem sou eu?`,opts:o,c:o.indexOf(String(n)),small:true};}},
+    return{q:"🔎 Pensei em um número secreto. Quem sou eu?",clues,opts:o,c:o.indexOf(String(n)),small:true};}},
  memoria:{emoji:"🧩",name:"Jogo da Memória",desc:"Ache os pares: a conta e o resultado!",custom:true},
  xadrez:{emoji:"♟️",name:"Xadrez",desc:"Partida completa contra o computador",custom:true},
  damas:{emoji:"♟️",name:"Damas",desc:"Partida de tabuleiro contra o computador!",custom:true},
@@ -464,60 +500,124 @@ function profileScreen(){clearInterval(timer);const cur=getProfile();tempEmo=cur
 
 /* ===== jogo da memória ===== */
 let M=null;
-function memoriaStart(){clearInterval(timer);const pairsN=6,usedP=new Set(),facts=[];
-  while(facts.length<pairsN){const a=rnd(2,9),b=rnd(2,9),p=a*b;if(usedP.has(p))continue;usedP.add(p);facts.push([a,b,p]);}
-  let cards=[];facts.forEach((f,idx)=>{cards.push({pid:idx,label:f[0]+" × "+f[1]});cards.push({pid:idx,label:String(f[2])});});
-  cards=shuf(cards).map((c,i)=>({...c,id:i,open:false,done:false}));
-  M={cards,openIdx:[],moves:0,matched:0,total:pairsN,busy:false};
+/* Memória: dinâmica do jogo de referência (níveis, combo, tempo, tremor no erro, estrelas) com pares de multiplicação */
+const MM_LV=[[6,"Fácil"],[8,"Médio"],[10,"Difícil"],[12,"Mestre"]];
+const MM_COLS={6:3,8:4,10:4,12:4};
+const MM_HUE=[8,205,330,145,268,38,92,298,178,55,238,350];
+function mmPairs(n){const out=[],used=new Set();while(out.length<n){const a=rnd(2,9),b=rnd(2,9),p=a*b;if(used.has(p))continue;used.add(p);out.push({a,b,p});}return out;}
+function memoriaStart(){
+  clearInterval(timer);if(M&&M.clock)clearInterval(M.clock);
+  let lv=8;try{lv=+localStorage.getItem("fx-mem-lv")||8;}catch(e){}
+  if(!MM_LV.some(l=>l[0]===lv))lv=8;
+  const pairs=mmPairs(lv);
+  const cards=[];
+  pairs.forEach((pr,i)=>{
+    cards.push({pid:i,label:pr.a+" × "+pr.b,hue:MM_HUE[i%MM_HUE.length],kind:"conta"});
+    cards.push({pid:i,label:String(pr.p),hue:MM_HUE[i%MM_HUE.length],kind:"resultado"});});
+  M={level:lv,cards:shuf(cards).map((c,i)=>({...c,id:i,open:false,done:false,mesh:null,shake:0,pop:0})),
+    openIdx:[],moves:0,matched:0,total:lv,busy:false,combo:0,ended:false,lock:false,secs:0,t0:0,clock:null};
   if(webglOK())return memory3D();
   memoriaBuild();}
-/* Memória 3D: cada carta é um bloco 3D que gira para mostrar o verso (calmo: sem giro se o modo calmo estiver ligado) */
 async function memory3D(){
   if(CUR3D){CUR3D.dispose();CUR3D=null;}showWho();
-  const cards=M.cards;
-  app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr 1fr auto"><div class="fx-pill" id="fx-mm">🔄 0</div>
-   <div class="fx-pill" id="fx-mp">✅ 0/${M.total}</div><button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
-   <div class="fx-card fx-still" style="padding:10px"><div id="t3-stage"><p class="fx-center">Preparando o jogo 3D…</p></div><div class="fx-msg" id="fx-msg"></div></div>`;
-  const me=M;
+  const me=M,lv=M.level,cols=MM_COLS[lv],rows=Math.ceil(M.cards.length/cols);
+  const ratio=Math.min(1.9,Math.max(.9,(rows*1.45)/(cols*1.2)));
+  const halfH=rows*1.45/2+.35,halfW=cols*1.2/2+.35;
+  const camZ=Math.max(halfH*2.75,halfW/(Math.tan(20*Math.PI/180)/ratio));
+  const lvBtns=MM_LV.map(([n,name])=>`<button type="button" class="fx-lvbtn" data-l="${n}" aria-pressed="${n===lv}">${name}<small>${n*2} cartas</small></button>`).join("");
+  app().innerHTML=`<div class="fx-lvs">${lvBtns}</div>
+   <div class="fx-bar" style="grid-template-columns:repeat(3,minmax(0,1fr)) auto"><div class="fx-pill">⏱️ <b id="mmTime">0:00</b></div>
+   <div class="fx-pill">🔄 <b id="mmMoves">0</b></div><div class="fx-pill">✅ <b id="mmPairs">0/${lv}</b></div>
+   <button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+   <div class="fx-card fx-still" style="padding:10px 10px 12px">
+    <div class="fx-msgrow"><div class="fx-msg" id="fx-msg">Vire duas cartas e ache o par: conta e resultado.</div>
+    <button class="fx-big fx-ghost" id="mmRestart" type="button">🔀 Embaralhar</button></div>
+    <div id="t3-stage"><p class="fx-center">Preparando o jogo 3D…</p></div>
+    <div id="mmEnd"></div></div>`;
+  app().querySelectorAll(".fx-lvbtn").forEach(b=>b.onclick=()=>{sTap();try{localStorage.setItem("fx-mem-lv",b.dataset.l)}catch(e){}memoriaStart();});
+  $("#mmRestart").onclick=()=>{sTap();memoriaStart();};
   let S=null;
-  try{await loadThree();S=make3D($("#t3-stage"),9);}catch(e){S=null;}
+  try{await loadThree();S=make3D($("#t3-stage"),camZ,false,ratio);}catch(e){S=null;}
   if(M!==me)return;
   if(!S){$("#t3-stage").innerHTML=`<p class="fx-center">😕 Não consegui abrir o jogo 3D neste aparelho.</p>
     <button class="fx-big" onclick="sTap();memoriaBuild()">Jogar a versão 2D</button>`;return;}
   CUR3D=S;
   const T=S.T,scene=S.scene;
-  const cols=4,gx=1.2,gy=1.42;
-  const meshes=cards.map((c,i)=>{
-    const front=new T.MeshBasicMaterial({map:textTex(T,theme.emoji,"#7c3aed","#ffffff",256,256)});
-    const back=new T.MeshBasicMaterial({map:textTex(T,c.label,"#ede9fe","#312e81",256,256)});
-    const side=new T.MeshBasicMaterial({color:0x7c3aed});
-    const m=new T.Mesh(new T.BoxGeometry(1,1.3,.08),[side,side,side,side,front,back]);
+  /* cartas: verso com padrão, frente com a conta (laranja) ou o resultado (azul) */
+  const meshes=M.cards.map((c,i)=>{
     const col=i%cols,row=Math.floor(i/cols);
-    m.position.set((col-(cols-1)/2)*gx,((1-row)-.5)*gy+.3,0);
-    m.userData={id:c.id};
-    scene.add(m);return m;});
-  /* gira suavemente até o lado certo (vira o verso para a câmera quando aberta ou encontrada) */
+    const back=new T.MeshStandardMaterial({map:textTex(T,"🧮","#c084fc","#ffffff",256,320),roughness:.5});
+    const front=new T.MeshStandardMaterial({map:textTex(T,c.label,`hsl(${c.hue} 80% ${c.kind==="conta"?"60%":"42%"})`,"#ffffff",256,320),roughness:.5});
+    const side=new T.MeshStandardMaterial({color:0x7c3aed,roughness:.5});
+    const m=new T.Mesh(new T.BoxGeometry(1,1.25,.07),[side,side,side,side,back,front]);
+    m.position.set((col-(cols-1)/2)*1.2,((rows-1)/2-row)*1.45,0);
+    m.userData={id:c.id};scene.add(m);c.mesh=m;c.base=m.position.x;return m;});
+  /* gira suavemente, treme no erro e pulsa no acerto (no modo calmo, só troca a face) */
   S.hooks.push(()=>{
-    meshes.forEach((m,i)=>{const c=cards[i];const target=c.open||c.done?Math.PI:0;
-      if(isCalm()){m.rotation.y=target;return;}
+    const now=performance.now();
+    M.cards.forEach(c=>{const m=c.mesh;if(!m)return;
+      const target=c.open||c.done?Math.PI:0;
+      if(isCalm()){m.rotation.y=target;m.position.x=c.base;m.scale.set(1,1,1);return;}
       m.rotation.y+=(target-m.rotation.y)*.22;
-      if(Math.abs(target-m.rotation.y)<.002)m.rotation.y=target;});
+      if(Math.abs(target-m.rotation.y)<.002)m.rotation.y=target;
+      if(c.shake){const k=(now-c.shake)/450;if(k>=1){c.shake=0;m.position.x=c.base;}else m.position.x=c.base+Math.sin(k*Math.PI*6)*.09*(1-k);}
+      if(c.pop){const k=(now-c.pop)/480;if(k>=1){c.pop=0;m.scale.set(1,1,1);}else{const s=1+.12*Math.sin(k*Math.PI);m.scale.set(s,s,1);}}
+    });
   });
-  function sync(){const m=$("#fx-mm"),p=$("#fx-mp");if(m)m.textContent="🔄 "+M.moves;if(p)p.textContent="✅ "+M.matched+"/"+M.total;
-    meshes.forEach((mesh,i)=>{if(cards[i].done)mesh.material[5].color.set(0x86efac);});}
-  function flip(id){if(M!==me||M.busy)return;const c=cards.find(x=>x.id===id);if(!c||c.open||c.done)return;
-    c.open=true;M.openIdx.push(id);sTap();
-    if(M.openIdx.length===2){M.busy=true;M.moves++;const[i1,i2]=M.openIdx,c1=cards.find(x=>x.id===i1),c2=cards.find(x=>x.id===i2);sync();
-      setTimeout(()=>{if(M!==me)return;if(c1.pid===c2.pid){c1.done=true;c2.done=true;M.matched++;sOk();}else{c1.open=false;c2.open=false;sNo();}
-        M.openIdx=[];M.busy=false;if(M.matched===M.total){if(CUR3D){CUR3D.dispose();CUR3D=null;}return memoriaOver();}sync();},800);}
-    else sync();}
+  function sync(){
+    $("#mmMoves").textContent=M.moves;$("#mmPairs").textContent=M.matched+"/"+M.total;
+    M.cards.forEach(c=>{if(c.done&&c.mesh)c.mesh.material[5].color.set(0xfde68a);});
+  }
+  function startClock(){if(M.clock)return;M.t0=Date.now();M.clock=setInterval(()=>{M.secs=Math.floor((Date.now()-M.t0)/1000);const t=$("#mmTime");if(t)t.textContent=Math.floor(M.secs/60)+":"+String(M.secs%60).padStart(2,"0");},250);}
+  function later(f,ms){setTimeout(()=>{if(M===me)f();},ms);}
+  function recKey(){return"fx-rec-mem-"+lv;}
+  function recGet(){try{return +localStorage.getItem(recKey())||0}catch(e){return 0}}
+  function flip(id){
+    const c=M.cards.find(x=>x.id===id);
+    if(!c||M.lock||M.ended||c.open||c.done)return;
+    startClock();sTap();c.open=true;M.openIdx.push(id);sync();
+    if(M.openIdx.length<2)return;
+    M.moves++;sync();
+    const a=M.cards.find(x=>x.id===M.openIdx[0]),b=M.cards.find(x=>x.id===M.openIdx[1]);
+    if(a.pid===b.pid){
+      M.lock=true;M.combo++;M.matched++;sync();
+      later(()=>{a.done=true;b.done=true;a.pop=performance.now();b.pop=performance.now();sync();
+        sOk();
+        if(M.combo>=2){[0,1,2].forEach(k=>tone(880*Math.pow(1.122,M.combo+k*2),.12,"triangle",.12,.1+k*.07));
+          $("#fx-msg").innerHTML=`🔥 Combo <b>x${M.combo}</b>! Continue assim!`;}
+        else $("#fx-msg").textContent="Par certo! ✨";
+        M.openIdx=[];M.lock=false;},420);
+      if(M.matched===M.total){M.ended=true;clearInterval(M.clock);M.clock=null;later(finish,1000);}
+    }else{
+      M.lock=true;
+      $("#fx-msg").textContent=M.combo>=2?"Ops, o combo acabou. Tente de novo!":"Quase! Guarde onde elas estão.";
+      M.combo=0;
+      later(()=>{sNo();a.shake=performance.now();b.shake=performance.now();},520);
+      later(()=>{a.open=false;b.open=false;M.openIdx=[];M.lock=false;sync();},1150);
+    }
+  }
+  function finish(){
+    const best=recGet(),nova=!best||M.moves<best;if(nova)try{localStorage.setItem(recKey(),M.moves)}catch(e){}
+    try{if(nova)localStorage.setItem("fx-rec-memoria-moves",M.moves)}catch(e){}
+    const stars=M.moves<=M.level*1.5?3:M.moves<=M.level*2.2?2:1;
+    sWin();if(CUR3D){CUR3D.dispose();CUR3D=null;}
+    $("#t3-stage").innerHTML="";
+    $("#mmEnd").innerHTML=`<div class="fx-card fx-center" style="margin:10px 0 0"><div class="fx-pet">${"⭐".repeat(stars)}</div>
+     <p class="fx-score">${M.moves} jogadas</p>
+     <p>Todos os ${M.level} pares em ${Math.floor(M.secs/60)}:${String(M.secs%60).padStart(2,"0")} ${nova?"· Novo recorde!":"· Recorde: "+best+" jog."}</p>
+     <button class="fx-big" onclick="sTap();memoriaStart()">Jogar de novo</button>
+     <button class="fx-big fx-ghost" onclick="sTap();menu()">Outro jogo</button></div>`;
+    $("#fx-msg").textContent="";
+  }
   S.el.addEventListener("pointerdown",ev=>{
+    if(M!==me||M.lock||M.ended)return;
     const obj=S.pick(ev,meshes);if(!obj)return;
     let b=obj;while(b&&b.userData.id===undefined)b=b.parent;
     if(b)flip(b.userData.id);
   });
   sync();
 }
+
 function memoriaBuild(){showWho();
   app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr 1fr auto"><div class="fx-pill" id="fx-mm">🔄 0</div>
    <div class="fx-pill" id="fx-mp">✅ 0/${M.total}</div><button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
@@ -676,123 +776,201 @@ let C=null;
 function cofrinhoStart(){clearInterval(timer);C={pos:0,coins:0,skip:false,busy:false,die:null,msg:"",dead:false};
   if(webglOK())return cofrinho3D();
   cofrinhoRender();}
-/* Cofrinho 3D: trilha 3D em zigue-zague, peão 3D e dado 3D; perguntas continuam com botões */
+/* Cofrinho 3D: tabuleiro de poupança (dinâmica do jogo de referência): 2 a 4 jogadores, dado, carteira e cofrinho,
+   juros do banco, barracas com aluguel, cartas de sorte, sonho para comprar e desafios de matemática. */
+const CF_TILES=[
+  {t:"inicio",i:"🏁",n:"Início"},{t:"barraca",i:"🍎",n:"Banca de frutas",c:8,r:2},{t:"mesada",i:"💰",n:"Mesada",v:3},{t:"tenta",i:"🍭",n:"Doceria",v:3,d:"um pirulito gigante"},
+  {t:"barraca",i:"🥕",n:"Banca de legumes",c:8,r:2},{t:"cofre",i:"🐷",n:"Cofrinho"},{t:"sorte",i:"🎲",n:"Sorte ou revés"},{t:"barraca",i:"🍓",n:"Banca de morangos",c:8,r:2},
+  {t:"imprev",i:"🛠️",n:"Imprevisto",v:5},{t:"desafio",i:"🧮",n:"Desafio"},{t:"sonho",i:"🌟",n:"Loja dos sonhos"},{t:"barraca",i:"🥦",n:"Banca de verdura",c:8,r:2},
+  {t:"tenta",i:"🧸",n:"Loja de brinquedos",v:6,d:"um brinquedo novo"},{t:"sorte",i:"🎲",n:"Sorte ou revés"},{t:"barraca",i:"🍋",n:"Banca de limão",c:8,r:2},{t:"desafio",i:"🧮",n:"Desafio"},
+  {t:"trabalho",i:"💼",n:"Ajudar na banca",v:4},{t:"tenta",i:"🍕",n:"Lanchonete",v:4,d:"um lanche"},{t:"banco",i:"🏦",n:"Banco"},{t:"cofre",i:"🐷",n:"Cofrinho"}
+];
+const CF_LUCK=[
+  {txt:"Você achou 2 moedas no sofá! Guardou no bolso.",cart:2},{txt:"A vovó te deu 5 moedas de presente.",cart:5},{txt:"Você vendeu brinquedos que não usava mais: +4.",cart:4},
+  {txt:"Você perdeu 2 moedas porque deixou o bolso aberto.",cart:-2},{txt:"Esqueceu a luz acesa e pagou a conta: −2.",cart:-2},{txt:"Você juntou dinheiro com um objetivo claro: o cofrinho ganha +3!",cof:3},
+  {txt:"Juros do cofrinho! Ele cresce 20%.",pct:20},{txt:"Você quebrou um brinquedo emprestado sem querer: pague 4.",cart:-4},{txt:"Um vizinho te deu uma dica de poupar e um prêmio: +5.",cart:5}
+];
+const CF_TIPS=["Guardar um pouco sempre é melhor do que guardar muito só de vez em quando.","O dinheiro no cofrinho rende juros: ele cresce sozinho!","Antes de comprar, pense: preciso ou só quero?","Quanto mais cedo você começa a guardar, mais o dinheiro cresce."];
+const CF_PAWNS=["🦊","🐼","🐸","🦄"];
+let CF=null;
 async function cofrinho3D(){
   if(CUR3D){CUR3D.dispose();CUR3D=null;}showWho();
-  const me=C;
-  app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr auto"><div class="fx-pill" id="t3-coins">🪙 0 moedas</div>
-   <button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
-   <div class="fx-card fx-still" style="padding:10px"><div id="t3-q"></div><div id="t3-stage"><p class="fx-center">Preparando o jogo 3D…</p></div>
-   <div class="fx-msg" id="fx-msg"></div><div id="fx-nav"></div>
-   <div class="fx-center" style="font-size:.8rem;margin-top:8px">🧮 pergunta · 🎁 +5 · 🐌 perde a vez</div></div>`;
+  const me=CF={n:2,meta:40,P:[],turn:0,busy:false,over:false,owner:Array(20).fill(-1),luck:shuf(CF_LUCK),tm:[],view:null};
+  /* tela de preparação: jogadores e sonho */
+  const setup=()=>{
+    app().innerHTML=`<h1 class="fx-title">🐷 Cofrinho</h1><div class="fx-sub">Aprenda a poupar jogando!</div>
+     <div class="fx-card"><p class="fx-q" style="font-size:1.1rem">Quantos jogadores?</p>
+      <div class="fx-lvs" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[2,3,4].map(k=>`<button class="fx-lvbtn" data-n="${k}" aria-pressed="${k===me.n}">${k}<small>jogadores</small></button>`).join("")}</div>
+      <p class="fx-q" style="font-size:1.1rem">Qual é o sonho?</p>
+      <div class="fx-lvs" style="grid-template-columns:repeat(3,minmax(0,1fr))">${[[30,"🚲 Bicicleta"],[40,"🎮 Videogame"],[55,"🏕️ Viagem"]].map(([v,l])=>`<button class="fx-lvbtn" data-m="${v}" aria-pressed="${v===me.meta}">${l}<small>${v} moedas</small></button>`).join("")}</div>
+      <button class="fx-big" id="cfGo" type="button">Começar o jogo ▶</button></div>
+     <button class="fx-big fx-ghost" onclick="sTap();menu()">‹ Voltar</button>`;
+    app().querySelectorAll("[data-n]").forEach(b=>b.onclick=()=>{sTap();me.n=+b.dataset.n;setup();});
+    app().querySelectorAll("[data-m]").forEach(b=>b.onclick=()=>{sTap();me.meta=+b.dataset.m;setup();});
+    $("#cfGo").onclick=()=>{sTap();begin();};
+  };
+  const p0=getProfile();
+  function begin(){
+    me.P=Array.from({length:me.n},(_,k)=>({h:k===0,e:k===0?(p0?p0.emo:"🙂"):CF_PAWNS[k-1],name:k===0?"Você":"Computador "+k,cart:10,cofre:0,pos:0,skip:false,mesh:null}));
+    buildGame();
+  }
   let S=null;
-  try{await loadThree();S=make3D($("#t3-stage"),11,true);}catch(e){S=null;}
-  if(C!==me)return;
-  if(!S){$("#t3-stage").innerHTML=`<p class="fx-center">😕 Não consegui abrir o jogo 3D neste aparelho.</p>
-    <button class="fx-big" onclick="sTap();cofrinhoStart2D()">Jogar a versão 2D</button>`;return;}
-  CUR3D=S;
-  const T=S.T,scene=S.scene,p=getProfile();
-  /* base de madeira embaixo da trilha */
-  const base=new T.Mesh(new T.BoxGeometry(7.6,6.8,.3),new T.MeshStandardMaterial({color:0x5b3a1e,roughness:.7}));
-  base.position.set(0,-.2,-.2);base.receiveShadow=true;scene.add(base);
-  const cell=(t,txt,bg)=>new T.MeshStandardMaterial({map:textTex(T,txt,bg,"#312e81",256,256),roughness:.6});
-  /* trilha: 4 linhas em zigue-zague */
-  const tiles=PATH.map((t,i)=>{
-    const row=Math.floor(i/4),col=row%2===0?i%4:3-(i%4);
-    const side=new T.MeshStandardMaterial({color:0xc4b5fd,roughness:.6});
-    const m=new T.Mesh(new T.BoxGeometry(1.1,1.1,.14),[side,side,side,side,cell(t,PICON[t],t==="bonus"?"#fef08a":t==="slow"?"#fecaca":t==="q"?"#ddd6fe":"#ffffff"),side]);
-    m.position.set((col-1.5)*1.45,(1.5-row)*1.5,0);m.receiveShadow=true;m.castShadow=true;
-    scene.add(m);return m;});
-  const tokenMat=new T.MeshStandardMaterial({map:textTex(T,p?p.emo:"🙂","#ffffff","#312e81",256,256),roughness:.5});
-  const token=new T.Mesh(new T.CylinderGeometry(.42,.42,.14,28),[new T.MeshStandardMaterial({color:0xffffff,roughness:.5}),tokenMat,new T.MeshStandardMaterial({color:0xffffff,roughness:.5})]);
-  token.rotation.x=Math.PI/2;token.position.set(tiles[0].position.x,tiles[0].position.y,.4);token.castShadow=true;scene.add(token);
-  const dieMats=[0,1,2,3,4,5].map((k,i)=>new T.MeshStandardMaterial({map:textTex(T,i===4?"🎲":"","#ffffff","#312e81",256,256),roughness:.4}));
-  const die=new T.Mesh(new T.BoxGeometry(.85,.85,.85),dieMats);die.position.set(0,-2.6,.3);die.castShadow=true;scene.add(die);
-  /* blocos de resposta 3D (aparecem quando há pergunta) */
-  let answering=false;
-  const ans=[0,1,2,3].map((_,idx)=>{
-    const mats=[0,1,2,3,4,5].map(()=>new T.MeshStandardMaterial({color:0x7c3aed,roughness:.5}));
-    const blk=new T.Mesh(new T.BoxGeometry(1,1,.35),mats);
-    const tint=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({color:0x10b981,transparent:true,opacity:0,depthWrite:false}));
-    tint.position.z=.19;blk.add(tint);blk.userData={i:idx,tint};blk.visible=false;blk.castShadow=true;scene.add(blk);return blk;});
-  let rolling=false;
-  S.hooks.push(()=>{
-    if(rolling){die.rotation.x+=.3;die.rotation.y+=.42;}
-    const tg=tiles[C.pos].position;
-    const k=isCalm()?1:.25;
-    token.position.x+=(tg.x-token.position.x)*k;token.position.y+=(tg.y-token.position.y)*k;
-  });
-  function setDieFace(v){const f=new T.MeshBasicMaterial({map:textTex(T,String(v),"#ffffff","#312e81",256,256)});
-    if(die.material[4].map)die.material[4].map.dispose();die.material[4]=f;die.material[4].needsUpdate=true;}
-  function paint(){$("#t3-coins").textContent="🪙 "+C.coins+" moedas";}
-  /* pergunta: a trilha some e as respostas aparecem como blocos 3D */
-  function ask(){
-    const mx=12+C.pos*3,a=rnd(2,mx),mul=Math.random()<.5,b=mul?rnd(2,9):rnd(2,mx),real=mul?a*b:a+b;
-    const o=numOpts(real,[real+rnd(1,6),real-rnd(1,6),real+10]);
-    C.q={txt:`${a} ${mul?"×":"+"} ${b} = ?`,opts:o,c:o.indexOf(String(real))};
-    const n=o.length,L=layout3D(n,false);
-    tiles.forEach(t=>t.visible=false);token.visible=false;die.visible=false;
-    ans.forEach((blk,i)=>{
-      if(i>=n){blk.visible=false;return;}
-      blk.visible=true;blk.position.set(L.p[i][0],L.p[i][1],0);blk.scale.set(L.w,L.h,1);blk.rotation.set(-.22,0,0);
-      blk.userData.tint.material.opacity=0;
-      const front=blk.material[4],aspect=L.w/L.h,W=Math.round(512*Math.max(1,aspect/1.8)),H=Math.round(W/aspect);
-      if(front.map)front.map.dispose();
-      front.map=textTex(T,o[i],"#ede9fe","#312e81",W,H);front.color.set(0xffffff);front.needsUpdate=true;});
-    $("#t3-q").innerHTML=`<div class="fx-pet">🧮</div><div class="fx-q">${C.q.txt}</div>`;
-    $("#fx-msg").textContent="Toque na resposta certa.";$("#fx-nav").innerHTML="";
-    answering=true;
+  async function buildGame(){
+    app().innerHTML=`<div class="fx-bar" style="grid-template-columns:1fr auto"><div class="fx-pill" id="cf-turn">Vez de você</div>
+     <button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+     <div class="fx-card fx-still" style="padding:10px">
+      <div class="cf-players" id="cf-players"></div>
+      <div id="t3-stage"><p class="fx-center">Montando o tabuleiro 3D…</p></div>
+      <div class="fx-msg" id="fx-msg">Jogue o dado!</div>
+      <div class="cf-tip" id="cf-tip"></div>
+      <div id="fx-nav"></div></div>`;
+    try{await loadThree();S=make3D($("#t3-stage"),12,true,1);}catch(e){S=null;}
+    if(CF!==me)return;
+    if(!S){$("#t3-stage").innerHTML=`<p class="fx-center">😕 Não consegui abrir o tabuleiro 3D neste aparelho.</p>
+      <button class="fx-big" onclick="sTap();cofrinhoStart2D()">Jogar a versão 2D</button>`;return;}
+    CUR3D=S;
+    const T=S.T,scene=S.scene;
+    /* tabuleiro 3D: anel de 20 casas */
+    const POS=[];for(let c=0;c<6;c++)POS.push([0,c]);for(let r=1;r<6;r++)POS.push([r,5]);for(let c=4;c>=0;c--)POS.push([5,c]);for(let r=4;r>=1;r--)POS.push([r,0]);
+    const base=new T.Mesh(new T.BoxGeometry(7.2,7.2,.3),new T.MeshStandardMaterial({color:0x5b3a1e,roughness:.7}));
+    base.position.z=-.2;base.receiveShadow=true;scene.add(base);
+    const tiles=CF_TILES.map((s,k)=>{
+      const [r,c]=POS[k];
+      const col={inicio:"#fef08a",barraca:"#bbf7d0",cofre:"#fbcfe8",sonho:"#ddd6fe",desafio:"#bfdbfe",sorte:"#fde68a",banco:"#e9d5ff",imprev:"#fecaca",tenta:"#fed7aa",mesada:"#fef9c3",trabalho:"#fef9c3"}[s.t]||"#ffffff";
+      const front=new T.MeshStandardMaterial({map:textTex(T,s.i+"\n"+s.n.split(" ")[0],col,"#312e81",256,256),roughness:.5});
+      const side=new T.MeshStandardMaterial({color:0xc4b5fd,roughness:.6});
+      const m=new T.Mesh(new T.BoxGeometry(1.08,1.08,.14),[side,side,side,side,front,side]);
+      m.position.set((c-2.5)*1.25,(2.5-r)*1.25,0);m.receiveShadow=true;m.castShadow=true;scene.add(m);return m;});
+    CF.tiles=tiles;
+    /* peões */
+    CF.P.forEach((p,k)=>{
+      const mat=new T.MeshStandardMaterial({map:textTex(T,p.e,"#ffffff","#312e81",256,256),roughness:.5});
+      const side=new T.MeshStandardMaterial({color:p.h?0xf97316:0x60a5fa,roughness:.5});
+      p.mesh=new T.Mesh(new T.CylinderGeometry(.36,.4,.16,28),[side,mat,side]);p.mesh.rotation.x=Math.PI/2;p.mesh.castShadow=true;scene.add(p.mesh);
+      placeToken(p,k);});
+    /* dado 3D */
+    const dieMats=[0,1,2,3,4,5].map((k,i)=>new T.MeshStandardMaterial({map:textTex(T,i===4?"🎲":"","#ffffff","#312e81",256,256),roughness:.4}));
+    CF.die=new T.Mesh(new T.BoxGeometry(.8,.8,.8),dieMats);CF.die.position.set(0,-2.9,.3);CF.die.castShadow=true;scene.add(CF.die);
+    CF.rolling=false;
+    S.hooks.push(()=>{
+      if(CF.rolling){CF.die.rotation.x+=.3;CF.die.rotation.y+=.42;}
+      CF.P.forEach((p,k)=>{if(!p.mesh)return;const tg=tokenPos(p,k);const kk=isCalm()?1:.25;
+        p.mesh.position.x+=(tg.x-p.mesh.position.x)*kk;p.mesh.position.y+=(tg.y-p.mesh.position.y)*kk;});
+    });
+    paint();
+    later(()=>nextTurn(true),200);
   }
-  /* resposta: mostra certo (verde) e errado (vermelho), depois volta para a trilha */
-  function answerQ(i){
-    answering=false;const ok=i===C.q.c;
-    ans.forEach((blk,k)=>{if(!blk.visible)return;
-      if(k===C.q.c){blk.userData.tint.material.color.set(0x10b981);blk.userData.tint.material.opacity=.55;}
-      else if(k===i){blk.userData.tint.material.color.set(0xf43f5e);blk.userData.tint.material.opacity=.55;}});
-    if(ok){C.coins+=3;C.msg="✅ Acertou! +3 moedas";sOk();}else{C.skip=true;C.msg="❌ Errou! Perde a próxima rodada.";sNo();}
-    paint();$("#t3-q").innerHTML="";$("#fx-msg").textContent="";$("#fx-nav").innerHTML="";
-    setTimeout(()=>{if(C!==me||me.dead)return;
-      ans.forEach(blk=>blk.visible=false);tiles.forEach(t=>t.visible=true);token.visible=true;die.visible=true;
-      C.busy=false;$("#fx-msg").textContent=C.msg;showBtn();},1000);
+  function tokenPos(p,k){const t=CF.tiles[p.pos].position;return{x:t.x+(k%2?.3:-.3),y:t.y+(k<2?.22:-.22)};}
+  function placeToken(p,k){const q=tokenPos(p,k);p.mesh.position.set(q.x,q.y,.4);}
+  function later(f,ms){const t=setTimeout(()=>{if(CF===me)f();},ms);me.tm.push(t);return t;}
+  function paint(){
+    const el=$("#cf-players");if(!el)return;
+    el.innerHTML=me.P.map((p,k)=>`<div class="cf-pc ${k===me.turn?"on":""}"><b>${p.e} ${p.name}</b><span>👛 ${p.cart}</span><span>🐷 ${p.cofre}/${me.meta}</span></div>`).join("");
+    $("#cf-turn").textContent=`Vez de ${me.P[me.turn].h?"você":me.P[me.turn].name}`;
   }
-  S.el.addEventListener("pointerdown",ev=>{
-    if(C!==me||!answering)return;
-    const obj=S.pick(ev,ans);if(!obj)return;
-    let b=obj;while(b&&b.userData.i===undefined)b=b.parent;
-    if(b&&b.visible)answerQ(b.userData.i);
-  });
-  function showBtn(){
-    const btn=document.createElement("button");btn.className="fx-big";
-    btn.textContent=C.skip?"Passar a vez 😴":"🎲 Rolar o dado";btn.disabled=C.busy;
-    btn.onclick=()=>{sTap();roll();};
-    $("#fx-nav").innerHTML="";$("#fx-nav").appendChild(btn);
+  function say(t,cls){const m=$("#fx-msg");if(m){m.textContent=t;m.className="fx-msg"+(cls?" "+cls:"");}}
+  function act(btns){
+    $("#fx-nav").innerHTML="";
+    btns.forEach(([label,fn,kind])=>{const b=document.createElement("button");b.className="fx-big"+(kind==="ghost"?" fx-ghost":"");b.textContent=label;b.onclick=()=>{sTap();fn();};$("#fx-nav").appendChild(b);});
+  }
+  function nextTurn(first){
+    if(!first)me.turn=(me.turn+1)%me.P.length;
+    const p=me.P[me.turn];paint();
+    $("#cf-tip").textContent="💡 "+CF_TIPS[Math.floor(Math.random()*CF_TIPS.length)];
+    if(p.skip){p.skip=false;say("Ficou sem dinheiro no imprevisto e perdeu esta vez.","no");later(()=>nextTurn(),1400);return;}
+    if(p.h){say("Jogue o dado!");act([["🎲 Jogar o dado",roll]]);}
+    else{say("Computador jogando…");later(roll,900);}
   }
   function roll(){
-    if(C.busy)return;
-    if(C.skip){C.skip=false;C.msg="Você passou a vez. Agora role!";sNo();$("#fx-msg").textContent=C.msg;showBtn();return;}
-    C.busy=true;C.msg="";$("#fx-msg").textContent="";$("#fx-nav").innerHTML="";
-    rolling=true;sDice();
-    setTimeout(()=>{if(C!==me||me.dead)return;const v=rnd(1,6);C.die=v;rolling=false;setDieFace(v);step(v,0);},600);
+    $("#fx-nav").innerHTML="";
+    const d=1+Math.floor(Math.random()*6);
+    CF.rolling=true;sDice();
+    later(()=>{CF.rolling=false;const faces=["⚀","⚁","⚂","⚃","⚄","⚅"];
+      setDie(d);walk(d);},600);
   }
-  function step(left,n){
-    if(C!==me||me.dead)return;
-    if(left>0&&C.pos<PATH.length-1){C.pos++;sTap();setTimeout(()=>step(left-1,n+1),220);return;}
-    land();
+  function setDie(v){const f=new (window.THREE).MeshStandardMaterial({map:textTex(window.THREE,String(v),"#ffffff","#312e81",256,256),roughness:.4});
+    const old=CF.die.material[4];if(old.map)old.map.dispose();CF.die.material[4]=f;}
+  function walk(n){
+    const p=me.P[me.turn],k=me.turn;let s=0;
+    const step=()=>{p.pos=(p.pos+1)%20;s++;sTap();
+      if(p.pos===0&&s<n){p.cart+=5;say("Passou pelo início: +5 de mesada!","ok");}
+      paint();
+      if(s<n)later(step,260);else later(()=>land(),350);};
+    later(step,160);
+  }
+  const end=(t,cls)=>{if(t)say(t,cls);paint();const p=me.P[me.turn];
+    if(p.h)act([["Próximo jogador ➡",()=>nextTurn()]]);else later(()=>nextTurn(),1500);};
+  function pay(p,v){if(p.cart>=v){p.cart-=v;return"carteira";}const falta=v-p.cart;p.cart=0;if(p.cofre>=falta){p.cofre-=falta;return"cofre";}p.cofre=0;p.skip=true;return"faltou";}
+  /* desafio de matemática: acerto rende 3 moedas */
+  function desafio(p){
+    const a=rnd(2,12),b=rnd(2,9),mul=Math.random()<.5,real=mul?a*b:a+b;
+    const o=numOpts(real,[real+rnd(1,6),real-rnd(1,6),real+10]);const c=o.indexOf(String(real));
+    if(!p.h){const ok=Math.random()<.6;end(ok?`O computador acertou ${a} ${mul?"×":"+"} ${b} e ganhou 3!`:`O computador errou a conta.`,ok?"ok":"no");if(ok)p.cart+=3;return;}
+    say(`Desafio! Quanto é ${a} ${mul?"×":"+"} ${b}?`);
+    act(o.map((x,i)=>[x,()=>{const ok=i===c;if(ok){p.cart+=3;sOk();end("Acertou! Você ganhou 3 moedas. 🧮","ok");}else{sNo();end(`Era ${real}. Tente a próxima!`,"no");}}]));
   }
   function land(){
-    const t=PATH[C.pos];C.busy=false;
-    if(t==="finish")return finish();
-    if(t==="bonus"){C.coins+=5;C.msg="🎁 Bônus! +5 moedas";sWin();}
-    else if(t==="slow"){C.skip=true;C.msg="🐌 Espaço lento! Você perde a próxima rodada.";sNo();}
-    paint();
-    if(t==="q"){C.busy=true;$("#fx-msg").textContent="🧮 Responda para ganhar moedas!";ask();return;}
-    $("#fx-msg").textContent=C.msg;showBtn();
+    const p=me.P[me.turn],s=CF_TILES[p.pos],k=me.turn;
+    if(s.t==="inicio"){p.cart+=5;end("Parou no início: +5 de mesada!","ok");return;}
+    if(s.t==="mesada"||s.t==="trabalho"){p.cart+=s.v;sOk();end(`${s.n}: +${s.v} moedas!`,"ok");return;}
+    if(s.t==="banco"){const j=p.cofre>0?Math.max(1,Math.round(p.cofre*.1)):0;p.cofre+=j;if(j)sOk();end(j?`O cofrinho rendeu ${j} de juros! Guardar faz o dinheiro crescer.`:"Sem juros: o cofrinho está vazio.",j?"ok":"");return;}
+    if(s.t==="cofre"){
+      const half=Math.ceil(p.cart/2);
+      const dep=v=>{p.cart-=v;p.cofre+=v;if(v)sOk();end(v?`Guardou ${v} no cofrinho! 🐷`:"Não guardou nada desta vez.",v?"ok":"");};
+      if(!p.cart){end("Carteira vazia, nada para guardar.");return;}
+      if(p.h){say("Quanto quer guardar no cofrinho?");act([[`Tudo (${p.cart})`,()=>dep(p.cart)],[`Metade (${half})`,()=>dep(half),"ghost"],["Nada",()=>dep(0),"ghost"]]);}
+      else dep(Math.max(0,p.cart-3));
+      return;
+    }
+    if(s.t==="tenta"){
+      if(p.cart<s.v){end(`Você viu ${s.d} por ${s.v}, mas não tinha dinheiro na carteira.`);return;}
+      const buy=()=>{p.cart-=s.v;sTap();end(`Comprou ${s.d}. O dinheiro saiu da carteira.`);};
+      const save=()=>{sOk();end("Resistiu à vontade e guardou o dinheiro. Muito bem!","ok");};
+      if(p.h){say(`${s.i} Quer ${s.d} por ${s.v} moedas? Você precisa ou só quer?`);act([[`Comprar (−${s.v})`,buy,"ghost"],["Guardar o dinheiro",save]]);}
+      else(Math.random()<.5?buy:save)();
+      return;
+    }
+    if(s.t==="imprev"){const r=pay(p,s.v);sNo();end(r==="carteira"?`Imprevisto! Custou ${s.v}.`:r==="cofre"?`Imprevisto de ${s.v}! Faltou na carteira e saiu do cofrinho.`:`Imprevisto de ${s.v}! Sem dinheiro: perde a próxima vez.`,"no");return;}
+    if(s.t==="desafio"){desafio(p);return;}
+    if(s.t==="sorte"){
+      const c=me.luck.pop();if(!me.luck.length)me.luck=shuf(CF_LUCK);
+      if(c.pct){const j=Math.round(p.cofre*c.pct/100);p.cofre+=j;sOk();end(`${c.txt} (+${j})`,"ok");return;}
+      if(c.cof){p.cofre+=c.cof;sOk();end(c.txt,"ok");return;}
+      if(c.cart<0){pay(p,-c.cart);sNo();end(c.txt,"no");return;}
+      p.cart+=c.cart;sOk();end(c.txt,"ok");return;
+    }
+    if(s.t==="barraca"){
+      const o=me.owner[p.pos];
+      if(o===k){p.cart+=1;end("Sua própria banca! Vendeu umas frutas: +1.","ok");return;}
+      if(o>=0){const rent=2;const rr=pay(p,rent);me.P[o].cart+=rent;sNo();end(`Esta banca é de ${me.P[o].name}. Pagou ${rent} de aluguel.${rr==="faltou"?" Faltou dinheiro!":""}`,"no");return;}
+      if(p.cart<s.c){end(`${s.n} está à venda por ${s.c}, mas você não tem o suficiente.`);return;}
+      const buy=()=>{p.cart-=s.c;me.owner[p.pos]=k;sOk();end(`Comprou a ${s.n}! Quem parar aqui paga aluguel.`,"ok");};
+      if(p.h){say(`${s.n} está à venda por ${s.c}. É um investimento: gasta agora, ganha depois.`);act([[`Comprar (−${s.c})`,buy],["Não comprar",()=>end("Deixou para depois."),"ghost"]]);}
+      else(p.cart>=12?buy:()=>end("Não comprou a banca."))();
+      return;
+    }
+    if(s.t==="sonho"){
+      if(p.cofre>=me.meta){p.cofre-=me.meta;sWin();finishGame(p,k);return;}
+      end(`Loja dos sonhos! Você tem ${p.cofre} de ${me.meta} no cofrinho. Faltam ${me.meta-p.cofre}.`);return;
+    }
+    end("");
   }
-  function finish(){
-    if(CUR3D){CUR3D.dispose();CUR3D=null;}
-    cofrinhoOver();
+  function finishGame(p,k){
+    me.over=true;
+    $("#fx-nav").innerHTML="";
+    const win=p.h;
+    say(win?"Sonho realizado! 🌟":`${p.name} realizou o sonho!`,win?"ok":"no");
+    if(win)setRec("cofrinho",getRec("cofrinho")+1);
+    const ov=document.createElement("div");ov.className="x3-end";
+    ov.innerHTML=`<b style="font:800 22px 'Baloo 2',sans-serif">${win?"🏆 Você realizou o sonho!":"🐷 O computador realizou o sonho"}</b>
+      <p>Guardar um pouco de cada vez funciona!</p>
+      <div class="x3-row"><button class="fx-big" id="cf-again" type="button">Jogar de novo</button>
+      <button class="fx-big fx-ghost" id="cf-menu" type="button">Outro jogo</button></div>`;
+    $("#t3-stage").appendChild(ov);
+    $("#cf-again").onclick=()=>{sTap();cofrinho3D();};
+    $("#cf-menu").onclick=()=>{sTap();menu();};
   }
-  paint();showBtn();
+  setup();
 }
 function cofrinhoStart2D(){clearInterval(timer);C={pos:0,coins:0,skip:false,busy:false,die:null,msg:"",dead:false};cofrinhoRender();}
 function cofrinhoRender(){showWho();const p=getProfile();
@@ -936,6 +1114,8 @@ function over(){clearInterval(timer);const rec=getRec(G.id),nova=G.score>rec;if(
   <button class="fx-big fx-ghost" onclick="sTap();menu()">Outro jogo</button></div>`;}
 
 /* ===== Jogos de matemática em 3D: o enunciado fica no texto da tela e as respostas são blocos 3D que se tocam ===== */
+/* Perguntas 3D com a dinâmica do quiz de referência: bolinhas de progresso, sequência de acertos (fogo),
+   personagem que reage, 50/50 e Pular. As respostas são blocos 3D; o conteúdo (SARESP e matemática) é o nosso. */
 const GAME3D=["tabuada","continhas","quiz","numero","verdade","intruso"];
 let CUR3D=null;
 /* posições dos blocos: 2 lado a lado, 2x2 ou uma coluna (respostas longas) */
@@ -947,15 +1127,21 @@ function layout3D(n,long){
 async function play3D(id,ano,lv){
   leave();showWho();
   const d=GAMES[id];
-  G={id,d,ano,lv:lv||0,score:0,lives:d.lives,n:0,maxQ:d.maxQ,locked:false,left:d.time*10,ok:0,miss:new Map(),cur:null};
+  G={id,d,ano,lv:lv||0,score:0,lives:d.lives,n:0,maxQ:d.maxQ,locked:false,left:d.time*10,ok:0,miss:new Map(),cur:null,streak:0,res:[],halfUsed:false,skipUsed:false};
   d.init(G);
   const me=G;
+  const hasDots=!!G.maxQ;
   app().innerHTML=`<div class="fx-bar"><div class="fx-pill" id="t3-score">⭐ 0</div><div class="fx-pill" id="t3-rec">🏆 ${getRec(id)}</div>
     <div class="fx-pill" id="t3-lives"></div><button class="fx-x" onclick="sTap();menu()" aria-label="Sair">✖</button></div>
+    ${hasDots?`<div class="fx-top"><div class="fx-dots" id="t3-dots"></div><div class="fx-fire" id="t3-fire"><span>🔥</span><b id="t3-streak">0</b></div></div>`:""}
     ${d.time?`<div class="fx-time"><i id="fx-tbar"></i></div>`:""}
-    <div class="fx-card" style="padding:12px 12px 16px"><div id="t3-q"></div>
-    <div id="t3-stage"><p class="fx-center">Preparando o jogo 3D…</p></div>
-    <div class="fx-msg" id="fx-msg"></div><div class="fx-study" id="fx-study" style="display:none"></div><div id="fx-nav"></div></div>`;
+    <div class="fx-card" style="padding:12px 12px 16px">
+      <div class="fx-host"><div class="fx-av" id="t3-av">${theme.items[0].e}</div><span class="fx-mood" id="t3-mood">🤔</span><span class="fx-bub" id="t3-bub">Vamos lá!</span></div>
+      <div id="t3-q"></div>
+      <div id="t3-stage"><p class="fx-center">Preparando o jogo 3D…</p></div>
+      <div class="fx-tools" id="t3-tools">${id==="verdade"?'<button class="fx-big fx-ghost" id="t3-f" type="button">✗ Mentira</button><button class="fx-big" id="t3-v" type="button">✓ Verdade</button>':'<button class="fx-big fx-ghost" id="t3-half" type="button">✂️ 50/50</button>'}${d.free?'<button class="fx-big fx-ghost" id="t3-skip" type="button">⏭️ Pular</button>':""}</div>
+      <div class="fx-msg" id="fx-msg"></div><div class="fx-study" id="fx-study" style="display:none"></div><div id="fx-nav"></div>
+    </div>`;
   let S=null;
   try{await loadThree();S=make3D($("#t3-stage"),7);}catch(e){S=null;}
   if(G!==me)return;
@@ -969,17 +1155,31 @@ async function play3D(id,ano,lv){
   const T=S.T,scene=S.scene;
   /* 4 blocos de resposta: frente com texto, laterais na cor do tema */
   const blocks=[0,1,2,3].map(i=>{
-    const mats=[0,1,2,3,4,5].map(()=>new T.MeshBasicMaterial({color:0x7c3aed}));
+    const mats=[0,1,2,3,4,5].map(()=>new T.MeshStandardMaterial({color:0x7c3aed,roughness:.5}));
     const m=new T.Mesh(new T.BoxGeometry(1,1,.35),mats);m.userData={i};
     const tint=new T.Mesh(new T.PlaneGeometry(1,1),new T.MeshBasicMaterial({color:0x10b981,transparent:true,opacity:0,depthWrite:false}));
     tint.position.z=.19;m.add(tint);m.userData.tint=tint;m.visible=false;
     scene.add(m);return m;});
+  /* Verdade ou mentira: o enunciado é um cartão 3D que se arrasta (direita = verdade, esquerda = mentira) */
+  const SWIPE=id==="verdade";
+  let swipeCard=null,dragX=null,dragStart=0;
+  if(SWIPE){
+    const mats=[0,1,2,3,4,5].map(k=>new T.MeshStandardMaterial({color:k===4?0xffffff:0x7c3aed,roughness:.5}));
+    swipeCard=new T.Mesh(new T.BoxGeometry(3.8,2.3,.12),mats);swipeCard.visible=false;scene.add(swipeCard);
+  }
+  function setCardText(txt){
+    const front=swipeCard.material[4];
+    if(front.map)front.map.dispose();
+    front.map=textTex(T,txt,"#ffffff","#312e81",1024,620);front.color.set(0xffffff);front.needsUpdate=true;
+  }
   function place(n,long){
     const L=layout3D(n,long);
     blocks.forEach((b,i)=>{
+      if(SWIPE){b.visible=false;return;}
       if(i>=n){b.visible=false;return;}
       b.visible=true;b.position.set(L.p[i][0],L.p[i][1],0);b.scale.set(L.w,L.h,1);
       b.rotation.set(-.22,0,0);/* inclinação fixa: mostra a lateral do bloco, sem animação */
+      b.userData.gone=false;
     });
     return L;
   }
@@ -998,6 +1198,25 @@ async function play3D(id,ano,lv){
     $("#t3-rec").textContent="🏆 "+Math.max(getRec(id),G.score);
     $("#t3-lives").textContent=d.free?"📖 "+G.n+"/"+G.maxQ:("❤️".repeat(G.lives)||"💔");
   }
+  function renderClues(){
+    const el=$("#t3-clues"),q=G.cur,mb=$("#t3-more");
+    if(!el||!q||!q.clues)return;
+    el.innerHTML=q.clues.map((c,k)=>k<G.shown?`<div class="fx-clue on"><b>${k+1}</b><span>${c}</span></div>`:`<div class="fx-clue lock"><b>🔒</b><span>Pista ${k+1}</span></div>`).join("");
+    if(mb){mb.disabled=G.locked||G.shown>=q.clues.length;mb.textContent=G.shown>=q.clues.length?"Sem mais pistas":"🔍 Mais uma pista";}
+  }
+  function dotsUI(){
+    const el=$("#t3-dots");if(!el)return;
+    el.innerHTML=Array.from({length:G.maxQ},(_,k)=>`<i class="${G.res[k]||(k===G.n-1&&!G.locked?"cur":"")}"></i>`).join("");
+  }
+  function fireUI(){
+    const f=$("#t3-fire");if(!f)return;
+    $("#t3-streak").textContent=G.streak;
+    f.className="fx-fire"+(G.streak>=8?" l3":G.streak>=5?" l2":G.streak>=3?" l1":"");
+  }
+  function hostUI(mood,bub,cls){
+    $("#t3-mood").textContent=mood;$("#t3-bub").textContent=bub;$("#t3-bub").className="fx-bub"+(cls?" "+cls:"");
+    $("#t3-av").textContent=theme.items[G.n%theme.items.length].e;
+  }
   function nextQ3(){
     clearInterval(timer);
     if(G.lives<=0||(G.maxQ&&G.n>=G.maxQ))return finish3();
@@ -1006,11 +1225,24 @@ async function play3D(id,ano,lv){
     const L=place(q.opts.length,long);
     $("#t3-q").innerHTML=`${q.tag?`<div class="fx-center" style="font-size:.85rem;font-weight:700">${q.tag}</div>`:""}
       ${q.fig?`<div class="fx-fig" role="img" aria-label="${(q.fig.alt||"Figura").replace(/"/g,"&quot;")}">${figHTML(q.fig)}</div>`:""}
-      <div class="fx-q ${q.small?"fx-qs":""}">${q.q}</div>`;
+      <div class="fx-q ${q.small?"fx-qs":""}">${q.q}</div><div id="t3-clues"></div>`;
     q.opts.forEach((o,i)=>setBlockText(blocks[i],o,L));
+    if(SWIPE){swipeCard.visible=true;swipeCard.position.set(0,.2,0);swipeCard.rotation.set(0,0,0);swipeCard.material[4].color.set(0xffffff);setCardText(q.q);}
+    /* pistas uma a uma (dinâmica do jogo de referência): cada pista aberta vale menos */
+    G.shown=1;
+    const more=$("#t3-more");if(more)more.remove();
+    if(q.clues){
+      const mb=document.createElement("button");mb.id="t3-more";mb.type="button";mb.className="fx-big fx-ghost";
+      mb.onclick=()=>{if(G.locked||G.shown>=q.clues.length)return;sTap();G.shown++;renderClues();};
+      $("#t3-tools").prepend(mb);
+      renderClues();
+    }
     $("#fx-msg").textContent="";$("#fx-nav").innerHTML="";
-    const st=$("#fx-study");st.style.display="none";
-    paintBar();
+    $("#fx-study").style.display="none";
+    const half=$("#t3-half");if(half)half.disabled=G.halfUsed||q.opts.length<4;
+    const sk=$("#t3-skip");if(sk)sk.disabled=G.skipUsed;
+    hostUI("🤔",rnd(0,1)?"Pense bem...":"Qual será?","");
+    dotsUI();fireUI();paintBar();
     if(d.time){
       G.left=d.time*10;const bar=$("#fx-tbar");if(bar)bar.style.width="100%";
       timer=setInterval(()=>{G.left--;if(bar)bar.style.width=(G.left/(d.time*10)*100)+"%";
@@ -1023,11 +1255,14 @@ async function play3D(id,ano,lv){
     blocks.forEach((b,k)=>{if(!b.visible)return;
       if(k===q.c){b.userData.tint.material.color.set(0x10b981);b.userData.tint.material.opacity=.55;}
       else if(k===i){b.userData.tint.material.color.set(0xf43f5e);b.userData.tint.material.opacity=.55;}});
-    if(ok){G.score+=10+(d.time?Math.ceil(G.left/10):0);G.ok++;sOk();}
-    else{if(!d.free)G.lives--;sNo();}
-    paintBar();
+    if(SWIPE)swipeCard.material[4].color.set(ok?0xbbf7d0:0xfecaca);
+    if(ok){G.score+=(q.clues?(q.clues.length+1-G.shown)*4:10+(d.time?Math.ceil(G.left/10):0));G.ok++;G.streak++;G.res[G.n-1]="ok";sOk();}
+    else{G.streak=0;G.res[G.n-1]="no";if(!d.free)G.lives--;sNo();}
+    paintBar();dotsUI();fireUI();
     const pool=ok?theme.cheers:theme.oops;
-    $("#fx-msg").textContent=(i<0?"Acabou o tempo! ":"")+pool[rnd(0,pool.length-1)]+(q.exp&&!ok?" 💡 "+q.exp:(q.exp?" "+q.exp:""));
+    const bub=i<0?"O tempo acabou!":pool[rnd(0,pool.length-1)];
+    hostUI(ok?(G.streak>=3?"🤩":"😄"):(i<0?"⏰":"😢"),bub,ok?"ok":"no");
+    $("#fx-msg").textContent=(ok&&G.streak>=3?`Acertou! ${G.streak} seguidas 🔥`:ok?"Acertou!":`Era: ${q.opts[q.c]}`)+(q.exp&&!ok?" 💡 "+q.exp:(q.exp?" "+q.exp:""));
     if(!ok&&q.study){const sd=SD[q.study.d];G.miss.set(q.study.d,{hab:sd[0],txt:sd[1]});
       const st=$("#fx-study");st.innerHTML="📚 <b>Para estudar:</b> "+sd[0]+" — "+sd[1];st.style.display="block";}
     const last=G.lives<=0||(G.maxQ&&G.n>=G.maxQ);
@@ -1039,13 +1274,46 @@ async function play3D(id,ano,lv){
     if(CUR3D){CUR3D.dispose();CUR3D=null;}
     over();
   }
-  /* toque em um bloco visível */
+  /* 50/50: some duas erradas (ficam apagadas e não respondem) */
+  const halfBtn=$("#t3-half");
+  if(halfBtn)halfBtn.onclick=()=>{
+    if(G!==me||G.locked||G.halfUsed||!G.cur)return;sTap();G.halfUsed=true;halfBtn.disabled=true;
+    const wrong=[0,1,2,3].filter(k=>k<G.cur.opts.length&&k!==G.cur.c);
+    shuf(wrong).slice(0,2).forEach(k=>{blocks[k].userData.gone=true;blocks[k].userData.tint.material.color.set(0x94a3b8);blocks[k].userData.tint.material.opacity=.7;});
+    hostUI("🤔","Tirei duas erradas!","");
+  };
+  /* Pular: passa a pergunta sem pontuar (marcada como pulada) */
+  const skipBtn=$("#t3-skip");
+  if(skipBtn)skipBtn.onclick=()=>{
+    if(G!==me||G.locked||G.skipUsed||!G.cur)return;sTap();G.skipUsed=true;G.res[G.n-1]="sk";G.locked=true;
+    nextQ3();
+  };
+  /* toque em um bloco visível; no verdadeiro/falso, arrastar o cartão decide */
+  const fBtn=$("#t3-f"),vBtn=$("#t3-v");
+  if(fBtn)fBtn.onclick=()=>{if(G!==me||G.locked)return;sTap();ans3(1);};
+  if(vBtn)vBtn.onclick=()=>{if(G!==me||G.locked)return;sTap();ans3(0);};
   S.el.addEventListener("pointerdown",ev=>{
     if(G!==me||G.locked)return;
+    if(SWIPE){if(!swipeCard.visible)return;const hit=S.pick(ev,[swipeCard]);if(!hit)return;dragStart=ev.clientX;dragX=0;try{S.el.setPointerCapture(ev.pointerId);}catch(e){}return;}
     const obj=S.pick(ev,blocks);if(!obj)return;
     let b=obj;while(b&&b.userData.i===undefined)b=b.parent;
-    if(b&&b.visible)ans3(b.userData.i);
+    if(b&&b.visible&&!b.userData.gone)ans3(b.userData.i);
   });
+  S.el.addEventListener("pointermove",ev=>{
+    if(!SWIPE||dragX===null||G!==me||G.locked)return;
+    const r=S.el.getBoundingClientRect();
+    dragX=(ev.clientX-dragStart)/r.width*8;
+    swipeCard.position.x=dragX;swipeCard.rotation.z=-dragX*.05;
+  });
+  const endDrag=()=>{
+    if(!SWIPE||dragX===null)return;
+    const dx=dragX;dragX=null;
+    if(G!==me||G.locked)return;
+    if(Math.abs(dx)>1.6)ans3(dx>0?0:1);
+    else{swipeCard.position.x=0;swipeCard.rotation.z=0;}
+  };
+  S.el.addEventListener("pointerup",endDrag);
+  S.el.addEventListener("pointercancel",endDrag);
   nextQ3();
 }
 /* jogo 2D clássico (usado quando o 3D não abre) */
