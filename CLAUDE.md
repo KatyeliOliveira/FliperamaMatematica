@@ -11,7 +11,8 @@ Dona do projeto: profª Katyeli Oliveira (Matemática, E.E. Anna Cuevas Guimarã
 - Repositório: https://github.com/KatyeliOliveira/FliperamaMatematica (branch `main`, público).
 - Site: https://katyelioliveira.github.io/FliperamaMatematica/ (GitHub Pages, fonte = `main`, raiz).
 - Fluxo: editar `index.html` → testar → `git commit` → `git push origin main`. Pages atualiza sozinho.
-- Sem servidor próprio: **não há nuvem nem salas online** (o motor de referência usa um Worker da Cloudflare para isso; foi removido). O progresso fica em `localStorage` e pode ser salvo por código ou arquivo.
+- **Jogar com amigo (salas de 4 letras):** Xadrez, Dama e Duelo do Quiz SARESP. O GitHub Pages não tem servidor, então as salas usam um Worker do Cloudflare, apontado por `NET_SERVER` no `index.html` (por padrão, o Worker do jogo da família). Para ter o seu próprio, veja `servidor/LEIA-ME.md` (publicar com `npx wrangler deploy` e trocar `NET_SERVER`). Código das salas: `netConnect`, `netLobbyScreen` (copiados do motor de referência).
+- **Não há nuvem de progresso** (era do Worker de referência; foi removida). O progresso fica em `localStorage` e pode ser salvo por código ou arquivo.
 
 ## O que existe
 - `index.html` — app único (HTML+CSS+JS inline), mobile-first, em português do Brasil. Foi montado a partir do `index.html` do jogo de referência: o motor foi mantido, o tema e o conteúdo são de matemática.
@@ -26,6 +27,7 @@ Dona do projeto: profª Katyeli Oliveira (Matemática, E.E. Anna Cuevas Guimarã
 - Quiz SARESP: `quiz()` (ano e nível) → `quizRun(cfg)` (motor do Quiz de referência com progresso, sequência de acertos, 50/50, Pular, figuras, explicação e descritores para revisar). `saPool(ano,lv)` monta as questões.
 - Outros jogos (motor de referência, conteúdo de matemática): Que número sou eu? (`whoIs`, números de `mkNums`), Corrida das contas (`race`), Verdade ou mentira (`trueFalse`), Qual é o intruso? (`intruder`), Rumo ao Milhão (`million`), Forca, Caça-palavras, Embaralhadas, Cruzadinha, Memória (pares de `mathPairs`), Jogo da velha, Dominó, Última Carta (`cards`, o UNO), Bingo das contas (`bingo`, cartela de `mathBingo`), Cofrinho (`savingsBoard`), Resta 1, Xadrez (3D com Three.js sob demanda: `chess3dCreate`), Dama, Pixel Art das Contas.
 - Níveis Fácil, Médio e Difícil no Xadrez e na Dama: `aiLevel()`/`setAiLevel()`/`aiLevelUI()` (guardado em `localStorage` como `lv_xadrez` e `lv_dama`); `chessAiMove` usa `CHESS_LV`, `damaAiMove` tem busca de 3 jogadas no Difícil.
+- `servidor/` — `worker.js` e `wrangler.jsonc` para publicar só as salas no Cloudflare (opcional).
 - Painéis comuns: `panel()` (cabeçalho do jogo), `winPanel()` (resultado com estrelas), `go()` (troca de tela), `SFX`/`tone()` (sons), `confetti()`.
 
 ## Regras que a professora exige
@@ -44,5 +46,6 @@ Dona do projeto: profª Katyeli Oliveira (Matemática, E.E. Anna Cuevas Guimarã
 
 ## Pendências
 - Testar em um celular de verdade (o teste foi feito em navegador de desktop com emulação de 412 px).
-- Jogos que ainda podem ganhar um toque de matemática: Última Carta (cartas com contas), Cofrinho (casa de desafio), Dominó.
+- Matemática dentro dos jogos de mesa: Última Carta (cartas mostram contas; combina o resultado, `ucExpr`), Dominó (modo "contas", padrão; `EXPR`), Cofrinho (duas casas de "Desafio de matemática"; acerto rende 3 moedas).
+- Testar o "Com amigo" em dois aparelhos de verdade (foi testado com duas abas do navegador).
 - Conferir o PWA instalado no celular.

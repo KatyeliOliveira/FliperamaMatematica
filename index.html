@@ -854,6 +854,9 @@ html.fs-imm .gameHdr{margin-bottom:8px}
   .fs-fo .fo-stage svg{height:clamp(110px,calc(var(--fs-h) - 250px),340px)}
   .fs-fo>#fCat{grid-area:cat}.fs-fo>#fDif{grid-area:dif}.fs-fo>.fo-stage{grid-area:st}.fs-fo>.fo-hint{grid-area:hint}.fs-fo>.fo-word{grid-area:word}.fs-fo>#foPlay{grid-area:kb}.fs-fo>#foEnd{grid-area:end}
 }
+/* Dominó (modo contas) e Última Carta com contas */
+.dm2-h.dm2-ex em{font-style:normal;font-weight:800;font-size:calc(var(--u,34px)*.34);letter-spacing:-.04em;color:#3a2418;white-space:nowrap}
+.uc-c .mid.xp{font-size:calc(var(--cw)*.34);letter-spacing:-.04em;white-space:nowrap}
 /* Quiz SARESP: escolha de ano, figuras e revisão */
 .saGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
 .sa-fig{padding:4px 12px 14px;text-align:center;color:var(--ink)}
@@ -999,6 +1002,16 @@ function mathPairs(n){
   const used=new Set(),out=[];
   while(out.length<n){const a=mrnd(2,9),b=mrnd(2,9),p=a*b;if(used.has(p))continue;used.add(p);out.push({n:`${a} × ${b}`,e:String(p),f:'resultado',i:out.length,c:[`${a} × ${b} = ${p}`]});}
   return out;
+}
+/* Última Carta: cada carta numérica mostra uma conta cujo resultado é o número da carta (0 a 9) */
+function ucExpr(n){
+  const opts=[()=>{const a=mrnd(0,n);return`${a}+${n-a}`},()=>{const b=mrnd(1,9);return`${n+b}−${b}`}];
+  if(n>0){
+    const ds=[1,2,3,4,5,6,7,8,9].filter(d=>n%d===0);
+    opts.push(()=>{const d=ds[mrnd(0,ds.length-1)];return`${d}×${n/d}`});
+    opts.push(()=>{const b=mrnd(2,5);return`${n*b}÷${b}`});
+  }else{opts.push(()=>`0×${mrnd(2,9)}`);opts.push(()=>`0÷${mrnd(2,9)}`);}
+  return opts[mrnd(0,opts.length-1)]();
 }
 /* Bingo das contas: 9 resultados distintos na cartela e uma conta para cada bola */
 function mathBingo(){
@@ -1640,8 +1653,26 @@ function quiz(){
   const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;gap:12px';app.append(w);
   function years(){
     w.innerHTML=`<p class="sub">Qual ano você quer treinar? As questões seguem os descritores do SARESP.</p>
-      <div class="saGrid">${[6,7,8,9].map(a=>`<button class="btn" type="button" data-a="${a}">${a}º ano</button>`).join('')}</div>`;
+      <div class="saGrid">${[6,7,8,9].map(a=>`<button class="btn" type="button" data-a="${a}">${a}º ano</button>`).join('')}</div>
+      <button class="btn alt" type="button" id="saDuel">🌐 Duelo com amigo</button>`;
     w.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{SFX.click();levels(+b.dataset.a)});
+    $('saDuel').onclick=()=>{SFX.click();duel()};
+  }
+  /* duelo: quem cria a sala escolhe o ano e o nível; o amigo entra com o código e recebe as mesmas perguntas */
+  function duel(){
+    let a=7,l=4;
+    const draw=()=>{
+      w.innerHTML=`<p class="sub">Duelo online: quem cria a sala escolhe as perguntas. O amigo só digita o código.</p>
+        <p class="tt">Ano das perguntas</p><div class="seg" id="saDa">${[6,7,8,9].map(x=>`<button type="button" data-a="${x}" aria-pressed="${x===a}">${x}º</button>`).join('')}</div>
+        <p class="tt">Nível</p><div class="seg" id="saDl">${SA_LVN.map((n,i)=>`<button type="button" data-l="${i}" aria-pressed="${i===l}">${n}</button>`).join('')}</div>
+        <button class="btn" type="button" id="saGo">Continuar ▶</button><button class="btn ghost" type="button" id="saBack2">← Voltar</button>`;
+      w.querySelectorAll('#saDa [data-a]').forEach(b=>b.onclick=()=>{SFX.click();a=+b.dataset.a;draw()});
+      w.querySelectorAll('#saDl [data-l]').forEach(b=>b.onclick=()=>{SFX.click();l=+b.dataset.l;draw()});
+      $('saBack2').onclick=()=>{SFX.click();years()};
+      $('saGo').onclick=()=>{SFX.click();go(()=>netLobbyScreen({game:'quiz',title:'Quiz SARESP — duelo',icon:'🧮',max:2,back:()=>go(quiz),
+        onReady:(room,host)=>go(()=>quizRun({pool:()=>saPool(a,l),n:10,key:'duelo',net:{room,host}}))}))};
+    };
+    draw();
   }
   function levels(a){
     w.innerHTML=`<p class="sub">${a}º ano · escolha o nível de proficiência</p>
@@ -1653,7 +1684,7 @@ function quiz(){
   years();
 }
 /* Quiz SARESP: motor do Quiz de referência, com as questões e figuras do SARESP (ano e nível escolhidos antes) */
-function quizRun(cfg){const net=null;
+function quizRun(cfg){const net=cfg.net||null;
   g1css('qz-css',`
 .qz-wrap{display:flex;flex-direction:column;gap:9px;max-width:560px;margin:0 auto;width:100%}
 .qz-top{display:flex;align-items:center;gap:8px}
@@ -1757,7 +1788,7 @@ function quizRun(cfg){const net=null;
   function dotsUI(){const d=$('qzDots');d.innerHTML=qs.map((_,k)=>`<i class="${res[k]||(k===i&&!answered?'cur':'')}"></i>`).join('')}
   function start(){
     const all=cfg.pool().map(q=>({...q,opts:shuffle(q.o.slice())}));miss.clear();
-    qs=all.slice(0,cfg.n);spare=all.slice(cfg.n);i=0;score=0;streak=0;res=[];halfUsed=false;skipUsed=false;host=CH[Math.floor(Math.random()*CH.length)];
+    qs=all.slice(0,cfg.n);spare=NET?[]:all.slice(cfg.n);i=0;score=0;streak=0;res=[];halfUsed=false;skipUsed=false;host=CH[Math.floor(Math.random()*CH.length)];
     myA={};opA={};oppSc=0;oppGone=false;advT=0;if(NET){NET.send({k:'qs',qs});$('qOpp').textContent='0'}
     $('qzDots').hidden=false;$('qzFire').hidden=false;$('qzFire').previousElementSibling.hidden=false;document.querySelector('.qz-tools').hidden=!!NET;show()}
   function startTimer(){
@@ -3310,7 +3341,7 @@ function domino(){
   `);
   const BOT=CH[1]||CH[0];
   const SYM=CH.slice(0,7).map(c=>c.e);while(SYM.length<7)SYM.push('⭐');
-  let mode='pip';try{if(localStorage.getItem('dm2mode')==='sym')mode='sym'}catch(e){}
+  let mode='sym';try{if(localStorage.getItem('dm2mode')==='pip')mode='pip'}catch(e){}
   const w=document.createElement('div');w.className='dm2-wrap';
   w.innerHTML=`
   <div class="dm2-top"><div class="dm2-score"><div class="dm2-sc" id="dm2S0">🙂 Você <b id="dW">0</b></div><div class="dm2-sc" id="dm2S1">${BOT.e} <span style="overflow:hidden;text-overflow:ellipsis">${BOT.n}</span><b id="dL">0</b></div></div><button class="dm2-mode" id="dm2Mode" type="button"></button></div>
@@ -3326,8 +3357,10 @@ function domino(){
   const later=(f,ms)=>{const t=setTimeout(f,ms);timers.push(t);return t};
   cleanup=()=>{timers.forEach(clearTimeout);if(drag)drag.stop()};
   const PIP={0:[],1:[[50,50]],2:[[27,27],[73,73]],3:[[27,27],[50,50],[73,73]],4:[[27,27],[73,27],[27,73],[73,73]],5:[[27,27],[73,27],[50,50],[27,73],[73,73]],6:[[27,22],[73,22],[27,50],[73,50],[27,78],[73,78]]};
-  const half=v=>mode==='pip'?`<span class="dm2-h" data-v="${v}">${PIP[v].map(([x,y])=>`<i style="left:${x}%;top:${y}%"></i>`).join('')}</span>`:`<span class="dm2-h" data-v="${v}"><em>${SYM[v]}</em></span>`;
-  const tile=(t,vert,cls='',attr='')=>`<div class="dm2-t ${vert?'v':''} ${cls}" ${attr}>${half(t[0])}<b class="dm2-mid"></b>${half(t[1])}</div>`;
+  /* modo "contas": cada metade mostra uma conta cujo resultado é o número da peça (0 a 6) */
+  const EXPR=[['5−5','0×7','3−3'],['0+1','3−2','4÷4'],['1+1','4−2','6÷3'],['1+2','5−2','9÷3'],['2+2','2×2','8÷2'],['2+3','7−2','10÷2'],['3+3','2×3','12÷2']];
+  const half=(v,s=0)=>mode==='pip'?`<span class="dm2-h" data-v="${v}">${PIP[v].map(([x,y])=>`<i style="left:${x}%;top:${y}%"></i>`).join('')}</span>`:`<span class="dm2-h dm2-ex" data-v="${v}"><em>${EXPR[v][(s+v)%EXPR[v].length]}</em></span>`;
+  const tile=(t,vert,cls='',attr='')=>`<div class="dm2-t ${vert?'v':''} ${cls}" ${attr}>${half(t[0],t[0]*5+t[1]*3)}<b class="dm2-mid"></b>${half(t[1],t[1]*5+t[0]*3+1)}</div>`;
   const ends=()=>chain.length?[chain[0][0],chain[chain.length-1][1]]:null;
   const fitsSide=(t,side)=>{const e=ends();if(!e)return true;const v=side==='L'?e[0]:e[1];return t[0]===v||t[1]===v};
   const fits=t=>fitsSide(t,'L')||fitsSide(t,'R');
@@ -3345,7 +3378,7 @@ function domino(){
     const dbl=h=>Math.max(-1,...h.filter(t=>t[0]===t[1]).map(t=>t[0]));turn=dbl(bot)>dbl(hand)?1:0;render(null,true);
     msg(turn?`${BOT.e} ${BOT.n} começa.`:'Você começa! Toque numa peça ou arraste para a mesa.');if(turn)botTurn(1100)}
   function msg(t,c=''){$('dfb').textContent=t;$('dfb').className='dm2-msg '+c}
-  function setMode(){$('dm2Mode').textContent=mode==='pip'?'⚫ Pintas':`${SYM[0]} Símbolos`;$('dm2Mode').setAttribute('aria-label','Trocar entre pintas e símbolos')}
+  function setMode(){$('dm2Mode').textContent=mode==='pip'?'⚫ Pintas':'🧮 Contas';$('dm2Mode').setAttribute('aria-label','Trocar entre pintas e contas')}
   $('dm2Mode').onclick=()=>{SFX.click();mode=mode==='pip'?'sym':'pip';try{localStorage.setItem('dm2mode',mode)}catch(e){}setMode();render()};
   function render(fly,deal){
     const e=ends();
@@ -3372,7 +3405,7 @@ function domino(){
   function unmark(){document.querySelectorAll('#dChain .dm2-dz').forEach(z=>z.classList.remove('hint','over'))}
   function playMine(k,side,from){
     const t=hand[k];
-    if(!fitsSide(t,side)){SFX.no();const z=document.querySelector(`#dChain [data-s="${side}"]`);if(z)gxShake(z,5,300);const e=ends();msg(`Essa peça não tem ${mode==='pip'?e[side==='L'?0:1]+' pinta'+(e[side==='L'?0:1]===1?'':'s'):SYM[side==='L'?e[0]:e[1]]}. Procure a igual à da ponta!`,'no');return}
+    if(!fitsSide(t,side)){SFX.no();const z=document.querySelector(`#dChain [data-s="${side}"]`);if(z)gxShake(z,5,300);const e=ends();msg(`Essa peça não tem ${mode==='pip'?e[side==='L'?0:1]+' pinta'+(e[side==='L'?0:1]===1?'':'s'):'resultado '+e[side==='L'?0:1]}. Procure a igual à da ponta!`,'no');return}
     hand.splice(k,1);place(t,side);passes=0;sel=-1;
     if(!hand.length){over=true;wins++;render({from,scale:1.2});msg('Você bateu! Vitória! 🎉','ok');SFX.win();addStars(20);confetti();later(()=>endPanel('win'),1300);return}
     turn=1;render({from,scale:1.2});msg(`Boa jogada! Vez de ${BOT.e} ${BOT.n}...`,'ok');botTurn(1300)}
@@ -3496,7 +3529,7 @@ function cards(){
   .uc-pk button:active{transform:scale(.92)}
   .uc-note{margin:0;text-align:center;font-size:12.5px;color:var(--soft);font-weight:700}
   `);
-  const COL=[{k:'verde',e:'🍏',c:'#2fa04a'},{k:'vermelho',e:'🍎',c:'#e2384f'},{k:'azul',e:'🫐',c:'#3f57d6'},{k:'amarelo',e:'🍋',c:'#f0b400'}];
+  const COL=[{k:'verde',e:'🟢',c:'#2fa04a'},{k:'vermelho',e:'🔴',c:'#e2384f'},{k:'azul',e:'🔵',c:'#3f57d6'},{k:'amarelo',e:'🟡',c:'#f0b400'}];
   const SV={
     pula:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M6 18L18 6"/></svg>',
     inverte:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>',
@@ -3511,13 +3544,13 @@ function cards(){
   <p class="uc-msg" id="kfb" aria-live="polite"></p>
   <div id="kPlay"><div class="uc-hand" id="kHand"></div>
   <div class="uc-bar"><button class="btn ghost" id="kPass" type="button">Passar</button><button class="btn uc-uno" id="kUno" type="button">${T.sym==='fruta'?'ÚLTIMA<br>FRUTA!':'ÚLTIMA<br>CARTA!'}</button><button class="btn ghost" id="kNew" type="button">Nova partida</button></div>
-  <p class="uc-note">Mesma cor ou mesmo número. Com 2 cartas, aperte o botão vermelho antes de jogar, senão compra 2.</p></div>
+  <p class="uc-note">Mesma cor ou mesmo resultado da conta (2×3 combina com 12÷2). Com 2 cartas, aperte o botão vermelho antes de jogar, senão compra 2.</p></div>
   <div id="kEnd" hidden></div>`;
   app.append(w);
   let deck,disc,hands,cur,dir,turn,called,drew,over,timers=[],picking=false;
   const later=(f,ms)=>{const t=setTimeout(f,ms);timers.push(t);return t};
   cleanup=()=>timers.forEach(clearTimeout);
-  function mkDeck(){const d=[];COL.forEach((c,ci)=>{d.push({c:ci,v:'0'});for(let n=1;n<=9;n++){d.push({c:ci,v:''+n});d.push({c:ci,v:''+n})}['pula','inverte','+2'].forEach(v=>{d.push({c:ci,v});d.push({c:ci,v})})});for(let i=0;i<4;i++){d.push({c:-1,v:'coringa'});d.push({c:-1,v:'+4'})}return shuffle(d)}
+  function mkDeck(){const d=[];COL.forEach((c,ci)=>{d.push({c:ci,v:'0'});for(let n=1;n<=9;n++){d.push({c:ci,v:''+n});d.push({c:ci,v:''+n})}['pula','inverte','+2'].forEach(v=>{d.push({c:ci,v});d.push({c:ci,v})})});for(let i=0;i<4;i++){d.push({c:-1,v:'coringa'});d.push({c:-1,v:'+4'})}return shuffle(d.map(cd=>/^\d$/.test(cd.v)?{...cd,x:ucExpr(+cd.v)}:cd))}
   const top=()=>disc[disc.length-1];
   const ok=cd=>cd.c===-1||cd.c===cur||cd.v===top().v;
   function draw(p,n=1){for(let i=0;i<n;i++){if(!deck.length){const t=disc.pop();deck=shuffle(disc.map(x=>({...x})));disc=[t]}if(deck.length)hands[p].push(deck.pop())}}
@@ -3525,6 +3558,7 @@ function cards(){
     const col=cd.c<0?'#222':COL[cd.c].c;const v=cd.v;let mid,corner;
     if(v==='pula'||v==='inverte'||v==='coringa'){mid=`<span class="mid">${SV[v]}</span>`;corner=v==='pula'?'⊘':v==='inverte'?'⇄':'★'}
     else if(v==='+2'||v==='+4'){mid=`<span class="mid sm">${v}</span>`;corner=v}
+    else if(cd.x){mid=`<span class="mid xp">${cd.x}</span>`;corner='='}
     else{mid=`<span class="mid">${v}</span>`;corner=v}
     return `<span class="uc-c ${cd.c<0?'wild':''} ${cls}" style="--kc:${col};${sty}"><i class="cn">${corner}</i>${mid}<i class="cn br">${corner}</i></span>`}
   const backHTML=cls=>`<span class="uc-c back ${cls||''}"><span class="mid">${T.icon}</span></span>`;
@@ -3545,7 +3579,7 @@ function cards(){
     const mine=!over&&turn===0,n=hands[0].length;
     const W=$('kHand').clientWidth||364,cw=60,step=n>1?Math.min(cw+6,(W-cw-34)/(n-1)):0,tot=step*(n-1)+cw,x0=(W-tot)/2,mid=(n-1)/2,ang=Math.min(4,26/Math.max(n,1));
     $('kHand').innerHTML=hands[0].map((cd,k)=>{const can=mine&&ok(cd)&&(!drew||k===n-1),rot=(k-mid)*ang,dy=Math.abs(k-mid)*Math.abs(k-mid)*.9*(6/Math.max(n,6));
-      return`<button type="button" class="uc-hc ${can?'can':mine?'no':''}" data-k="${k}" style="left:${x0+k*step}px;z-index:${k+1};--t:rotate(${rot}deg) translateY(${dy}px)" aria-label="${cd.c<0?'':COL[cd.c].k+' '}${cd.v}">${cardHTML(cd)}</button>`}).join('');
+      return`<button type="button" class="uc-hc ${can?'can':mine?'no':''}" data-k="${k}" style="left:${x0+k*step}px;z-index:${k+1};--t:rotate(${rot}deg) translateY(${dy}px)" aria-label="${cd.c<0?'':COL[cd.c].k+' '}${cd.x?cd.x+' (resultado '+cd.v+')':cd.v}">${cardHTML(cd)}</button>`}).join('');
     [...$('kHand').children].forEach(b=>b.onclick=()=>youPlay(+b.dataset.k,b));
     const can=mine&&hands[0].some((c,k)=>ok(c)&&(!drew||k===n-1));
     $('kUno').disabled=over||turn!==0||n!==2||called;$('kUno').classList.toggle('must',!over&&turn===0&&n===2&&!called);
@@ -3600,14 +3634,14 @@ function cards(){
 
 /* ---------- 19. cofrinho (tabuleiro) ---------- */
 function savingsBoard(){
-  panel(`🐷 Cofrinho de ${T.name}`);
+  panel('🐷 Cofrinho');
   const B=CH.slice(0,6);while(B.length<6)B.push(CH[0]);
   const SP=[
     {t:'inicio',i:'🏁',n:'Início'},{t:'barraca',i:B[0].e,n:`Barraca de ${B[0].n}`,o:0},{t:'mesada',i:'💰',n:'Mesada +3',v:3},{t:'tenta',i:'🍭',n:'Doceria',v:3,d:'um pirulito gigante'},
     {t:'barraca',i:B[1].e,n:`Barraca de ${B[1].n}`,o:1},{t:'cofre',i:'🐷',n:'Cofrinho'},{t:'sorte',i:'🎲',n:'Sorte ou revés'},{t:'barraca',i:B[2].e,n:`Barraca de ${B[2].n}`,o:2},
     {t:'imprev',i:'🛠️',n:'Imprevisto',v:5},{t:'barraca',i:B[3].e,n:`Barraca de ${B[3].n}`,o:3},{t:'sonho',i:'🌟',n:'Loja dos sonhos'},{t:'barraca',i:B[4].e,n:`Barraca de ${B[4].n}`,o:4},
-    {t:'sorte',i:'🎲',n:'Sorte ou revés'},{t:'tenta',i:'🧸',n:'Loja de brinquedos',v:6,d:'um brinquedo novo'},{t:'barraca',i:B[5].e,n:`Barraca de ${B[5].n}`,o:5},{t:'cofre',i:'🐷',n:'Cofrinho'},
-    {t:'trabalho',i:'💼',n:'Ajudar na barraca +4',v:4},{t:'sorte',i:'🎲',n:'Sorte ou revés'},{t:'tenta',i:'🍕',n:'Lanchonete',v:4,d:'um lanche'},{t:'banco',i:'🏦',n:'Banco: juros'}
+    {t:'desafio',i:'🧮',n:'Desafio de matemática'},{t:'tenta',i:'🧸',n:'Loja de brinquedos',v:6,d:'um brinquedo novo'},{t:'barraca',i:B[5].e,n:`Barraca de ${B[5].n}`,o:5},{t:'cofre',i:'🐷',n:'Cofrinho'},
+    {t:'trabalho',i:'💼',n:'Ajudar na barraca +4',v:4},{t:'desafio',i:'🧮',n:'Desafio de matemática'},{t:'tenta',i:'🍕',n:'Lanchonete',v:4,d:'um lanche'},{t:'banco',i:'🏦',n:'Banco: juros'}
   ];
   const LUCK=[
     ['Você achou 2 moedas no sofá! Guardou no bolso.',2,0],['A vovó te deu 5 moedas de presente.',5,0],['Você vendeu brinquedos que não usava mais: +4.',4,0],
@@ -3629,7 +3663,7 @@ function savingsBoard(){
   .cf-w .bs.t-inicio{--sb:#e2384f;background:linear-gradient(180deg,#fff,#ffe1e5)}.cf-w .bs.t-barraca{--sb:#3fa34d;background:linear-gradient(180deg,#fbfff5,#dff3cc)}
   .cf-w .bs.t-mesada,.cf-w .bs.t-trabalho{--sb:#f0b400;background:linear-gradient(180deg,#fffdf0,#fff0b8)}.cf-w .bs.t-tenta{--sb:#e2589b;background:linear-gradient(180deg,#fff,#ffe1ec)}
   .cf-w .bs.t-cofre{--sb:#3aa7e8;background:linear-gradient(180deg,#f5fcff,#d3efff)}.cf-w .bs.t-imprev{--sb:#ff8a1f;background:linear-gradient(180deg,#fff,#ffe3c8)}
-  .cf-w .bs.t-sonho{--sb:#ffb400;background:linear-gradient(180deg,#fffbe0,#ffe27a)}.cf-w .bs.t-sorte{--sb:#8a4bd1;background:linear-gradient(180deg,#fbf7ff,#e6d9fb)}.cf-w .bs.t-banco{--sb:#2ea84a;background:linear-gradient(180deg,#f3fff0,#c9edc0)}
+  .cf-w .bs.t-sonho{--sb:#ffb400;background:linear-gradient(180deg,#fffbe0,#ffe27a)}.cf-w .bs.t-sorte{--sb:#8a4bd1;background:linear-gradient(180deg,#fbf7ff,#e6d9fb)}.cf-w .bs.t-desafio{--sb:#2563eb;background:linear-gradient(180deg,#f4f8ff,#cfe0ff)}.cf-w .bs.t-banco{--sb:#2ea84a;background:linear-gradient(180deg,#f3fff0,#c9edc0)}
   .cf-w .bs.owned{box-shadow:0 3px 0 rgba(0,0,0,.2),inset 0 0 0 3px var(--orange)}
   .cf-w .bs.step{background:#fff2a8;transform:scale(1.08);z-index:2}
   .cf-w .bs.over{transform:scale(1.08);z-index:2;box-shadow:0 0 0 4px var(--lemon),0 4px 0 rgba(0,0,0,.2)}
@@ -3740,6 +3774,14 @@ function savingsBoard(){
       const save=()=>{SFX.ok();end('Resistiu à vontade e guardou o dinheiro. Muito bem!','ok')};
       if(p.h){say(`${s.i} Que tal ${s.d} por ${s.v} moedas? Você precisa ou só quer?`);act([[`Comprar (−${s.v})`,buy,'ghost'],['Guardar o dinheiro',save]])}else(Math.random()<.3?buy:save)();return}
     if(s.t==='imprev'){const r=pay(p,s.v);SFX.no();end(r==='carteira'?`Imprevisto! A bicicleta quebrou e custou ${s.v}.`:r==='cofre'?`Imprevisto de ${s.v}! Faltou na carteira, mas o cofrinho salvou. É para isso que serve uma reserva.`:`Imprevisto de ${s.v}! Não tinha dinheiro guardado e vai perder a próxima vez.`,r==='faltou'?'no':'');return}
+    if(s.t==='desafio'){
+      /* desafio de matemática: acertar rende 3 moedas na carteira (o computador acerta 6 de cada 10) */
+      const a=mrnd(2,12),b=mrnd(2,9),mul=Math.random()<.5,real=mul?a*b:a+b,conta=`${a} ${mul?'×':'+'} ${b}`;
+      if(!p.h){const ok=Math.random()<.6;if(ok)p.cart+=3;SFX[ok?'ok':'no']();end(ok?`${p.ch.e} acertou ${conta} e ganhou 3 moedas! 🧮`:`${p.ch.e} errou a conta do desafio.`,ok?'ok':'no');return}
+      const o=mathOpts(real,[real+mrnd(1,6),real-mrnd(1,6),real+10]);
+      say(`🧮 Desafio! Quanto é ${conta}?`);
+      act(o.map(x=>[x,()=>{const ok=x===String(real);if(ok){p.cart+=3;SFX.ok()}else SFX.no();end(ok?'Acertou! +3 moedas na carteira. 🧮':`Era ${real}. Tente a próxima!`,ok?'ok':'no')},'ghost']));
+      return}
     if(s.t==='sorte'){const [txt,dc,dk]=luck.pop();if(!luck.length)luck=shuffle(LUCK);
       if(dk==='20%'){const j=Math.round(p.cofre*.2);p.cofre+=j;SFX.ok();end(`${txt} (+${j})`,'ok');return}
       if(dc<0&&dk>0){const v=Math.min(p.cart,-dc);p.cart-=v;p.cofre+=v;SFX.ok();end(txt,'ok');return}
@@ -5499,6 +5541,8 @@ function xadrez(net){
     };
     NET.onLeave=NET.onClose=()=>{if(dead||gameOver)return;gameOver=true;$('xzStatus').textContent='Seu amigo saiu da sala 😢';$('xzStatus').className='fb no';toast('Seu amigo saiu','🌐')};
   }else{
+    const ob=document.createElement('button');ob.type='button';ob.className='btn ghost c3d-sm';ob.id='xzOnline';ob.textContent='🌐 Com amigo';$('xzUndo').after(ob);
+    ob.onclick=()=>{SFX.click();go(()=>netLobbyScreen({game:'xadrez',title:'Xadrez online',icon:'♟️',max:2,back:()=>go(xadrez),onReady:(room,host)=>go(()=>xadrez({room,host}))}))};
   }
   setSub();
   if(want3d)setMode('3d',false);else{can3d=true;show2d();afterMove()}
@@ -5802,12 +5846,137 @@ function dama(net){
     NET.onMsg=d=>{if(dead||!d)return;if(d.k==='mv')oppMove(d);else if(d.k==='new')newGame(true)};
     NET.onLeave=NET.onClose=()=>{if(dead||gameOver)return;gameOver=true;busy=true;refresh();status('Seu amigo saiu da sala 😢','fb no');toast('Seu amigo saiu','🌐')};
   }else{
+    const ob=document.createElement('button');ob.type='button';ob.className='btn ghost';ob.id='dmOnline';ob.textContent='🌐 Jogar com amigo';$('dmUndo').after(ob);
+    ob.onclick=()=>{SFX.click();go(()=>netLobbyScreen({game:'dama',title:'Dama online',icon:'⚫',max:2,back:()=>go(dama),onReady:(room,host)=>go(()=>dama({room,host}))}))};
   }
   sync(true);afterMove();
 }
 
 
 let GAMES=[];
+const NET_ALPHA='ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+/* servidor das salas com código de 4 letras: por padrão, o Worker do jogo da família.
+   Para usar o seu próprio, publique servidor/worker.js no Cloudflare e troque o endereço abaixo. */
+const NET_SERVER='wss://jogosmilena.felipe-conhariki.workers.dev';
+function netBase(){return NET_SERVER}
+function netNewCode(){let s='';for(let i=0;i<4;i++)s+=NET_ALPHA[Math.floor(Math.random()*NET_ALPHA.length)];return s}
+/* conecta numa sala. api.onMsg/onJoin/onLeave/onClose podem ser trocados depois (mensagens que chegam sem ouvinte ficam na fila) */
+function netConnect(o){
+  const url=`${netBase()}/ws/${o.code}?${o.host?'host=1&':''}game=${encodeURIComponent(o.game||'jogo')}&max=${o.max||2}`;
+  let ws=null,closed=false,pingT=0,h=null;const q=[];
+  const api={code:o.code,id:-1,host:!!o.host,peers:[],max:o.max||2,connected:false,rtt:0,
+    onHello:o.onHello||null,onJoin:o.onJoin||null,onLeave:o.onLeave||null,onClose:o.onClose||null,onErr:o.onErr||null,
+    send(d,to){if(ws&&ws.readyState===1){try{ws.send(JSON.stringify({t:'msg',d,to}))}catch(e){}}},
+    close(){closed=true;clearInterval(pingT);try{ws&&ws.close()}catch(e){}}};
+  Object.defineProperty(api,'onMsg',{get(){return h},set(f){h=f;if(f)q.splice(0).forEach(m=>f(m.d,m.from))}});
+  if(o.onMsg)api.onMsg=o.onMsg;
+  try{ws=new WebSocket(url)}catch(e){setTimeout(()=>api.onErr&&api.onErr('Sem internet agora'),0);return api}
+  ws.onopen=()=>{pingT=setInterval(()=>{try{ws.send(JSON.stringify({t:'ping',n:performance.now()}))}catch(e){}},4000)};
+  ws.onmessage=ev=>{
+    let m;try{m=JSON.parse(ev.data)}catch(e){return}
+    if(m.t==='hello'){api.id=m.id;api.host=m.host;api.max=m.max;api.game=m.game;api.peers=m.peers.slice();api.connected=true;api.onHello&&api.onHello(api)}
+    else if(m.t==='join'){api.peers.push(m.id);api.onJoin&&api.onJoin(m.id)}
+    else if(m.t==='leave'){api.peers=api.peers.filter(x=>x!==m.id);api.onLeave&&api.onLeave(m.id,m.host)}
+    else if(m.t==='msg'){if(h)h(m.d,m.from);else q.push(m)}
+    else if(m.t==='err'){closed=true;api.onErr&&api.onErr(m.m)}
+    else if(m.t==='pong')api.rtt=Math.round(performance.now()-m.n);
+  };
+  ws.onclose=()=>{clearInterval(pingT);const was=api.connected;api.connected=false;if(!closed){closed=true;was?(api.onClose&&api.onClose()):(api.onErr&&api.onErr('Não consegui conectar. Confira a internet.'))}};
+  ws.onerror=()=>{};
+  return api;
+}
+let netCssOn=false;
+function netCss(){
+  if(netCssOn)return;netCssOn=true;
+  const st=document.createElement('style');st.id='netCss';
+  st.textContent=`
+.nl-box{display:flex;flex-direction:column;gap:14px;align-items:center;max-width:480px;margin:0 auto;width:100%;text-align:center}
+.nl-btn{width:100%;font-size:20px!important;padding:16px 18px!important}
+.nl-code{display:flex;gap:10px;justify-content:center}
+.nl-code b{width:min(20vw,74px);height:min(25vw,92px);display:flex;align-items:center;justify-content:center;border-radius:18px;background:var(--face,#fff);border:3px solid var(--line);box-shadow:0 5px 0 var(--line);font:800 min(14vw,56px) "Baloo 2",sans-serif;color:var(--ink,#3a2418);text-transform:uppercase}
+.nl-code b.on{border-color:var(--orange);box-shadow:0 5px 0 var(--accD)}
+.nl-keys{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;width:100%}
+.nl-keys button{border:2px solid var(--line);background:var(--face,#fff);color:var(--ink,#3a2418);border-radius:12px;padding:0;min-height:44px;font:800 20px "Baloo 2",sans-serif;box-shadow:0 3px 0 var(--line);cursor:pointer;touch-action:manipulation}
+.nl-keys button:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+.nl-keys button.wide{grid-column:span 2}
+.nl-wait{display:flex;align-items:center;gap:10px;font:800 17px "Baloo 2",sans-serif;color:var(--soft,#6b5a4a)}
+.nl-dot{width:14px;height:14px;border-radius:50%;background:var(--orange);animation:nlp 1s ease-in-out infinite}
+@keyframes nlp{50%{transform:scale(.5);opacity:.5}}
+.nl-err{color:#c62828;font:800 15px Nunito,sans-serif;min-height:20px}
+.nl-who{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.nl-who span{background:var(--face,#fff);border:2px solid var(--line);border-radius:999px;padding:5px 12px;font:800 14px "Baloo 2",sans-serif}
+`;
+  document.head.appendChild(st);
+}
+/* tela de sala: criar (mostra o codigo) ou entrar (digita o codigo). onReady(room,isHost) quando a partida pode comecar */
+function netLobbyScreen(o){
+  netCss();panel(`${o.icon||'🌐'} ${o.title}`);
+  const box=document.createElement('div');box.className='nl-box';app.append(box);
+  let room=null,dead=false,handed=false;
+  const maxP=o.max||2;
+  cleanup=()=>{dead=true;if(room&&!handed)room.close()};
+  const leave=()=>{if(room&&!handed){room.close();room=null}};
+  const home=()=>{
+    leave();
+    box.innerHTML=`<p class="sub">Jogue com um amigo em <b>outro celular ou computador</b>! Um cria a sala e o outro digita o código de 4 letras.</p>
+    <button class="btn nl-btn" id="nlC" type="button">➕ Criar sala</button>
+    <button class="btn nl-btn alt" id="nlJ" type="button">🔑 Entrar com código</button>
+    <button class="btn ghost" id="nlB" type="button">← Voltar</button>`;
+    $('nlC').onclick=()=>{SFX.click();create(0)};$('nlJ').onclick=()=>{SFX.click();join()};$('nlB').onclick=()=>{SFX.click();(o.back||(()=>go(menu)))()};
+  };
+  const ready=host=>{handed=true;const r=room;r.onMsg=null;r.onLeave=null;r.onClose=null;r.onErr=null;o.onReady(r,host)};
+  const create=tries=>{
+    leave();const code=netNewCode();
+    box.innerHTML=`<p class="sub">Diga este código para o seu amigo:</p><div class="nl-code">${[...code].map(c=>`<b>${c}</b>`).join('')}</div>
+    <div class="nl-wait" id="nlW"><i class="nl-dot"></i><span id="nlT">Conectando…</span></div><div class="nl-who" id="nlWho"></div><div class="nl-err" id="nlE"></div>
+    <button class="btn nl-btn" id="nlGo" type="button" hidden>▶ Começar</button>
+    <button class="btn ghost" id="nlX" type="button">Cancelar</button>`;
+    $('nlX').onclick=()=>{SFX.click();home()};
+    const upd=()=>{
+      if(dead||!room)return;
+      const n=room.peers.length+1;
+      $('nlWho').innerHTML=Array.from({length:n},(_,i)=>`<span>${i===0?'🏠 Você':'👤 Amigo '+i}</span>`).join('');
+      if(maxP<=2){if(n>=2){SFX.ok();room.send({__go:1});ready(true)}}
+      else{$('nlT').textContent=`${n} de ${maxP} jogadores`;$('nlGo').hidden=n<2;if(n>=maxP){room.send({__go:1});ready(true)}}
+    };
+    room=netConnect({code,host:true,game:o.game,max:maxP,
+      onHello:()=>{if(dead)return;$('nlT').textContent='Esperando seu amigo entrar…';tone(660,.1,'triangle',.1)},
+      onJoin:()=>{SFX.pop();upd()},onLeave:()=>upd(),
+      onErr:m=>{if(dead)return;if(/já existe/.test(m)&&tries<6){create(tries+1);return}$('nlE').textContent=m;$('nlW').hidden=true},
+      onClose:()=>{if(dead||handed)return;$('nlE').textContent='A conexão caiu.';$('nlW').hidden=true}});
+    $('nlGo').onclick=()=>{SFX.click();room.send({__go:1});ready(true)};
+  };
+  const join=()=>{
+    leave();let code='';
+    box.innerHTML=`<p class="sub">Digite o código que o seu amigo mostrou:</p><div class="nl-code" id="nlCode"></div><div class="nl-err" id="nlE"></div>
+    <div class="nl-keys" id="nlK">${[...NET_ALPHA].map(c=>`<button type="button" data-k="${c}">${c}</button>`).join('')}<button type="button" class="wide" data-k="<">⌫</button></div>
+    <button class="btn ghost" id="nlX" type="button">← Voltar</button>`;
+    const show=()=>{$('nlCode').innerHTML=[0,1,2,3].map(i=>`<b class="${i===code.length?'on':''}">${code[i]||''}</b>`).join('')};
+    const go4=()=>{
+      $('nlE').textContent='';
+      box.querySelectorAll('.nl-keys button').forEach(b=>b.disabled=true);
+      $('nlE').textContent='Conectando…';
+      room=netConnect({code,host:false,game:o.game,max:maxP,
+        onHello:()=>{if(dead)return;$('nlE').textContent='Conectado! Esperando começar…'},
+        onMsg:d=>{if(d&&d.__go&&!dead&&!handed)ready(false)},
+        onErr:m=>{if(dead)return;leave();code='';show();box.querySelectorAll('.nl-keys button').forEach(b=>b.disabled=false);$('nlE').textContent=m;SFX.no()},
+        onClose:()=>{if(dead||handed)return;home()}});
+    };
+    const key=k=>{
+      if(room)return;
+      if(k==='<')code=code.slice(0,-1);else if(code.length<4&&NET_ALPHA.includes(k))code+=k;
+      SFX.tick();show();if(code.length===4)go4();
+    };
+    $('nlK').onclick=e=>{const b=e.target.closest('button[data-k]');if(b)key(b.dataset.k)};
+    const kd=e=>{if(dead||!$('nlK'))return;const k=e.key.toUpperCase();if(e.key==='Backspace')key('<');else if(k.length===1&&NET_ALPHA.includes(k))key(k)};
+    document.addEventListener('keydown',kd);
+    const oc=cleanup;cleanup=()=>{document.removeEventListener('keydown',kd);oc()};
+    $('nlX').onclick=()=>{SFX.click();home()};
+    show();
+  };
+  home();
+}
+/* ===NET END=== */
 function buildGames(){const GI=T.gameIcons||{};return [
   {em:'🧮',name:'Quiz SARESP',desc:'Questões dos descritores, por ano e nível',fn:quiz,bg:'#e2384f',sh:'#a82337'},
   {em:'🔢',name:'Que número sou eu?',desc:'Descubra o número com menos pistas',fn:whoIs,bg:'#8a4bd1',sh:'#5f2f98'},
