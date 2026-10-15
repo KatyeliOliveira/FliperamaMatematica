@@ -854,6 +854,9 @@ html.fs-imm .gameHdr{margin-bottom:8px}
   .fs-fo .fo-stage svg{height:clamp(110px,calc(var(--fs-h) - 250px),340px)}
   .fs-fo>#fCat{grid-area:cat}.fs-fo>#fDif{grid-area:dif}.fs-fo>.fo-stage{grid-area:st}.fs-fo>.fo-hint{grid-area:hint}.fs-fo>.fo-word{grid-area:word}.fs-fo>#foPlay{grid-area:kb}.fs-fo>#foEnd{grid-area:end}
 }
+/* marcação da professora: aparece no fim de todas as telas */
+.fx-credito{margin:16px 0 4px;text-align:center;font:700 12px/1.4 Nunito,sans-serif;color:var(--soft);opacity:.85;padding:0 8px}
+.fx-credito b{color:var(--ink);font-weight:800}
 /* duelo online: botão no cartão, aviso e comparação final */
 .game .duelBtn{position:absolute;right:8px;bottom:8px;z-index:3;background:rgba(255,255,255,.3);border:2px solid rgba(255,255,255,.6);border-radius:999px;padding:3px 10px;font:800 12px "Baloo 2",sans-serif;color:#fff;box-shadow:0 2px 0 rgba(0,0,0,.18)}
 .game .duelBtn:active{transform:translateY(1px)}
@@ -887,6 +890,7 @@ html.fs-imm .gameHdr{margin-bottom:8px}
   </header>
   <button class="profileBar" id="profileBar" type="button" hidden></button>
   <main id="app"></main>
+  <footer class="fx-credito">Criado por <b>Profª Katyeli Oliveira</b> · E.E. Anna Cuevas Guimarães · Matemática e SARESP</footer>
 </div>
 <div class="modalWrap" id="pwaModal" hidden>
   <div class="modalCard">
@@ -1647,7 +1651,7 @@ function memory(){
 
 /* ---------- 2. quiz ---------- */
 /* Quiz SARESP: escolha do ano e do nível, depois roda o motor do Quiz de referência */
-const SA_LVN=['🌱 Abaixo do básico','🌿 Básico','🌳 Adequado','🏆 Avançado','🎯 Misto'];
+const SA_LVN=['🌱 Começando','🌿 Praticando','🌳 Desafiando conhecimentos','🏆 Superdesafio','🎯 Misto'];
 const SA_LVD=['Reconhecer e fazer contas simples','Resolver problemas em uma etapa','Interpretar e combinar ideias','Desafios com várias etapas','Do mais fácil ao mais difícil'];
 function saPool(ano,lv){
   const all=SB.filter(x=>x.a===ano);
@@ -2083,7 +2087,7 @@ function race(){
   <div class="cr2-track" id="crTrack"></div>
   <div class="cr2-box" id="rBox"></div>`;
   app.append(w);
-  let total=60,T=17,score=0,streak=0,endAt=0,iv=null,tms=[],running=false,finished=false,best=0,last='',me=CH[Math.floor(Math.random()*CH.length)],rivals=[],crossed=false,tripT=null;
+  let total=60,T=17,score=0,streak=0,endAt=0,iv=null,tms=[],running=false,finished=false,best=0,last='',me=CH[Math.floor(Math.random()*CH.length)],rivals=[],crossed=false,tripT=null,qn=0;
   try{const sv=CH.find(c=>c.n===localStorage.getItem('crRun'));if(sv)me=sv}catch(e){}
   const later=(f,ms)=>{const t=setTimeout(()=>{tms=tms.filter(x=>x!==t);f()},ms);tms.push(t);return t};
   cleanup=()=>{clearInterval(iv);tms.forEach(clearTimeout);tms=[]};
@@ -2127,7 +2131,7 @@ function race(){
     later(begin,4*700-120);
   }
   function begin(){
-    running=true;finished=false;score=0;streak=0;crossed=false;last='';
+    running=true;finished=false;score=0;streak=0;crossed=false;last='';qn=0;
     endAt=Date.now()+total*1000;$('rs').textContent=0;$('crTrack').classList.add('go');
     tick();next();clearInterval(iv);iv=setInterval(tick,100)}
   function tick(){
@@ -2141,7 +2145,10 @@ function race(){
     if(leftMs<=0)end();
   }
   function next(){
-    let q;do{q=raceQuestion()}while(q.q===last);last=q.q;
+    let q;
+    if(DUEL&&DUEL.g&&DUEL.g.key==='corrida'){/* duelo: a mesma pergunta, na mesma ordem, nos dois aparelhos */
+      const n=++qn;q=withSeed(DUEL.seed+n*977,()=>raceQuestion());
+    }else do{q=raceQuestion()}while(q.q===last);last=q.q;
     const box=$('rBox');
     box.innerHTML=`${q.big?`<div class="cr2-big"></div>`:''}<p class="cr2-qt"></p><div class="cr2-opts">${q.o.map((o,k)=>`<button class="cr2-opt" type="button" id="ro-${k}"></button>`).join('')}</div>`;
     if(q.big)box.querySelector('.cr2-big').textContent=q.big;
@@ -2165,6 +2172,9 @@ function race(){
     const mine=score/T,all=[{c:me,d:mine,me:true},...rivals.map(r=>({c:r.c,d:r.d}))].sort((a,b)=>b.d-a.d||(b.me?1:0)-(a.me?1:0));
     const rank=all.findIndex(x=>x.me)+1;const short=Math.min(30,score);
     const prev=bestGet('race'+total);bestSet('race'+total,score);recShow();
+    if(DUEL&&DUEL.g&&DUEL.g.key==='corrida'){/* duelo: o painel final compara os acertos */
+      const el2=winPanel('rBox',{icon:score>=(DUEL.theirs?DUEL.theirs.s:0)?'🏆':'😅',title:'Sua corrida acabou!',msg:`${score} acerto${score===1?'':'s'} em ${total} segundos.`,stars:short,record:false,duel:score,duelLabel:score+' acertos'});
+      SFX.win();addStars(short);return el2}
     SFX.win();addStars(short);if(score>=10||rank===1)confetti();
     const el=winPanel('rBox',{icon:['🥇','🥈','🥉','🏁'][rank-1],title:rank===1?'Você ganhou a corrida! 🏆':`Você chegou em ${rank}º lugar!`,msg:`${score} acerto${score===1?'':'s'} em ${total} segundos.`,stars:short,record:score>prev&&prev>0&&score>0,again:intro});
     const pod=document.createElement('div');pod.className='cr2-podium';
@@ -4411,23 +4421,92 @@ function pixelStudio(body,setClean){
   palUI();resize(16);
 }
 
+/* desenhos de pixel art reconhecíveis: cada letra é uma cor; '.' é vazio. Contorno escuro ('#') em volta das partes. */
+const PX_DESENHOS=[
+  {nome:'Gato',cols:{'#':'#2d2d2d','o':'#f59e0b','n':'#fb7185','e':'#22c55e','b':'#fef3c7'},grid:[
+    '##.....##.',
+    '#o#...#o#.',
+    '#oo#####o#',
+    '#ooooooo#.',
+    '#ooeoeoo#.',
+    '#oooonoo#.',
+    '#ooooooo#.',
+    '.#oooooo#.',
+    '..#oooo#..',
+    '...####...']},
+  {nome:'Cachorro',cols:{'#':'#2d2d2d','o':'#d97706','b':'#fde68a','n':'#2d2d2d','t':'#fb7185'},grid:[
+    '.########.',
+    '#oooooooo#',
+    '#ooooooooo',
+    '#oo#oo#oo#',
+    '#oobboboo#',
+    '#obbbbbbo#',
+    '#oobbbboo#',
+    '.#oootoo#.',
+    '..#oooo#..',
+    '..##..##..']},
+  {nome:'Carro',cols:{'#':'#2d2d2d','a':'#3b82f6','w':'#9ca3af','y':'#facc15','g':'#bfdbfe'},grid:[
+    '...######.',
+    '..#gggggg#',
+    '.#aaaaaaa#',
+    '#aaaaaaaaa',
+    '#aaaaaaaa#',
+    '#yyyyyyyy#',
+    '#aaaaaaaa#',
+    '##wwwww##.',
+    '#ww###ww#.',
+    '#ww###ww#.']},
+  {nome:'Robô',cols:{'#':'#2d2d2d','m':'#9ca3af','e':'#22d3ee','a':'#f97316','y':'#facc15'},grid:[
+    '....a.....',
+    '....#.....',
+    '..#######.',
+    '..#eeeee#.',
+    '..#mmmmm#.',
+    '.#mmmmmmm#',
+    '#mm#yyy#mm',
+    '#mm#mmm#mm',
+    '.#mmmmmm#.',
+    '..##.##...']},
+  {nome:'Casa',cols:{'#':'#7c2d12','r':'#dc2626','w':'#fef3c7','d':'#78350f','s':'#38bdf8','g':'#16a34a'},grid:[
+    '....rr....',
+    '...rrrr...',
+    '..rrrrrr..',
+    '.rrrrrrrr.',
+    'rrrrrrrrrr',
+    '.#wwwwww#.',
+    '.#wsswdw#.',
+    '.#wsswdw#.',
+    '.#wwwwww#.',
+    'gggggggggg']}
+];
+/* desenho escolhido: cada célula da grade do jogo vira a cor da figura (vazio = fora) */
+function pxGrid(desenho,cols,rows){
+  const g=desenho.grid,H=g.length,W=g[0].length;
+  const out=[];
+  for(let r=0;r<rows;r++){out.push([]);for(let c=0;c<cols;c++){
+    const sr=Math.min(H-1,Math.floor(r/rows*H)),sc=Math.min(W-1,Math.floor(c/cols*W));
+    const ch=g[sr][sc];out[r].push(ch==='.'?null:(desenho.cols[ch]||'#7c3aed'));
+  }}
+  return out;
+}
 function pixelQuiz(body,setClean){
   const ri=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
   const COLS=18,ROWS=18;
-  const pool=shuffle([...new Set([...CH.map(c=>c.e),T.icon,'❤️','⭐','🎈','🌟','💎'])]);
-  let grid=null;
-  for(const em of pool){grid=emojiMask(em,COLS,ROWS);if(grid)break}
-  if(!grid){grid=[];for(let r=0;r<ROWS;r++){grid.push([]);for(let c=0;c<COLS;c++)grid[r].push(Math.hypot(c-COLS/2+0.5,r-ROWS/2+0.5)<COLS*0.4)}}
-  const PALETTE=[T.acc,T.accD,'#2563eb','#facc15'];
+  /* desenho sorteado (gato, cachorro, carro, robô ou casa): cada célula tem a cor da sua parte da figura */
+  const desenho=PX_DESENHOS[ri(0,PX_DESENHOS.length-1)];
+  const colGrid=pxGrid(desenho,COLS,ROWS);
+  /* cada cor da figura vira uma cor da legenda (até 6 cores, em ordem de aparição) */
+  const PALETTE=[...new Set(colGrid.flat().filter(Boolean))];
   const cells=[];let total=0;
   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-    if(grid[r][c]){const band=Math.min(3,Math.floor(r/ROWS*4));cells.push({r,c,col:band+1,done:false});total++}
+    const cor=colGrid[r][c];
+    if(cor){cells.push({r,c,col:PALETTE.indexOf(cor)+1,done:false,cor});total++}
   }
-  const remaining=()=>[1,2,3,4].map(n=>cells.filter(x=>x.col===n&&!x.done).length);
+  const remaining=()=>PALETTE.map((_,i)=>cells.filter(x=>x.col===i+1&&!x.done).length);
   let lvl=0,solved=0,cur=null,tm=null;
   const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;gap:12px';
-  w.innerHTML=`<p class="sub">Resolva a conta: o resultado é a cor que você vai revelar! Vai virar uma surpresa do seu tema 👀</p>
-    <div class="bar"><div class="stat">${T.icon} Surpresa</div><div class="stat">Revelado: <b id="pxP">0</b>%</div></div>
+  w.innerHTML=`<p class="sub">Resolva a conta: o resultado é a cor que você vai revelar! Qual desenho vai aparecer? 👀</p>
+    <div class="bar"><div class="stat">🖼️ ${desenho.nome}</div><div class="stat">Revelado: <b id="pxP">0</b>%</div></div>
     <div class="pxwrap"><div class="pxgrid" id="pxGrid" style="grid-template-columns:repeat(${COLS},1fr)"></div></div>
     <div class="pxlegend" id="pxLeg"></div>
     <div class="box" id="pxQBox"></div>`;
@@ -4458,7 +4537,7 @@ function pixelQuiz(body,setClean){
   }
   function nextQ(){
     const rem=remaining();
-    const opts=[1,2,3,4].filter(n=>rem[n-1]>0);
+    const opts=PALETTE.map((_,i)=>i+1).filter(n=>rem[n-1]>0);
     if(!opts.length){return finish()}
     cur=pick(opts,1)[0];renderLeg();
     const {q,a}=mathFor(cur);
@@ -6123,7 +6202,7 @@ function duelLobby(g){
 function duelRun(g,room,host){
   const D=DUEL={g,room,host,mine:null,theirs:null,started:false,box:null,left:false};
   const begin=seed=>{
-    D.started=true;
+    D.started=true;D.seed=seed;
     if(!host){app.innerHTML='';document.body.classList.remove('inGame')}
     withSeed(seed,()=>g.fn());
     const tag=document.createElement('div');tag.className='duelTag';tag.textContent='🌐 Duelo com amigo: vocês jogam as mesmas perguntas';
@@ -6157,7 +6236,7 @@ function duelUpdate(){
 function buildGames(){const GI=T.gameIcons||{};return [
   {em:'🧮',name:'Quiz SARESP',desc:'Questões dos descritores, por ano e nível',fn:quiz,bg:'#e2384f',sh:'#a82337'},
   {em:'🔢',name:'Que número sou eu?',desc:'Descubra o número com menos pistas',fn:whoIs,bg:'#8a4bd1',sh:'#5f2f98',duel:true,key:'numero'},
-  {em:'⏱️',name:'Corrida das contas',desc:'Contas e perguntas até o tempo acabar',fn:race,bg:'#3fa34d',sh:'#2c7a37'},
+  {em:'⏱️',name:'Corrida das contas',desc:'Contas e perguntas até o tempo acabar',fn:race,bg:'#3fa34d',sh:'#2c7a37',duel:true,key:'corrida'},
   {em:'✅',name:'Verdade ou mentira',desc:'A conta está certa? Responda rápido: V ou F',fn:trueFalse,bg:'#e0a100',sh:'#a37400',duel:true,key:'verdade'},
   {em:'🔎',name:'Qual é o intruso?',desc:'Ache o que não combina',fn:intruder,bg:'#be185d',sh:'#86103f',duel:true,key:'intruso'},
   {em:'💰',name:'Rumo ao Milhão',desc:'16 perguntas valendo 1 milhão',fn:million,bg:'#1b3a6b',sh:'#0e2140'},
