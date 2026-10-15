@@ -3287,8 +3287,9 @@ function dragify(el,onDrop,canStart){
 const shakeEl=el=>{if(!el)return;el.classList.remove('shake');void el.offsetWidth;el.classList.add('shake')};
 
 /* ---------- 17. dominó ---------- */
-function domino(){
-  panel('🁫 Dominó');
+function domino(net){
+  const NET=(net&&net.room)||null,GUEST=!!(NET&&!net.host);/* online: mesma semente nos dois aparelhos; só as ações trafegam */
+  panel(NET?'🁫 Dominó online':'🁫 Dominó');
   oldGamesCss('dm2-css',`
   .dm2-wrap{display:flex;flex-direction:column;gap:9px}
   .dm2-top{display:flex;gap:8px;align-items:center}
@@ -3361,7 +3362,7 @@ function domino(){
   .dm2-act{display:flex;gap:8px}
   .dm2-act .btn{flex:1;padding:11px 10px;font-size:15px}
   `);
-  const BOT=CH[1]||CH[0];
+  const BOT=NET?{e:'👤',n:'Amigo'}:(CH[1]||CH[0]);
   const SYM=CH.slice(0,7).map(c=>c.e);while(SYM.length<7)SYM.push('⭐');
   let mode='sym';try{if(localStorage.getItem('dm2mode')==='pip')mode='pip'}catch(e){}
   const w=document.createElement('div');w.className='dm2-wrap';
@@ -3372,12 +3373,12 @@ function domino(){
   <div class="dm2-felt" id="dm2Felt"><div class="dm2-chain" id="dChain"></div></div>
   <p class="dm2-msg" id="dfb" aria-live="polite"></p>
   <div id="dm2Play"><div class="dm2-hand" id="dHand"></div>
-  <div class="dm2-act" style="margin-top:6px"><button class="btn alt" id="dPass" type="button">Passar a vez</button><button class="btn ghost" id="dNew" type="button">Nova partida</button></div></div>
+  <div class="dm2-act" style="margin-top:6px"><button class="btn alt" id="dPass" type="button">Passar a vez</button><button class="btn ghost" id="dNew" type="button">Nova partida</button><button class="btn ghost" id="dOnline" type="button">🌐 Com amigo</button></div></div>
   <div id="dm2End" hidden></div>`;
   app.append(w);
   let hand,bot,bone,chain,turn,over,passes,wins=0,losses=0,lastPlaced=-1,sel=-1,thinking=false,timers=[],drag=null;
   const later=(f,ms)=>{const t=setTimeout(f,ms);timers.push(t);return t};
-  cleanup=()=>{timers.forEach(clearTimeout);if(drag)drag.stop()};
+  cleanup=()=>{timers.forEach(clearTimeout);if(drag)drag.stop();if(NET)NET.close()};
   const PIP={0:[],1:[[50,50]],2:[[27,27],[73,73]],3:[[27,27],[50,50],[73,73]],4:[[27,27],[73,27],[27,73],[73,73]],5:[[27,27],[73,27],[50,50],[27,73],[73,73]],6:[[27,22],[73,22],[27,50],[73,50],[27,78],[73,78]]};
   /* modo "contas": cada metade mostra uma conta cujo resultado é o número da peça (0 a 6) */
   const EXPR=[['5−5','0×7','3−3'],['0+1','3−2','4÷4'],['1+1','4−2','6÷3'],['1+2','5−2','9÷3'],['2+2','2×2','8÷2'],['2+3','7−2','10÷2'],['3+3','2×3','12÷2']];
@@ -3395,7 +3396,8 @@ function domino(){
   function place(t,side){if(!chain.length){chain.push([t[0],t[1]]);lastPlaced=0}else{const e=ends();
     if(side==='R'){chain.push(t[0]===e[1]?[t[0],t[1]]:[t[1],t[0]]);lastPlaced=chain.length-1}else{chain.unshift(t[1]===e[0]?[t[0],t[1]]:[t[1],t[0]]);lastPlaced=0}}
     tone(300,.07,'square',.14);tone(200,.1,'square',.12,.06)}
-  function start(){const all=[];for(let a=0;a<7;a++)for(let b=a;b<7;b++)all.push([a,b]);const d=shuffle(all);hand=d.slice(0,7);bot=d.slice(7,14);bone=d.slice(14);chain=[];over=false;passes=0;lastPlaced=-1;sel=-1;thinking=false;
+  function start(seed){const all=[];for(let a=0;a<7;a++)for(let b=a;b<7;b++)all.push([a,b]);const d=NET?withSeed(seed,()=>shuffle(all)):shuffle(all);hand=d.slice(0,7);bot=d.slice(7,14);bone=d.slice(14);
+    if(GUEST){const t0=hand;hand=bot;bot=t0}/* o amigo (anfitrião) fica com as primeiras 7 peças */chain=[];over=false;passes=0;lastPlaced=-1;sel=-1;thinking=false;
     $('dm2End').hidden=true;$('dm2End').innerHTML='';$('dm2Play').hidden=false;
     const dbl=h=>Math.max(-1,...h.filter(t=>t[0]===t[1]).map(t=>t[0]));turn=dbl(bot)>dbl(hand)?1:0;render(null,true);
     msg(turn?`${BOT.e} ${BOT.n} começa.`:'Você começa! Toque numa peça ou arraste para a mesa.');if(turn)botTurn(1100)}
@@ -3428,7 +3430,7 @@ function domino(){
   function playMine(k,side,from){
     const t=hand[k];
     if(!fitsSide(t,side)){SFX.no();const z=document.querySelector(`#dChain [data-s="${side}"]`);if(z)gxShake(z,5,300);const e=ends();msg(`Essa peça não tem ${mode==='pip'?e[side==='L'?0:1]+' pinta'+(e[side==='L'?0:1]===1?'':'s'):'resultado '+e[side==='L'?0:1]}. Procure a igual à da ponta!`,'no');return}
-    hand.splice(k,1);place(t,side);passes=0;sel=-1;
+    hand.splice(k,1);place(t,side);passes=0;sel=-1;if(NET)NET.send({k:'play',t:[t[0],t[1]],s:side});
     if(!hand.length){over=true;wins++;render({from,scale:1.2});msg('Você bateu! Vitória! 🎉','ok');SFX.win();addStars(20);confetti();later(()=>endPanel('win'),1300);return}
     turn=1;render({from,scale:1.2});msg(`Boa jogada! Vez de ${BOT.e} ${BOT.n}...`,'ok');botTurn(1300)}
   function tapTile(k,el){
@@ -3458,13 +3460,13 @@ function domino(){
       else if(sel>=0)markZones(hand[sel])};
     drag={stop};window.addEventListener('pointermove',mv);window.addEventListener('pointerup',up);window.addEventListener('pointercancel',up);
   });
-  $('dBuy').onclick=()=>{if(!bone.length||over||turn!==0||hand.some(fits))return;const from=rectOf($('dBuy'));hand.push(bone.pop());SFX.flip();sel=-1;render({buy:from});if(hand.some(fits))msg('Você comprou uma peça que encaixa! Toque nela ou arraste.','ok');else msg('Ainda não encaixa. Compre de novo.')};
-  $('dPass').onclick=()=>{if(over||turn!==0)return;passes++;SFX.click();if(checkBlock())return;turn=1;render();msg('Você passou.');botTurn(1000)};
+  $('dBuy').onclick=()=>{if(!bone.length||over||turn!==0||hand.some(fits))return;const from=rectOf($('dBuy'));hand.push(bone.pop());if(NET)NET.send({k:'buy'});SFX.flip();sel=-1;render({buy:from});if(hand.some(fits))msg('Você comprou uma peça que encaixa! Toque nela ou arraste.','ok');else msg('Ainda não encaixa. Compre de novo.')};
+  $('dPass').onclick=()=>{if(over||turn!==0)return;passes++;if(NET)NET.send({k:'pass'});SFX.click();if(checkBlock())return;turn=1;render();msg('Você passou.');botTurn(1000)};
   function checkBlock(){if(passes>=2){over=true;const a=hand.length,b=bot.length;let k;
       if(a<b){wins++;k='lockwin';msg(`Jogo trancado! Você tinha menos peças (${a} contra ${b}) e venceu!`,'ok');SFX.win();addStars(12);confetti()}
       else if(b<a){losses++;k='lockloss';msg(`Jogo trancado! ${BOT.e} ${BOT.n} tinha menos peças e venceu.`,'no');SFX.no()}else{k='draw';msg('Jogo trancado! Empate.')}
       thinking=false;render();later(()=>endPanel(k),1100);return true}return false}
-  function botTurn(ms){thinking=true;render();later(botPlay,ms)}
+  function botTurn(ms){thinking=true;render();if(!NET)later(botPlay,ms)}
   function botPlay(){if(over)return;let bought=0;thinking=false;
     const bfrom=rectOf($('dm2Av'));
     let k=bot.findIndex(t=>t[0]===t[1]&&fits(t));if(k<0)k=bot.findIndex(fits);
@@ -3479,14 +3481,45 @@ function domino(){
       loss:{title:`${BOT.n} bateu!`,msg:`Quase! Placar: ${wins} x ${losses}. Tente de novo.`,rate:0,stars:0},
       lockloss:{title:'Jogo trancado',msg:`${BOT.n} tinha menos peças. Placar: ${wins} x ${losses}.`,rate:0,stars:0},
       draw:{title:'Empate!',msg:'Mesma quantidade de peças. Que jogo parelho!',rate:.3,stars:0}}[k];
-    winPanel(e,Object.assign({icon:k==='win'||k==='lockwin'?'🏆':k==='draw'?'🤝':'🁫',again:()=>{clearTimeout(0);start()}},P))}
-  $('dNew').onclick=()=>{SFX.click();timers.forEach(clearTimeout);timers=[];start()};
-  start();
+    winPanel(e,Object.assign({icon:k==='win'||k==='lockwin'?'🏆':k==='draw'?'🤝':'🁫',again:newGame},P))}
+  /* nova partida: no online, só o anfitrião sorteia a semente (o amigo pede) */
+  function newGame(){
+    timers.forEach(clearTimeout);timers=[];
+    if(!NET){start();return}
+    if(GUEST){NET.send({k:'req'});msg('Pedindo nova partida ao amigo…');return}
+    const sd=Math.floor(Math.random()*2147483646)+1;NET.send({k:'seed',seed:sd});start(sd);
+  }
+  $('dNew').onclick=()=>{SFX.click();newGame()};
+  if(NET){
+    $('dOnline').hidden=true;
+    NET.onMsg=d=>{
+      if(!d)return;
+      if(d.k==='seed'){timers.forEach(clearTimeout);timers=[];start(d.seed);return}
+      if(d.k==='req'&&!GUEST){newGame();return}
+      if(over||turn!==1)return;
+      if(d.k==='buy'){if(bone.length){bot.push(bone.pop());render();msg(`${BOT.e} ${BOT.n} comprou uma peça.`)}return}
+      if(d.k==='pass'){passes++;if(checkBlock())return;turn=0;thinking=false;render();msg(`${BOT.e} ${BOT.n} passou a vez. Sua vez!`);return}
+      if(d.k==='play'){
+        const t=d.t,k=bot.findIndex(x=>(x[0]===t[0]&&x[1]===t[1])||(x[0]===t[1]&&x[1]===t[0]));if(k<0)return;
+        const bfrom=rectOf($('dm2Av'));thinking=false;
+        const tt=bot.splice(k,1)[0];place(tt,d.s);passes=0;
+        if(!bot.length){over=true;losses++;render({from:bfrom,scale:.8});msg(`${BOT.e} ${BOT.n} bateu! Tente de novo.`,'no');SFX.no();later(()=>endPanel('loss'),1300);return}
+        turn=0;render({from:bfrom,scale:.8});msg(`${BOT.e} ${BOT.n} jogou. Sua vez!`);
+      }
+    };
+    NET.onLeave=NET.onClose=()=>{if(over)return;over=true;thinking=false;if(hand)render();msg('Seu amigo saiu da sala 😢','no');toast('Seu amigo saiu','🌐')};
+    if(GUEST){hand=[];bot=[];bone=[];chain=[];turn=1;over=false;passes=0;msg('Esperando o amigo começar…')}
+    else{const sd=Math.floor(Math.random()*2147483646)+1;NET.send({k:'seed',seed:sd});start(sd)}
+  }else{
+    $('dOnline').onclick=()=>{SFX.click();go(()=>netLobbyScreen({game:'domino',title:'Dominó online',icon:'🁫',max:2,back:()=>go(domino),onReady:(room,host)=>go(()=>domino({room,host}))}))};
+    start();
+  }
 }
 
 /* ---------- 18. última fruta (cartas) ---------- */
-function cards(){
-  panel(T.sym==='fruta'?'🃏 Última Fruta!':'🃏 Última Carta!');
+function cards(net){
+  const NET=(net&&net.room)||null,GUEST=!!(NET&&!net.host),N=NET?2:3;/* online: 2 jogadores, mesma semente, só as ações trafegam */
+  panel(NET?'🃏 Última Carta online':'🃏 Última Carta!');
   oldGamesCss('uc-css',`
   .uc-wrap{display:flex;flex-direction:column;gap:8px}
   .uc-seats{display:flex;gap:8px}
@@ -3556,7 +3589,8 @@ function cards(){
     pula:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M6 18L18 6"/></svg>',
     inverte:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h13l-3-3M20 15H7l3 3"/></svg>',
     coringa:'<svg viewBox="0 0 24 24"><path d="M12 12L12 2A10 10 0 0 1 22 12Z" fill="#e2384f"/><path d="M12 12L22 12A10 10 0 0 1 12 22Z" fill="#2fa04a"/><path d="M12 12L12 22A10 10 0 0 1 2 12Z" fill="#f0b400"/><path d="M12 12L2 12A10 10 0 0 1 12 2Z" fill="#3f57d6"/><circle cx="12" cy="12" r="10" fill="none" stroke="#222" stroke-width="1.5"/></svg>'};
-  const NAMES=[{n:'Você',e:'🙂'},{n:(CH[1]||CH[0]).n,e:(CH[1]||CH[0]).e},{n:(CH[2]||CH[0]).n,e:(CH[2]||CH[0]).e}];
+  const NAMES=NET?[{n:'Você',e:'🙂'},{n:'Amigo',e:'👤'}]:[{n:'Você',e:'🙂'},{n:(CH[1]||CH[0]).n,e:(CH[1]||CH[0]).e},{n:(CH[2]||CH[0]).n,e:(CH[2]||CH[0]).e}];
+  const botGo=ms=>{if(!NET)later(botTurn,ms)};
   const w=document.createElement('div');w.className='uc-wrap';
   w.innerHTML=`
   <div class="uc-seats" id="kBots"></div>
@@ -3566,16 +3600,16 @@ function cards(){
   <p class="uc-msg" id="kfb" aria-live="polite"></p>
   <div id="kPlay"><div class="uc-hand" id="kHand"></div>
   <div class="uc-bar"><button class="btn ghost" id="kPass" type="button">Passar</button><button class="btn uc-uno" id="kUno" type="button">${T.sym==='fruta'?'ÚLTIMA<br>FRUTA!':'ÚLTIMA<br>CARTA!'}</button><button class="btn ghost" id="kNew" type="button">Nova partida</button></div>
-  <p class="uc-note">Mesma cor ou mesmo resultado da conta (2×3 combina com 12÷2). Com 2 cartas, aperte o botão vermelho antes de jogar, senão compra 2.</p></div>
+  <p class="uc-note">Mesma cor ou mesmo resultado da conta (2×3 combina com 12÷2). Com 2 cartas, aperte o botão vermelho antes de jogar, senão compra 2.</p><button class="btn ghost" id="kOnline" type="button" style="margin-top:8px">🌐 Jogar com amigo</button></div>
   <div id="kEnd" hidden></div>`;
   app.append(w);
-  let deck,disc,hands,cur,dir,turn,called,drew,over,timers=[],picking=false;
+  let deck,disc,hands,cur,dir,turn,called,drew,over,timers=[],picking=false,rs=0;
   const later=(f,ms)=>{const t=setTimeout(f,ms);timers.push(t);return t};
-  cleanup=()=>timers.forEach(clearTimeout);
+  cleanup=()=>{timers.forEach(clearTimeout);if(NET)NET.close()};
   function mkDeck(){const d=[];COL.forEach((c,ci)=>{d.push({c:ci,v:'0'});for(let n=1;n<=9;n++){d.push({c:ci,v:''+n});d.push({c:ci,v:''+n})}['pula','inverte','+2'].forEach(v=>{d.push({c:ci,v});d.push({c:ci,v})})});for(let i=0;i<4;i++){d.push({c:-1,v:'coringa'});d.push({c:-1,v:'+4'})}return shuffle(d.map(cd=>/^\d$/.test(cd.v)?{...cd,x:ucExpr(+cd.v)}:cd))}
   const top=()=>disc[disc.length-1];
   const ok=cd=>cd.c===-1||cd.c===cur||cd.v===top().v;
-  function draw(p,n=1){for(let i=0;i<n;i++){if(!deck.length){const t=disc.pop();deck=shuffle(disc.map(x=>({...x})));disc=[t]}if(deck.length)hands[p].push(deck.pop())}}
+  function draw(p,n=1){for(let i=0;i<n;i++){if(!deck.length){const t=disc.pop();const base=disc.map(x=>({...x}));deck=NET?withSeed(rs++*7919+disc.length,()=>shuffle(base)):shuffle(base);disc=[t]}if(deck.length)hands[p].push(deck.pop())}}
   function cardHTML(cd,cls='',sty=''){
     const col=cd.c<0?'#222':COL[cd.c].c;const v=cd.v;let mid,corner;
     if(v==='pula'||v==='inverte'||v==='coringa'){mid=`<span class="mid">${SV[v]}</span>`;corner=v==='pula'?'⊘':v==='inverte'?'⇄':'★'}
@@ -3592,7 +3626,7 @@ function cards(){
     el.animate([{transform:`translate(${dx}px,${dy}px) scale(${scale||.7}) rotate(${rot||-18}deg)`,opacity:.9},{transform:'none',opacity:1}],{duration:460,easing:'cubic-bezier(.25,1,.4,1)'});
   }
   function render(fly){
-    $('kBots').innerHTML=[1,2].map(p=>`<div class="uc-seat ${turn===p&&!over?'on':''}" id="kseat${p}"><div class="uc-av">${NAMES[p].e}${hands[p].length===1?'<span class="uc-last">ÚLTIMA!</span>':''}</div><div class="uc-si"><b>${NAMES[p].n}</b><div class="uc-backs">${Array.from({length:Math.min(hands[p].length,8)},()=>'<i class="uc-mini"></i>').join('')}<span class="uc-cnt">${hands[p].length}</span></div></div></div>`).join('');
+    $('kBots').innerHTML=Array.from({length:N-1},(_,i)=>i+1).map(p=>`<div class="uc-seat ${turn===p&&!over?'on':''}" id="kseat${p}"><div class="uc-av">${NAMES[p].e}${hands[p].length===1?'<span class="uc-last">ÚLTIMA!</span>':''}</div><div class="uc-si"><b>${NAMES[p].n}</b><div class="uc-backs">${Array.from({length:Math.min(hands[p].length,8)},()=>'<i class="uc-mini"></i>').join('')}<span class="uc-cnt">${hands[p].length}</span></div></div></div>`).join('');
     const tc=top();
     $('kTop').innerHTML=(disc.length>2?cardHTML(disc[disc.length-3],'uc-big','left:-8px;top:4px;transform:rotate(-12deg);opacity:.9'):'')+(disc.length>1?cardHTML(disc[disc.length-2],'uc-big','left:8px;top:2px;transform:rotate(9deg)'):'')+cardHTML(tc,'uc-big','left:0;top:0');
     $('kDeck').innerHTML=backHTML('uc-deckc')+backHTML('uc-deckc')+backHTML('uc-deckc')+`<em>${deck.length}</em>`;
@@ -3609,14 +3643,15 @@ function cards(){
     if(fly&&fly.disc)flyIn($('kTop').lastElementChild,fly.disc,fly.scale||.7,fly.rot);
     if(fly&&fly.draw)flyIn($('kHand').lastElementChild,fly.draw,1.1,10);
   }
-  function start(){deck=mkDeck();hands=[[],[],[]];for(let i=0;i<7;i++)[0,1,2].forEach(p=>draw(p));
-    let f;do{f=deck.pop();if(f.c<0||isNaN(+f.v)){deck.unshift(f);f=null}}while(!f);disc=[f];cur=f.c;dir=1;turn=0;called=false;drew=false;over=false;picking=false;
-    $('kEnd').hidden=true;$('kEnd').innerHTML='';$('kPlay').hidden=false;$('kTable').hidden=false;$('kPick').hidden=true;render();msg('Sua vez! Toque numa carta brilhante.')}
-  const nextP=(p,k=1)=>((p+dir*k)%3+3)%3;
+  function start(seed){rs=0;deck=NET?withSeed(seed,mkDeck):mkDeck();hands=Array.from({length:N},()=>[]);for(let i=0;i<7;i++)for(let p=0;p<N;p++)draw(p);
+    if(GUEST){const t0=hands[0];hands[0]=hands[1];hands[1]=t0}/* o amigo (anfitrião) fica com o primeiro monte */
+    let f;do{f=deck.pop();if(f.c<0||isNaN(+f.v)){deck.unshift(f);f=null}}while(!f);disc=[f];cur=f.c;dir=1;turn=GUEST?1:0;called=false;drew=false;over=false;picking=false;
+    $('kEnd').hidden=true;$('kEnd').innerHTML='';$('kPlay').hidden=false;$('kTable').hidden=false;$('kPick').hidden=true;render();msg(turn===0?'Sua vez! Toque numa carta brilhante.':`${NAMES[1].e} ${NAMES[1].n} começa.`)}
+  const nextP=(p,k=1)=>((p+dir*k)%N+N)%N;
   function endGame(p){over=true;turn=p;render();later(()=>{if(!w.isConnected)return;
     $('kPlay').hidden=true;const e=$('kEnd');e.hidden=false;
-    if(p===0)winPanel(e,{icon:'🃏',title:'Você venceu!',msg:'Ficou sem cartas primeiro. Parabéns!',rate:1,stars:15,again:start});
-    else winPanel(e,{icon:NAMES[p].e,title:`${NAMES[p].n} venceu!`,msg:'Quase! Tente de novo, você consegue.',rate:0,stars:0,again:start})},1200)}
+    if(p===0)winPanel(e,{icon:'🃏',title:'Você venceu!',msg:'Ficou sem cartas primeiro. Parabéns!',rate:1,stars:15,again:newGame});
+    else winPanel(e,{icon:NAMES[p].e,title:`${NAMES[p].n} venceu!`,msg:'Quase! Tente de novo, você consegue.',rate:0,stars:0,again:newGame})},1200)}
   function apply(p,cd,chosen,from){
     disc.push(cd);cur=cd.c<0?chosen:cd.c;tone(500+Math.random()*200,.08,'triangle',.14);
     if(!hands[p].length){if(p===0){msg('Você venceu! 🎉','ok');SFX.win();addStars(15);confetti()}else{msg(`${NAMES[p].e} ${NAMES[p].n} venceu!`,'no');SFX.no()}render({disc:from});endGame(p);return}
@@ -3627,36 +3662,66 @@ function cards(){
     if(cd.v==='+4'){const t=nextP(p);draw(t,4);skip=true;note=`${NAMES[t].n} comprou 4 e perdeu a vez!`}
     if(cd.c<0)note=(note?note+' ':'')+`Nova cor: ${COL[cur].e} ${COL[cur].k}.`;
     turn=nextP(p,skip?2:1);drew=false;called=false;render({disc:from,scale:p===0?.9:.5,rot:p===0?-10:20});
-    msg(note+(turn===0?' Sua vez!':''));if(turn!==0)later(botTurn,1200)
+    msg(note+(turn===0?' Sua vez!':''));if(turn!==0)botGo(1200)
   }
   function youPlay(k,el){if(over||turn!==0||picking)return;const cd=hands[0][k];if(drew&&k!==hands[0].length-1){msg('Depois de comprar, só dá para jogar a carta comprada.','no');SFX.no();return}
     if(!ok(cd)){SFX.no();msg('Essa carta não combina com a cor ou o número da mesa.','no');gxShake(el,5,260);return}
     const from=rectOf(el);
     const finish=chosen=>{picking=false;$('kPick').hidden=true;hands[0].splice(k,1);
+      if(NET)NET.send({k:'play',i:k,ch:chosen,pen:(hands[0].length===1&&!called)?1:0});
       if(hands[0].length===1&&!called){turn=-1;draw(0,2);msg('Você esqueceu de apertar ÚLTIMA! Comprou 2!','no');SFX.no();render({draw:rectOf($('kDeck'))});later(()=>apply(0,cd,chosen,from),900);return}
       apply(0,cd,chosen,from)};
     if(cd.c<0){picking=true;const pk=$('kPick');pk.hidden=false;pk.innerHTML=`<span>Escolha a cor</span><div class="uc-pk">${COL.map((c,i)=>`<button type="button" style="--pc:${c.c}" data-i="${i}" aria-label="${c.k}">${c.e}</button>`).join('')}</div><button type="button" class="btn ghost" id="kPk-x" style="padding:6px 16px;font-size:14px">Cancelar</button>`;
       pk.querySelectorAll('.uc-pk button').forEach(b=>b.onclick=()=>{SFX.click();finish(+b.dataset.i)});$('kPk-x').onclick=()=>{picking=false;pk.hidden=true};return}
     finish()}
-  function deckClick(){if(over||turn!==0||drew||picking)return;const from=rectOf($('kDeck'));draw(0);drew=true;SFX.flip();const cd=hands[0][hands[0].length-1];render({draw:from});
-    if(ok(cd))msg('A carta comprada serve! Jogue ou passe.');else{msg('A carta comprada não serve. Passando a vez...');later(()=>{drew=false;turn=nextP(0);render();later(botTurn,900)},900)}}
+  function deckClick(){if(over||turn!==0||drew||picking)return;const from=rectOf($('kDeck'));draw(0);if(NET)NET.send({k:'draw'});drew=true;SFX.flip();const cd=hands[0][hands[0].length-1];render({draw:from});
+    if(ok(cd))msg('A carta comprada serve! Jogue ou passe.');else{msg('A carta comprada não serve. Passando a vez...');later(()=>{drew=false;turn=nextP(0);if(NET)NET.send({k:'pass'});render();botGo(900)},900)}}
   $('kDeck').onclick=deckClick;
-  $('kPass').onclick=()=>{if(!drew||over)return;drew=false;turn=nextP(0);render();msg('Você passou.');later(botTurn,900)};
+  $('kPass').onclick=()=>{if(!drew||over)return;drew=false;turn=nextP(0);if(NET)NET.send({k:'pass'});render();msg('Você passou.');botGo(900)};
   $('kUno').onclick=()=>{called=true;SFX.ok();msg('Você gritou: ÚLTIMA! 🎉','ok');render();gxShake($('kUno'),3,300)};
   function botTurn(){if(over)return;const p=turn,h=hands[p];if(p===0)return;
     const from=rectOf($('kseat'+p));
     let idx=h.findIndex(c=>c.c>=0&&ok(c)&&c.c===cur);if(idx<0)idx=h.findIndex(c=>c.c>=0&&ok(c));if(idx<0)idx=h.findIndex(c=>c.c<0);
-    if(idx<0){draw(p);const cd=h[h.length-1];if(ok(cd))idx=h.length-1;else{turn=nextP(p);render();if(turn!==0){msg(`${NAMES[p].e} ${NAMES[p].n} comprou e passou.`);later(botTurn,1000)}else msg(`${NAMES[p].n} comprou e passou. Sua vez!`);return}}
+    if(idx<0){draw(p);const cd=h[h.length-1];if(ok(cd))idx=h.length-1;else{turn=nextP(p);render();if(turn!==0){msg(`${NAMES[p].e} ${NAMES[p].n} comprou e passou.`);botGo(1000)}else msg(`${NAMES[p].n} comprou e passou. Sua vez!`);return}}
     const cd=h.splice(idx,1)[0];let chosen;if(cd.c<0){const cnt=[0,0,0,0];h.forEach(c=>{if(c.c>=0)cnt[c.c]++});chosen=cnt.indexOf(Math.max(...cnt))}
     if(h.length===1){msg(`${NAMES[p].e} ${NAMES[p].n} gritou: ÚLTIMA!`);tone(880,.15,'square',.08)}
     apply(p,cd,chosen,from)}
-  $('kNew').onclick=()=>{SFX.click();timers.forEach(clearTimeout);timers=[];start()};
-  start();
+  /* nova partida: no online só o anfitrião sorteia a semente (o amigo pede) */
+  function newGame(){
+    timers.forEach(clearTimeout);timers=[];
+    if(!NET){start();return}
+    if(GUEST){NET.send({k:'req'});msg('Pedindo nova partida ao amigo…');return}
+    const sd=Math.floor(Math.random()*2147483646)+1;NET.send({k:'seed',seed:sd});start(sd);
+  }
+  $('kNew').onclick=()=>{SFX.click();newGame()};
+  if(NET){
+    $('kOnline').hidden=true;
+    NET.onMsg=d=>{
+      if(!d)return;
+      if(d.k==='seed'){timers.forEach(clearTimeout);timers=[];start(d.seed);return}
+      if(d.k==='req'&&!GUEST){newGame();return}
+      if(over||turn!==1)return;
+      if(d.k==='draw'){draw(1);render();msg(`${NAMES[1].e} ${NAMES[1].n} comprou uma carta.`);return}
+      if(d.k==='pass'){drew=false;turn=nextP(1);render();msg(`${NAMES[1].e} ${NAMES[1].n} passou. Sua vez!`);return}
+      if(d.k==='play'){
+        const cd=hands[1].splice(d.i,1)[0];if(!cd)return;
+        if(d.pen){draw(1,2);msg(`${NAMES[1].e} ${NAMES[1].n} esqueceu de apertar ÚLTIMA e comprou 2!`)}
+        apply(1,cd,d.ch,rectOf($('kseat1')));
+      }
+    };
+    NET.onLeave=NET.onClose=()=>{if(over)return;over=true;render();msg('Seu amigo saiu da sala 😢','no');toast('Seu amigo saiu','🌐')};
+    if(GUEST){hands=[[],[]];deck=[];disc=[{c:0,v:'0'}];cur=0;dir=1;turn=1;over=false;msg('Esperando o amigo começar…')}
+    else{const sd=Math.floor(Math.random()*2147483646)+1;NET.send({k:'seed',seed:sd});start(sd)}
+  }else{
+    $('kOnline').onclick=()=>{SFX.click();go(()=>netLobbyScreen({game:'uno',title:'Última Carta online',icon:'🃏',max:2,back:()=>go(cards),onReady:(room,host)=>go(()=>cards({room,host}))}))};
+    start();
+  }
 }
 
 /* ---------- 19. cofrinho (tabuleiro) ---------- */
-function savingsBoard(){
-  panel('🐷 Cofrinho');
+function savingsBoard(net){
+  const NET=(net&&net.room)||null;/* online: 2 a 4 jogadores, mesma semente, o jogador da vez avisa dado, escolhas e "próximo" */
+  panel(NET?'🐷 Cofrinho online':'🐷 Cofrinho');
   const B=CH.slice(0,6);while(B.length<6)B.push(CH[0]);
   const SP=[
     {t:'inicio',i:'🏁',n:'Início'},{t:'barraca',i:B[0].e,n:`Barraca de ${B[0].n}`,o:0},{t:'mesada',i:'💰',n:'Mesada +3',v:3},{t:'tenta',i:'🍭',n:'Doceria',v:3,d:'um pirulito gigante'},
@@ -3718,17 +3783,19 @@ function savingsBoard(){
   .cf-hero span{font-size:52px;line-height:1;animation:cfBob 2.6s ease-in-out infinite;filter:drop-shadow(0 3px 0 rgba(0,0,0,.2))}
   .cf-hero b{display:block;font:800 22px "Baloo 2",sans-serif}.cf-hero small{font-weight:700;opacity:.92}
   `);
-  let P=[],turn=0,meta=40,owner=Array(20).fill(-1),busy=false,tm=null,luck=[],moving=null,prev=[];
+  let P=[],turn=0,meta=40,owner=Array(20).fill(-1),busy=false,tm=null,luck=[],moving=null,prev=[],ev=0,seedBase=0,ME=0,ids=[],started=false,Q=[],waiting=null;
   const ivs=[],tos=[];
   const later=(fn,ms)=>{const t=setTimeout(fn,ms);tos.push(t);return t},every=(fn,ms)=>{const t=setInterval(fn,ms);ivs.push(t);return t};
-  cleanup=()=>{clearTimeout(tm);ivs.forEach(clearInterval);tos.forEach(clearTimeout)};
+  cleanup=()=>{clearTimeout(tm);ivs.forEach(clearInterval);tos.forEach(clearTimeout);if(NET)NET.close()};
   function setup(){
     const cfg=[{h:true,c:0},{h:false,c:2},{h:false,c:4},{h:false,c:3}];let n=2;
     const draw=()=>{w.innerHTML=`<div class="cf-hero"><span>🐷</span><div><b>Cofrinho</b><small>Aprenda a poupar jogando!</small></div></div><p class="sub">Um jogo de tabuleiro para aprender a guardar dinheiro. Quem juntar no cofrinho o valor do seu sonho e comprar na 🌟 Loja dos sonhos ganha!</p>
       <div class="box"><p class="tt">Quantos jogadores?</p><div class="seg">${[2,3,4].map(k=>`<button type="button" data-n="${k}" aria-pressed="${k===n}">${k} jogadores</button>`).join('')}</div>
       ${cfg.slice(0,n).map((p,k)=>`<div class="prow"><b>Jogador ${k+1}</b><div class="seg">${FR.map((c,j)=>`<button type="button" data-p="${k}" data-c="${j}" aria-pressed="${p.c===j}">${c.e}</button>`).join('')}</div><div class="seg"><button type="button" data-p="${k}" data-h="1" aria-pressed="${p.h}">Pessoa</button><button type="button" data-p="${k}" data-h="0" aria-pressed="${!p.h}">Computador</button></div></div>`).join('')}
       <p class="tt">Qual é o sonho?</p><div class="seg">${[[30,'🚲 Bicicleta · 30'],[40,'🎮 Videogame · 40'],[55,'🏕️ Viagem · 55']].map(([v,l])=>`<button type="button" data-m="${v}" aria-pressed="${v===meta}">${l} moedas</button>`).join('')}</div>
-      <button class="btn" id="bGo" type="button" style="align-self:flex-start">Começar o jogo ▶</button></div>`;
+      <button class="btn" id="bGo" type="button" style="align-self:flex-start">Começar o jogo ▶</button>
+      <button class="btn ghost" id="bOnline" type="button" style="align-self:flex-start;margin-top:6px">🌐 Jogar online com amigos</button></div>`;
+      $('bOnline').onclick=()=>{SFX.click();go(()=>netLobbyScreen({game:'cofrinho',title:'Cofrinho online',icon:'🐷',max:4,back:()=>go(savingsBoard),onReady:(room,host)=>go(()=>savingsBoard({room,host}))}))};
       w.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{n=+b.dataset.n;SFX.click();draw()});
       w.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{cfg[+b.dataset.p].c=+b.dataset.c;SFX.click();draw()});
       w.querySelectorAll('[data-h]').forEach(b=>b.onclick=()=>{cfg[+b.dataset.p].h=b.dataset.h==='1';SFX.click();draw()});
@@ -3769,42 +3836,60 @@ function savingsBoard(){
     if(passed){p.cart+=5;say('Passou pelo início: +5 de mesada!','ok')}renderP();later(land,500)}
   function say(t,c=''){$('bMsg').textContent=t;$('bMsg').className='fb '+c}
   function act(btns){$('bAct').innerHTML=btns.map((b,i)=>`<button type="button" class="btn ${b[2]||''}" id="ba-${i}">${b[0]}</button>`).join('');btns.forEach((b,i)=>$('ba-'+i).onclick=()=>{SFX.click();$('bAct').innerHTML='';b[1]()})}
+  /* online: mensagens do jogador da vez entram numa fila e são consumidas quando este aparelho chega no mesmo ponto */
+  function pump(){if(waiting&&Q.length&&Q[0].k===waiting.kind){const m=Q.shift(),w2=waiting;waiting=null;w2.cb(m)}}
+  function waitFor(kind,cb){waiting={kind,cb};pump()}
+  /* decisão do jogador da vez: ele escolhe e avisa; os outros esperam o aviso (btns: [rótulo, ação, classe, valor]) */
+  function decide(btns){
+    if(turn===ME)act(btns.map(b=>[b[0],()=>{NET.send({k:'dec',v:b[3]});b[1]()},b[2]]));
+    else waitFor('dec',m=>{const b=btns.find(x=>x[3]===m.v);if(b)b[1]()});
+  }
   function nextTurn(first){
-    if(!first)turn=(turn+1)%P.length;const p=P[turn];renderP();$('bTip').textContent='💡 '+TIPS[Math.floor(Math.random()*TIPS.length)];
+    if(!first){turn=(turn+1)%P.length;if(NET)while(P[turn].gone)turn=(turn+1)%P.length}const p=P[turn];renderP();$('bTip').textContent='💡 '+TIPS[Math.floor(Math.random()*TIPS.length)];
     $('bTurn').textContent=`Vez de ${p.ch.e} ${p.name}`;
     if(p.skip){p.skip=false;say('Ficou sem dinheiro no imprevisto e perdeu esta vez.','no');tm=later(()=>nextTurn(),1600);return}
-    say(p.h?'Jogue o dado!':'Pensando...');
+    say(p.h?'Jogue o dado!':NET?`Vez de ${p.name}…`:'Pensando...');
+    if(NET){if(p.h)act([['🎲 Jogar o dado',()=>{const d=1+Math.floor(Math.random()*6);NET.send({k:'roll',d});roll(d)}]]);else waitFor('roll',m=>roll(m.d));return}
     if(p.h)act([['🎲 Jogar o dado',roll]]);else tm=later(roll,900)}
-  function roll(){const p=P[turn];let k=0;const d=1+Math.floor(Math.random()*6);const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
+  function roll(dv){const p=P[turn];let k=0;const d=dv||1+Math.floor(Math.random()*6);const faces=['⚀','⚁','⚂','⚃','⚄','⚅'];
     const iv=every(()=>{$('bDie').textContent=faces[Math.floor(Math.random()*6)];tone(900,.03,'square',.05);if(++k>8){clearInterval(iv);$('bDie').textContent=faces[d-1];if(p.h){moving={d,target:(p.pos+d)%20};say(`Tirou ${d}! Arraste a sua peça ${p.ch.e} ${d} casa${d>1?'s':''} para a frente.`);renderP()}else{say(`Tirou ${d}!`);walk(d)}}},70)}
   function walk(n){const p=P[turn];let s=0;const iv=every(()=>{p.pos=(p.pos+1)%20;s++;tone(500+s*60,.06,'triangle',.12);$('bs-'+p.pos).classList.add('step');later(()=>{const c=$('bs-'+p.pos);c&&c.classList.remove('step')},300);
       if(p.pos===0&&s<n){p.cart+=5;say('Passou pelo início: +5 de mesada!','ok')}
       renderP();if(s>=n){clearInterval(iv);later(land,350)}},260)}
-  const end=(t,c)=>{if(t)say(t,c);renderP();const p=P[turn];if(p.h)act([['Próximo jogador ➡',()=>nextTurn()]]);else tm=later(()=>nextTurn(),1700)};
+  const end=(t,c)=>{if(t)say(t,c);renderP();const p=P[turn];
+    if(NET){if(p.h)act([['Próximo jogador ➡',()=>{NET.send({k:'next'});nextTurn()}]]);else waitFor('next',()=>nextTurn());return}
+    if(p.h)act([['Próximo jogador ➡',()=>nextTurn()]]);else tm=later(()=>nextTurn(),1700)};
   function pay(p,v){if(p.cart>=v){p.cart-=v;return 'carteira'}const falta=v-p.cart;p.cart=0;if(p.cofre>=falta){p.cofre-=falta;return 'cofre'}p.cofre=0;p.skip=true;return 'faltou'}
-  function land(){const p=P[turn],s=SP[p.pos];
+  function land(){const p=P[turn],s=SP[p.pos];ev++;
     if(s.t==='inicio'){p.cart+=5;end('Parou no início: +5 de mesada!','ok');return}
     if(s.t==='mesada'||s.t==='trabalho'){p.cart+=s.v;SFX.ok();end(`${s.n.replace(/ \+\d+/,'')}: +${s.v} moedas!`,'ok');return}
     if(s.t==='banco'){const j=p.cofre>0?Math.max(1,Math.round(p.cofre*.1)):0;p.cofre+=j;j?SFX.ok():0;end(j?`O cofrinho rendeu ${j} de juros! Dinheiro guardado cresce.`:'Seu cofrinho está vazio, então não rendeu nada. Guarde para ganhar juros!',j?'ok':'');return}
     if(s.t==='cofre'){const half=Math.ceil(p.cart/2);
       const dep=v=>{p.cart-=v;p.cofre+=v;if(v)SFX.ok();end(v?`Guardou ${v} no cofrinho! 🐷`:'Não guardou nada desta vez.',v?'ok':'')};
       if(!p.cart){end('Carteira vazia, nada para guardar.');return}
+      if(NET){say(p.h?'Quanto quer guardar no cofrinho?':`${p.name} está decidindo…`);decide([[`Tudo (${p.cart})`,()=>dep(p.cart),'',1],[`Metade (${half})`,()=>dep(half),'alt',2],['Nada',()=>dep(0),'ghost',0]]);return}
       if(p.h){say('Quanto quer guardar no cofrinho?');act([[`Tudo (${p.cart})`,()=>dep(p.cart)],[`Metade (${half})`,()=>dep(half),'alt'],['Nada',()=>dep(0),'ghost']])}
       else dep(Math.max(0,p.cart-3));return}
     if(s.t==='tenta'){if(p.cart<s.v){end(`Você viu ${s.d} por ${s.v}, mas não tinha dinheiro na carteira.`);return}
       const buy=()=>{p.cart-=s.v;p.fun++;SFX.pop();end(`Comprou ${s.d}. Foi divertido, mas o dinheiro saiu da carteira.`)};
       const save=()=>{SFX.ok();end('Resistiu à vontade e guardou o dinheiro. Muito bem!','ok')};
+      if(NET){say(p.h?`${s.i} Que tal ${s.d} por ${s.v} moedas? Você precisa ou só quer?`:`${p.name} está decidindo…`);decide([[`Comprar (−${s.v})`,buy,'ghost','b'],['Guardar o dinheiro',save,'','s']]);return}
       if(p.h){say(`${s.i} Que tal ${s.d} por ${s.v} moedas? Você precisa ou só quer?`);act([[`Comprar (−${s.v})`,buy,'ghost'],['Guardar o dinheiro',save]])}else(Math.random()<.3?buy:save)();return}
     if(s.t==='imprev'){const r=pay(p,s.v);SFX.no();end(r==='carteira'?`Imprevisto! A bicicleta quebrou e custou ${s.v}.`:r==='cofre'?`Imprevisto de ${s.v}! Faltou na carteira, mas o cofrinho salvou. É para isso que serve uma reserva.`:`Imprevisto de ${s.v}! Não tinha dinheiro guardado e vai perder a próxima vez.`,r==='faltou'?'no':'');return}
     if(s.t==='desafio'){
       /* desafio de matemática: acertar rende 3 moedas na carteira (o computador acerta 6 de cada 10) */
+      if(NET){/* a mesma conta nos dois aparelhos: sorteio com semente do lance */
+        const q=withSeed(seedBase+ev*101,()=>{const a=mrnd(2,12),b=mrnd(2,9),mul=Math.random()<.5,real=mul?a*b:a+b;return{conta:`${a} ${mul?'×':'+'} ${b}`,real,o:mathOpts(real,[real+mrnd(1,6),real-mrnd(1,6),real+10])}});
+        say(p.h?`🧮 Desafio! Quanto é ${q.conta}?`:`🧮 ${p.name} está no desafio: ${q.conta}`);
+        decide(q.o.map(x=>[x,()=>{const ok=x===String(q.real);if(ok){p.cart+=3;SFX.ok()}else SFX.no();end(ok?`${p.name} acertou ${q.conta} e ganhou 3 moedas! 🧮`:`Era ${q.real}. Tente a próxima!`,ok?'ok':'no')},'ghost',x]));
+        return}
       const a=mrnd(2,12),b=mrnd(2,9),mul=Math.random()<.5,real=mul?a*b:a+b,conta=`${a} ${mul?'×':'+'} ${b}`;
       if(!p.h){const ok=Math.random()<.6;if(ok)p.cart+=3;SFX[ok?'ok':'no']();end(ok?`${p.ch.e} acertou ${conta} e ganhou 3 moedas! 🧮`:`${p.ch.e} errou a conta do desafio.`,ok?'ok':'no');return}
       const o=mathOpts(real,[real+mrnd(1,6),real-mrnd(1,6),real+10]);
       say(`🧮 Desafio! Quanto é ${conta}?`);
       act(o.map(x=>[x,()=>{const ok=x===String(real);if(ok){p.cart+=3;SFX.ok()}else SFX.no();end(ok?'Acertou! +3 moedas na carteira. 🧮':`Era ${real}. Tente a próxima!`,ok?'ok':'no')},'ghost']));
       return}
-    if(s.t==='sorte'){const [txt,dc,dk]=luck.pop();if(!luck.length)luck=shuffle(LUCK);
+    if(s.t==='sorte'){const [txt,dc,dk]=luck.pop();if(!luck.length)luck=NET?withSeed(seedBase+ev,()=>shuffle(LUCK)):shuffle(LUCK);
       if(dk==='20%'){const j=Math.round(p.cofre*.2);p.cofre+=j;SFX.ok();end(`${txt} (+${j})`,'ok');return}
       if(dc<0&&dk>0){const v=Math.min(p.cart,-dc);p.cart-=v;p.cofre+=v;SFX.ok();end(txt,'ok');return}
       if(dc<0){pay(p,-dc);SFX.no();end(txt,'no');return}
@@ -3814,14 +3899,38 @@ function savingsBoard(){
       if(o>=0){const r=pay(p,2);P[o].cart+=2;SFX.no();end(`Esta barraca é de ${P[o].ch.e} ${P[o].name}. Pagou 2 de aluguel.${r==='faltou'?' Faltou dinheiro!':''}`,'no');return}
       if(p.cart<8){end(`${s.n} está à venda por 8, mas você não tem o suficiente na carteira.`);return}
       const buy=()=>{p.cart-=8;owner[p.pos]=turn;SFX.ok();end(`Comprou a ${s.n}! Agora quem parar aqui te paga aluguel.`,'ok')};
+      if(NET){say(p.h?`${s.n} está à venda por 8. É um investimento: gasta agora, ganha depois.`:`${p.name} está decidindo…`);decide([['Comprar (−8)',buy,'','b'],['Não comprar',()=>end('Deixou para depois.'),'ghost','n']]);return}
       if(p.h){say(`${s.n} está à venda por 8. É um investimento: gasta agora, ganha depois.`);act([['Comprar (−8)',buy],['Não comprar',()=>end('Deixou para depois.'),'ghost']])}else(p.cart>=12?buy:()=>end('Não comprou a barraca.'))();return}
     if(s.t==='sonho'){
       if(p.cofre>=meta){p.cofre-=meta;SFX.win();if(p.h){addStars(25);confetti()}renderP();
-        winPanel($('bTurn').closest('.box'),{icon:'🐷',title:p.h?'Sonho realizado!':`${p.ch.e} realizou o sonho!`,msg:`${p.ch.e} ${p.name} juntou ${meta} moedas no cofrinho e comprou o sonho. Guardar um pouco de cada vez funciona!`,rate:p.h?1:.3,stars:p.h?25:0,again:setup});return}
+        winPanel($('bTurn').closest('.box'),{icon:'🐷',title:p.h?'Sonho realizado!':`${p.ch.e} realizou o sonho!`,msg:`${p.ch.e} ${p.name} juntou ${meta} moedas no cofrinho e comprou o sonho. Guardar um pouco de cada vez funciona!`,rate:p.h?1:.3,stars:p.h?25:0,again:NET?null:setup});return}
       end(`Loja dos sonhos! Você tem ${p.cofre} de ${meta} no cofrinho. Faltam ${meta-p.cofre}.`);return}
     end('');
   }
-  setup();
+  /* início online: ids da sala viram as vagas (0 = anfitrião); o anfitrião sorteia a semente */
+  function startNet(sd){
+    started=true;seedBase=sd;ev=0;Q=[];waiting=null;
+    P=ids.map((id,k)=>({ch:FR[k%FR.length],h:k===ME,cart:10,cofre:0,pos:0,skip:false,fun:0,gone:false,
+      name:k===ME?'Você':(ids.length===2?'Amigo':`Jogador ${k+1}`)}));
+    owner=Array(20).fill(-1);turn=0;luck=withSeed(sd,()=>shuffle(LUCK));game();
+  }
+  if(NET){
+    ids=[...NET.peers,NET.id].sort((a,b)=>a-b);ME=ids.indexOf(NET.id);
+    w.innerHTML='<p class="sub">Conectado! Esperando o jogo começar…</p>';
+    NET.onMsg=d=>{
+      if(!d)return;
+      if(d.k==='seed'){if(!started)startNet(d.seed);return}
+      Q.push(d);pump();
+    };
+    NET.onLeave=id=>{
+      const k=ids.indexOf(id);if(k<0||!P[k]||P[k].gone)return;
+      P[k].gone=true;say(`${P[k].name} saiu da sala 😢`,'no');renderP();toast(`${P[k].name} saiu`,'🌐');
+      if(P.filter(x=>!x.gone).length<2){say('Os outros jogadores saíram. Fim de jogo.','no');$('bAct').innerHTML='';return}
+      if(turn===k){waiting=null;Q=[];nextTurn()}
+    };
+    NET.onClose=()=>{if(started)say('A conexão caiu.','no')};
+    if(NET.host){const sd=Math.floor(Math.random()*2147483646)+1;NET.send({k:'seed',seed:sd});startNet(sd)}
+  }else setup();
 }
 
 /* ---------- 20. rumo ao milhão ---------- */
