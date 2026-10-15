@@ -1,4 +1,4 @@
-const CACHE = 'fliperama-matematica-v3';
+const CACHE = 'fliperama-matematica-v4';
 const ASSETS = ['./', './index.html', './manifest.json', './icon.svg'];
 
 self.addEventListener('install', e => {

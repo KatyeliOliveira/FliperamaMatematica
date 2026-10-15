@@ -854,6 +854,12 @@ html.fs-imm .gameHdr{margin-bottom:8px}
   .fs-fo .fo-stage svg{height:clamp(110px,calc(var(--fs-h) - 250px),340px)}
   .fs-fo>#fCat{grid-area:cat}.fs-fo>#fDif{grid-area:dif}.fs-fo>.fo-stage{grid-area:st}.fs-fo>.fo-hint{grid-area:hint}.fs-fo>.fo-word{grid-area:word}.fs-fo>#foPlay{grid-area:kb}.fs-fo>#foEnd{grid-area:end}
 }
+/* duelo online: botão no cartão, aviso e comparação final */
+.game .duelBtn{position:absolute;right:8px;bottom:8px;z-index:3;background:rgba(255,255,255,.3);border:2px solid rgba(255,255,255,.6);border-radius:999px;padding:3px 10px;font:800 12px "Baloo 2",sans-serif;color:#fff;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.game .duelBtn:active{transform:translateY(1px)}
+.duelTag{margin:0 0 8px;padding:6px 12px;border-radius:999px;background:var(--cream);border:2px solid var(--line);font:800 13px Nunito,sans-serif;text-align:center}
+.duelBox{margin:6px 0 2px;padding:10px 12px;border-radius:16px;background:var(--cream);border:2px solid var(--line);text-align:center;display:flex;flex-direction:column;gap:2px;font:700 14px Nunito,sans-serif}
+.duelBox b{font:800 18px "Baloo 2",sans-serif}
 /* Dominó (modo contas) e Última Carta com contas */
 .dm2-h.dm2-ex em{font-style:normal;font-weight:800;font-size:calc(var(--u,34px)*.34);letter-spacing:-.04em;color:#3a2418;white-space:nowrap}
 .uc-c .mid.xp{font-size:calc(var(--cw)*.34);letter-spacing:-.04em;white-space:nowrap}
@@ -1356,7 +1362,7 @@ function loop(){
 
 /* ---------- navegação ---------- */
 let cleanup=null;
-function go(fn){if(cleanup){cleanup();cleanup=null}try{speechSynthesis.cancel()}catch(e){}document.body.classList.remove('inGame');app.innerHTML='';app.classList.remove('scrIn');void app.offsetWidth;app.classList.add('scrIn');fn();window.scrollTo({top:0});fsSync()}
+function go(fn){if(DUEL){try{DUEL.room.close()}catch(e){}DUEL=null}if(cleanup){cleanup();cleanup=null}try{speechSynthesis.cancel()}catch(e){}document.body.classList.remove('inGame');app.innerHTML='';app.classList.remove('scrIn');void app.offsetWidth;app.classList.add('scrIn');fn();window.scrollTo({top:0});fsSync()}
 function backBtn(){const b=document.createElement('button');b.className='back';b.type='button';b.textContent='← Voltar aos jogos';b.onclick=()=>{SFX.click();go(menu)};return b}
 function panel(title){
   const m=String(title).match(/^(\S+)\s+([\s\S]*)$/);
@@ -1390,6 +1396,7 @@ new MutationObserver(ms=>{
 }).observe(app,{subtree:true,attributes:true,attributeFilter:['class'],attributeOldValue:true});
 /* tela de resultado reutilizável */
 function winPanel(target,o={}){
+  if(DUEL&&DUEL.g)o=Object.assign({},o,{again:null});/* no duelo não dá para "jogar de novo" (as perguntas são as mesmas) */
   const el=typeof target==='string'?$(target):target;if(!el)return null;
   const rate=o.rate==null?null:Math.max(0,Math.min(1,o.rate));
   const n=rate==null?0:rate>=.9?3:rate>=.6?2:rate>0?1:0;
@@ -1411,6 +1418,7 @@ function winPanel(target,o={}){
     const step=t=>{if(!cnt.isConnected)return;const p=Math.max(0,Math.min(1,(t-t0)/dur));cnt.textContent='+'+Math.round(stars*(1-Math.pow(1-p,3)));if(p<1)requestAnimationFrame(step)};
     requestAnimationFrame(step)}
   if(n)[0,1,2].slice(0,n).forEach(k=>setTimeout(()=>{if(el.isConnected)tone(880+k*220,.12,'triangle',.16)},450+k*180));
+  if(DUEL&&DUEL.g)duelShow(el.firstElementChild,o);
   return el.firstElementChild;
 }
 
@@ -1451,7 +1459,7 @@ function menuCats(){
   let cat='all';try{cat=localStorage.getItem('menuCat')||'all'}catch(e){}
   if(cat!=='all'&&!MENU_CATS.some(c=>c[0]===cat))cat='all';
   const cnt=k=>k==='all'?GAMES.length:GAMES.filter(g=>menuCatOf(g)===k).length;
-  const card=(g,i)=>`<button class="game" data-i="${i}" type="button" style="--gs:${g.sh};background:${g.bg};box-shadow:0 6px 0 ${g.sh},0 10px 18px -9px rgba(58,36,24,.38);animation-delay:${(i*.35)%4.6}s"><span class="shine" aria-hidden="true" style="animation-delay:${(i*.35)%4.6}s"></span>${g.neu?'<span class="newtag">Novo</span>':''}<span class="em">${g.em}</span><b>${g.name}</b><small>${g.desc}</small></button>`;
+  const card=(g,i)=>`<button class="game" data-i="${i}" type="button" style="--gs:${g.sh};background:${g.bg};box-shadow:0 6px 0 ${g.sh},0 10px 18px -9px rgba(58,36,24,.38);animation-delay:${(i*.35)%4.6}s"><span class="shine" aria-hidden="true" style="animation-delay:${(i*.35)%4.6}s"></span>${g.neu?'<span class="newtag">Novo</span>':''}<span class="em">${g.em}</span><b>${g.name}</b><small>${g.desc}</small>${g.duel?'<span class="duelBtn" role="button" tabindex="0" aria-label="Duelo com amigo">🌐 Duelo</span>':''}</button>`;
   const row=$('catRow'),list=$('menuList');
   const paint=()=>{
     row.innerHTML=[['all','🎮','Todos'],...MENU_CATS].map(c=>`<button type="button" class="catChip${c[0]===cat?' on':''}" data-c="${c[0]}">${c[1]} ${c[2]}<small>${cnt(c[0])}</small></button>`).join('');
@@ -1459,7 +1467,8 @@ function menuCats(){
     list.innerHTML=cat==='all'
       ?MENU_CATS.map(c=>{const it=items(c[0]);return it.length?`<h3 class="catH"><span>${c[1]}</span>${c[2]}<small>${it.length}</small></h3><div class="menu">${it.map(([g,i])=>card(g,i)).join('')}</div>`:''}).join('')
       :`<div class="menu">${items(cat).map(([g,i])=>card(g,i)).join('')}</div>`;
-    list.querySelectorAll('.game').forEach(b=>b.addEventListener('click',()=>{SFX.pop();go(GAMES[+b.dataset.i].fn)}));
+    list.querySelectorAll('.game').forEach(b=>b.addEventListener('click',ev=>{SFX.pop();const g=GAMES[+b.dataset.i];
+      if(g.duel&&ev.target.closest('.duelBtn'))go(()=>duelLobby(g));else go(g.fn)}));
     row.querySelectorAll('.catChip').forEach(b=>b.addEventListener('click',()=>{SFX.click();cat=b.dataset.c;try{localStorage.setItem('menuCat',cat)}catch(e){}paint()}));
   };
   paint();
@@ -1631,7 +1640,7 @@ function memory(){
     const prev=best;bestSet('mem'+level,1000-moves);recShow();
     SFX.win();addStars(15);confetti();
     $('grid').hidden=true;
-    winPanel('mmWin',{title:'Você venceu! 🎉',msg:`Todos os ${level} pares em ${moves} jogadas e ${g1fmtT(secs)}. ${T.cheer||''}`,stars:15,rate:moves<=level*1.5?1:moves<=level*2.2?.7:.4,record:!!prev&&(1000-moves)>prev,again:start});
+    winPanel('mmWin',{duel:1000-moves,duelLabel:moves+' jogadas',title:'Você venceu! 🎉',msg:`Todos os ${level} pares em ${moves} jogadas e ${g1fmtT(secs)}. ${T.cheer||''}`,stars:15,rate:moves<=level*1.5?1:moves<=level*2.2?.7:.4,record:!!prev&&(1000-moves)>prev,again:start});
   }
   start();
 }
@@ -3097,10 +3106,11 @@ function crossword(){
 }
 
 /* ---------- 16. jogo da velha ---------- */
-function tictac(){
-  panel('⭕ Jogo da velha');
+function tictac(net){
+  const NET=(net&&net.room)||null,ME=(NET&&!net.host)?1:0;/* online: o anfitrião joga com o X, o amigo com a bola */
+  panel(NET?'⭕ Velha online':'⭕ Jogo da velha');
   const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;gap:12px';
-  w.innerHTML=`<div class="seg" role="group" aria-label="Modo"><button type="button" data-m="facil" aria-pressed="false">🤖 Fácil</button><button type="button" data-m="dificil" aria-pressed="true">🤖 Difícil</button><button type="button" data-m="dois" aria-pressed="false">👥 2 jogadores</button></div>
+  w.innerHTML=`<div class="seg" role="group" aria-label="Modo"><button type="button" data-m="facil" aria-pressed="false">🤖 Fácil</button><button type="button" data-m="dificil" aria-pressed="true">🤖 Difícil</button><button type="button" data-m="dois" aria-pressed="false">👥 2 jogadores</button><button type="button" data-m="online" aria-pressed="false">🌐 Com amigo</button></div>
   <div class="row tx-pick" id="tPick"></div>
   <div class="tx-score">
     <div class="tx-pl" id="txP1"><span class="tx-av"><span id="txA1"></span><i class="tx-badge" id="txB1"></i></span><span class="tx-tx"><span class="tx-nm" id="txN1"></span><b id="tS1">0</b></span></div>
@@ -3111,18 +3121,18 @@ function tictac(){
   <div class="tx-frame" id="txFrame"><div class="tx-board" id="tg"></div><svg class="tx-line" id="txLine" aria-hidden="true"></svg></div>
   <div class="row"><button class="btn" id="tNew" type="button">Nova partida</button></div>`;
   app.append(w);fsTwo(w,$('txFrame'),1);w.style.setProperty('--fs-side','440px');
-  let mode='dificil',p1=FR[0],p2=FR[2],b=Array(9).fill(null),turn=0,over=false,sc=[0,0],emp=0,starter=0,dead=false;
+  let mode=NET?'online':'dificil',p1=FR[0],p2=FR[2],b=Array(9).fill(null),turn=0,over=false,sc=[0,0],emp=0,starter=0,dead=false;
   const tms=new Set();
   const later=(f,ms)=>{const t=setTimeout(()=>{tms.delete(t);if(!dead)f()},ms);tms.add(t);return t};
-  cleanup=()=>{dead=true;tms.forEach(clearTimeout);tms.clear()};
+  cleanup=()=>{dead=true;tms.forEach(clearTimeout);tms.clear();if(NET)NET.close()};
   const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
   const win=bd=>{for(const l of L)if(bd[l[0]]!==null&&bd[l[0]]===bd[l[1]]&&bd[l[1]]===bd[l[2]])return l;return null};
   const COL=['#e2384f','#3a6df0'];
   const mark=(who,cls)=>who===0
     ?`<svg class="${cls}" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="${COL[0]}" stroke-width="14" stroke-linecap="round"><path pathLength="1" d="M27 27L73 73"/><path pathLength="1" d="M73 27L27 73"/></g></svg>`
     :`<svg class="${cls}" viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="${COL[1]}" stroke-width="14" stroke-linecap="round"><circle pathLength="1" cx="50" cy="50" r="25" transform="rotate(-90 50 50)"/></g></svg>`;
-  const two=()=>mode==='dois';
-  const name=k=>k===0?(two()?'Jogador 1':'Você'):(two()?'Jogador 2':'Computador');
+  const two=()=>mode==='dois'||mode==='online';
+  const name=k=>NET?(k===ME?'Você':'Amigo'):k===0?(two()?'Jogador 1':'Você'):(two()?'Jogador 2':'Computador');
   const board=$('tg'),cells=[];
   for(let i=0;i<9;i++){const c=document.createElement('button');c.type='button';c.className='tx-c';c.id='tc-'+i;c.onclick=()=>play(i);board.appendChild(c);cells.push(c)}
   function pickUI(){$('tPick').innerHTML=`<span class="note" style="align-self:center">Jogador 1:</span>`+FR.map((c,k)=>`<button type="button" class="mini" id="tp-${k}" aria-pressed="${c===p1}" aria-label="${c.n||''}">${c.e}</button>`).join('');
@@ -3137,9 +3147,9 @@ function tictac(){
   function msg(html,cls){const m=$('tfb');m.className='tx-msg'+(cls?' '+cls:'');m.innerHTML=html}
   function status(){
     if(over)return;
-    board.classList.toggle('wait',mode!=='dois'&&turn===1);
-    if(mode!=='dois'&&turn===1)msg(`${p2.e} Computador pensando <span class="tx-dots"><i></i><i></i><i></i></span>`);
-    else msg(`${mark(turn,'')} Vez de ${turn===0?p1.e+' '+(two()?'Jogador 1':'você'):p2.e+' '+(two()?'Jogador 2':'computador')}`);
+    board.classList.toggle('wait',(!two()&&turn===1)||(NET&&turn!==ME));
+    if(!two()&&turn===1)msg(`${p2.e} Computador pensando <span class="tx-dots"><i></i><i></i><i></i></span>`);
+    else msg(`${mark(turn,'')} Vez de ${(turn===0?p1:p2).e} ${NET?(turn===ME?'você':'seu amigo'):turn===0?(two()?'Jogador 1':'você'):(two()?'Jogador 2':'computador')}`);
     turnUI();ghosts();
     cells.forEach((c,i)=>{c.disabled=b[i]!==null});
   }
@@ -3150,7 +3160,8 @@ function tictac(){
     if(kind==='win'){put(pl[who],'happy','🎉');put(pl[1-who],'sad','😢')}
     else{put(pl[0],'meh','😅');put(pl[1],'meh','😅');pl[2].classList.add('happy')}
   }
-  function reset(){
+  function reset(fromNet){
+    if(NET&&!fromNet)NET.send({k:'new'});
     tms.forEach(clearTimeout);tms.clear();
     b=Array(9).fill(null);over=false;starter=1-starter;turn=starter;
     cells.forEach(c=>{c.className='tx-c';c.innerHTML='';c.disabled=false;c.removeAttribute('aria-label')});
@@ -3158,9 +3169,11 @@ function tictac(){
     $('txLine').innerHTML='';
     ['txP1','txP2','txPE'].forEach(id=>{const p=$(id);p.classList.remove('happy','sad','meh');const o=p.querySelector('.tx-bub');if(o)o.remove()});
     scores();status();
-    if(mode!=='dois'&&turn===1)later(bot,700);
+    if(!two()&&turn===1)later(bot,700);
   }
-  function play(i){if(over||b[i]!==null)return;if(mode!=='dois'&&turn===1)return;move(i)}
+  function play(i){if(over||b[i]!==null)return;if(!two()&&turn===1)return;
+    if(NET){if(turn!==ME)return;NET.send({k:'mv',i})}
+    move(i)}
   function drawLine(l){
     const fr=$('txFrame'),W=fr.clientWidth,H=fr.clientHeight,a=cells[l[0]],z=cells[l[2]];
     let x1=a.offsetLeft+a.offsetWidth/2,y1=a.offsetTop+a.offsetHeight/2,x2=z.offsetLeft+z.offsetWidth/2,y2=z.offsetTop+z.offsetHeight/2;
@@ -3176,7 +3189,7 @@ function tictac(){
     cells.forEach((x,k)=>{const g=x.querySelector('.tx-gh');if(g)g.remove()});
     const l=win(b);
     if(l){
-      over=true;sc[turn]++;const who=turn,mine=who===0||two();
+      over=true;sc[turn]++;const who=turn,mine=NET?who===ME:(who===0||two());
       board.classList.remove('wait');turnUI();scores();
       if(mine)addStars(12);
       later(()=>{
@@ -3185,7 +3198,7 @@ function tictac(){
         react('win',who);
         if(mine){SFX.win();confetti()}else SFX.no();
         later(()=>{
-          const t=who===0?`${p1.e} ${two()?'Jogador 1':'Você'} venceu!`:`${p2.e} ${two()?'Jogador 2 venceu!':'O computador venceu!'}`;
+          const t=NET?`${(who===0?p1:p2).e} ${who===ME?'Você venceu!':'Seu amigo venceu!'}`:who===0?`${p1.e} ${two()?'Jogador 1':'Você'} venceu!`:`${p2.e} ${two()?'Jogador 2 venceu!':'O computador venceu!'}`;
           msg(`<span class="tx-row"><span class="tx-em">${mine?'🎉':'😅'}</span><span>${t}${mine?' +12 ⭐':''}</span></span><button class="btn" type="button" id="txAgain">Jogar de novo ▶</button>`,'end'+(mine?'':' lose'));
           $('txAgain').onclick=()=>{SFX.click();reset()};
         },650);
@@ -3200,7 +3213,7 @@ function tictac(){
       },450);
       return}
     turn=1-turn;status();
-    if(mode!=='dois'&&turn===1)later(bot,600);
+    if(!two()&&turn===1)later(bot,600);
   }
   function mm(bd,t){const l=win(bd);if(l)return bd[l[0]]===1?10:-10;if(bd.every(v=>v!==null))return 0;let best=t?-99:99;
     for(let i=0;i<9;i++)if(bd[i]===null){bd[i]=t;const s=mm(bd,1-t);bd[i]=null;best=t?Math.max(best,s):Math.min(best,s)}return best}
@@ -3208,9 +3221,18 @@ function tictac(){
     if(mode==='facil'&&Math.random()<.6)i=free[Math.floor(Math.random()*free.length)];
     else{let best=-99,opts=[];free.forEach(k=>{b[k]=1;const s=mm(b,0);b[k]=null;if(s>best){best=s;opts=[k]}else if(s===best)opts.push(k)});i=opts[Math.floor(Math.random()*opts.length)]}
     move(i)}
-  w.querySelectorAll('.seg button').forEach(bt=>bt.onclick=()=>{SFX.click();mode=bt.dataset.m;w.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===bt));sc=[0,0];emp=0;reset()});
+  w.querySelectorAll('.seg button').forEach(bt=>bt.onclick=()=>{SFX.click();
+    if(bt.dataset.m==='online'){go(()=>netLobbyScreen({game:'velha',title:'Jogo da velha online',icon:'⭕',max:2,back:()=>go(tictac),onReady:(room,host)=>go(()=>tictac({room,host}))}));return}
+    mode=bt.dataset.m;w.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===bt));sc=[0,0];emp=0;reset()});
   $('tNew').onclick=()=>{SFX.click();reset()};
-  pickUI();starter=1;reset();
+  pickUI();starter=1;reset(true);
+  if(NET){
+    w.querySelector('.seg').hidden=true;$('tPick').hidden=true;
+    NET.onMsg=d=>{if(dead||!d)return;
+      if(d.k==='mv'){if(!over&&b[d.i]===null&&turn!==ME)move(d.i)}
+      else if(d.k==='new')reset(true)};
+    NET.onLeave=NET.onClose=()=>{if(dead)return;over=true;board.classList.remove('wait');msg('Seu amigo saiu da sala 😢','end lose');toast('Seu amigo saiu','🌐')};
+  }
 }
 
 /* ---------- arrastar e soltar ---------- */
@@ -5977,18 +5999,64 @@ function netLobbyScreen(o){
   home();
 }
 /* ===NET END=== */
+/* ---------- duelo de resultado: os dois jogam as mesmas perguntas e o painel final compara ---------- */
+let DUEL=null;
+/* roda fn com um sorteio previsível: com a mesma semente, os dois aparelhos montam as mesmas perguntas */
+function withSeed(seed,fn){
+  const orig=Math.random;let a=seed>>>0;
+  Math.random=()=>{a=(a+0x6D2B79F5)|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+  try{return fn()}finally{Math.random=orig}
+}
+function duelLobby(g){
+  netLobbyScreen({game:g.key,title:g.name+' — duelo',icon:g.em,max:2,back:()=>go(menu),
+    onReady:(room,host)=>go(()=>duelRun(g,room,host))});
+}
+function duelRun(g,room,host){
+  const D=DUEL={g,room,host,mine:null,theirs:null,started:false,box:null,left:false};
+  const begin=seed=>{
+    D.started=true;
+    if(!host){app.innerHTML='';document.body.classList.remove('inGame')}
+    withSeed(seed,()=>g.fn());
+    const tag=document.createElement('div');tag.className='duelTag';tag.textContent='🌐 Duelo com amigo: vocês jogam as mesmas perguntas';
+    app.insertBefore(tag,app.children[1]||null);
+  };
+  room.onMsg=d=>{
+    if(!d||DUEL!==D)return;
+    if(d.k==='seed'&&!D.started)begin(d.seed);
+    else if(d.k==='res'){D.theirs={s:d.s,l:d.l};duelUpdate()}
+  };
+  room.onLeave=room.onClose=()=>{if(DUEL!==D)return;D.left=true;duelUpdate()};
+  if(host){const seed=Math.floor(Math.random()*2147483646)+1;room.send({k:'seed',seed});begin(seed)}
+  else{panel(g.em+' '+g.name);const w=document.createElement('div');w.className='nl-box';w.innerHTML='<p class="sub">Conectado! Esperando o jogo começar…</p>';app.append(w)}
+}
+const duelScore=o=>o.duel!=null?o.duel:Math.round((o.rate||0)*1000)+(o.stars||0);
+function duelShow(win,o){
+  const D=DUEL;if(!D||D.mine!=null||!win)return;
+  D.mine={s:duelScore(o),l:o.duelLabel||((o.stars||0)+' pontos')};
+  D.room.send({k:'res',s:D.mine.s,l:D.mine.l});
+  D.box=document.createElement('div');D.box.className='duelBox';
+  win.insertBefore(D.box,win.querySelector('.winFull__btns'));
+  duelUpdate();
+}
+function duelUpdate(){
+  const D=DUEL;if(!D||!D.box)return;
+  if(!D.theirs){D.box.textContent=D.left?'😢 Seu amigo saiu antes de terminar.':'⏳ Esperando o amigo terminar…';return}
+  const a=D.mine.s,b=D.theirs.s,r=a>b?'win':a<b?'lose':'tie';
+  D.box.innerHTML=`<b>${r==='win'?'🏆 Você ganhou o duelo!':r==='lose'?'😅 Seu amigo ganhou o duelo':'🤝 Empate!'}</b><span>Você: ${D.mine.l} · Amigo: ${D.theirs.l}</span>`;
+  if(r==='win')SFX.win();
+}
 function buildGames(){const GI=T.gameIcons||{};return [
   {em:'🧮',name:'Quiz SARESP',desc:'Questões dos descritores, por ano e nível',fn:quiz,bg:'#e2384f',sh:'#a82337'},
-  {em:'🔢',name:'Que número sou eu?',desc:'Descubra o número com menos pistas',fn:whoIs,bg:'#8a4bd1',sh:'#5f2f98'},
+  {em:'🔢',name:'Que número sou eu?',desc:'Descubra o número com menos pistas',fn:whoIs,bg:'#8a4bd1',sh:'#5f2f98',duel:true,key:'numero'},
   {em:'⏱️',name:'Corrida das contas',desc:'Contas e perguntas até o tempo acabar',fn:race,bg:'#3fa34d',sh:'#2c7a37'},
-  {em:'✅',name:'Verdade ou mentira',desc:'A conta está certa? Responda rápido: V ou F',fn:trueFalse,bg:'#e0a100',sh:'#a37400'},
-  {em:'🔎',name:'Qual é o intruso?',desc:'Ache o que não combina',fn:intruder,bg:'#be185d',sh:'#86103f'},
+  {em:'✅',name:'Verdade ou mentira',desc:'A conta está certa? Responda rápido: V ou F',fn:trueFalse,bg:'#e0a100',sh:'#a37400',duel:true,key:'verdade'},
+  {em:'🔎',name:'Qual é o intruso?',desc:'Ache o que não combina',fn:intruder,bg:'#be185d',sh:'#86103f',duel:true,key:'intruso'},
   {em:'💰',name:'Rumo ao Milhão',desc:'16 perguntas valendo 1 milhão',fn:million,bg:'#1b3a6b',sh:'#0e2140'},
   {em:'🪢',name:'Forca',desc:'Palavras da matemática com dica',fn:forca,bg:'#c2410c',sh:'#8a2e08'},
   {em:'🔤',name:'Caça-palavras',desc:'Ache os termos da matemática',fn:wordSearch,bg:'#0e9aa7',sh:'#0a6f78'},
   {em:'🔀',name:'Embaralhadas',desc:'Monte a palavra certa',fn:anagram,bg:'#2563eb',sh:'#1a47a8'},
   {em:'✏️',name:'Cruzadinha',desc:'Palavras cruzadas da matemática',fn:crossword,bg:'#475569',sh:'#2c3644'},
-  {em:GI.memory||'🃏',name:'Memória',desc:'Ache o par: a conta e o resultado',fn:memory,bg:'#ff8a1f',sh:'#c9620a'},
+  {em:GI.memory||'🃏',name:'Memória',desc:'Ache o par: a conta e o resultado',fn:memory,bg:'#ff8a1f',sh:'#c9620a',duel:true,key:'memoria'},
   {em:'⭕',name:'Jogo da velha',desc:'Contra o computador ou um amigo',fn:tictac,bg:'#f97316',sh:'#b4530f'},
   {em:GI.domino||'🁫',name:'Dominó',desc:'Dominó de pontos contra o computador',fn:domino,bg:'#1f2937',sh:'#000'},
   {em:GI.cards||'🂡',name:'Última Carta!',desc:'Jogo de cartas de cores e números',fn:cards,bg:'#dc2626',sh:'#991b1b'},
