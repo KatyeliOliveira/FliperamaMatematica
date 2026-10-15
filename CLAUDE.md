@@ -24,7 +24,8 @@ Dona do projeto: profª Katyeli Oliveira (Matemática, E.E. Anna Cuevas Guimarã
 - Conteúdo de matemática: `mathOpts`, `quizPool`, `tfPool`, `raceQuestion`, `mathIntruders`, `mathPairs`, `mkNums`, `millionBank`. São os pontos onde o motor busca perguntas; para mudar o conteúdo, mexa neles.
 - `buildGames()`: lista dos jogos do menu. `MENU_CATS`/`MENU_CAT_OF`: categorias (Quiz e Palavras, Tabuleiro e Cartas, Criar e Explorar).
 - Quiz SARESP: `quiz()` (ano e nível) → `quizRun(cfg)` (motor do Quiz de referência com progresso, sequência de acertos, 50/50, Pular, figuras, explicação e descritores para revisar). `saPool(ano,lv)` monta as questões.
-- Outros jogos (motor de referência, conteúdo de matemática): Que número sou eu? (`whoIs`), Corrida das contas (`race`), Verdade ou mentira (`trueFalse`), Qual é o intruso? (`intruder`), Rumo ao Milhão (`million`), Forca, Caça-palavras, Embaralhadas, Cruzadinha, Memória, Jogo da velha, Dominó, Última Carta (`cards`), Cofrinho (`savingsBoard`), Resta 1, Xadrez (3D com Three.js sob demanda: `chess3dCreate`), Dama, Pixel Art das Contas.
+- Outros jogos (motor de referência, conteúdo de matemática): Que número sou eu? (`whoIs`, números de `mkNums`), Corrida das contas (`race`), Verdade ou mentira (`trueFalse`), Qual é o intruso? (`intruder`), Rumo ao Milhão (`million`), Forca, Caça-palavras, Embaralhadas, Cruzadinha, Memória (pares de `mathPairs`), Jogo da velha, Dominó, Última Carta (`cards`, o UNO), Bingo das contas (`bingo`, cartela de `mathBingo`), Cofrinho (`savingsBoard`), Resta 1, Xadrez (3D com Three.js sob demanda: `chess3dCreate`), Dama, Pixel Art das Contas.
+- Níveis Fácil, Médio e Difícil no Xadrez e na Dama: `aiLevel()`/`setAiLevel()`/`aiLevelUI()` (guardado em `localStorage` como `lv_xadrez` e `lv_dama`); `chessAiMove` usa `CHESS_LV`, `damaAiMove` tem busca de 3 jogadas no Difícil.
 - Painéis comuns: `panel()` (cabeçalho do jogo), `winPanel()` (resultado com estrelas), `go()` (troca de tela), `SFX`/`tone()` (sons), `confetti()`.
 
 ## Regras que a professora exige
@@ -43,5 +44,5 @@ Dona do projeto: profª Katyeli Oliveira (Matemática, E.E. Anna Cuevas Guimarã
 
 ## Pendências
 - Testar em um celular de verdade (o teste foi feito em navegador de desktop com emulação de 412 px).
-- Jogos a adaptar: Bingo (existe no motor, mas usa personagens), versão de matemática do Última Carta, desafios de matemática no Cofrinho.
+- Jogos que ainda podem ganhar um toque de matemática: Última Carta (cartas com contas), Cofrinho (casa de desafio), Dominó.
 - Conferir o PWA instalado no celular.

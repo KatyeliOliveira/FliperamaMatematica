@@ -1000,6 +1000,20 @@ function mathPairs(n){
   while(out.length<n){const a=mrnd(2,9),b=mrnd(2,9),p=a*b;if(used.has(p))continue;used.add(p);out.push({n:`${a} × ${b}`,e:String(p),f:'resultado',i:out.length,c:[`${a} × ${b} = ${p}`]});}
   return out;
 }
+/* Bingo das contas: 9 resultados distintos na cartela e uma conta para cada bola */
+function mathBingo(){
+  const used=new Set(),out=[],bn=shuffle(Array.from({length:75},(_,i)=>i+1));
+  while(out.length<9){
+    const t=mrnd(0,3);let a,b,r,ex;
+    if(t===0){a=mrnd(6,40);b=mrnd(5,40);r=a+b;ex=`${a} + ${b}`;}
+    else if(t===1){a=mrnd(30,90);b=mrnd(5,a-5);r=a-b;ex=`${a} − ${b}`;}
+    else if(t===2){a=mrnd(3,9);b=mrnd(3,9);r=a*b;ex=`${a} × ${b}`;}
+    else{b=mrnd(3,9);r=mrnd(3,12);a=b*r;ex=`${a} ÷ ${b}`;}
+    if(used.has(r))continue;used.add(r);
+    out.push({n:String(r),e:'',f:'',c:[ex],bn:bn[out.length],free:false});
+  }
+  return out;
+}
 /* Que número sou eu?: número secreto com 4 pistas e opções próximas que contrariam alguma pista */
 function mkNums(count){
   const used=new Set(),out=[];
@@ -2125,114 +2139,7 @@ function race(){
 }
 
 /* ---------- 6. verdade ou mentira ---------- */
-/* explicações das frases de verdade ou mentira (texto -> explicação) e frases extras por tema [frase, verdade?, explicação] */
-const VMX={
- 'Torajo é o protagonista.':'Ele faz vídeos para manter o mundo dele vivo.',
- 'Morajo é irmão do Torajo.':'Os dois são irmãos, e o Morajo sempre busca uma solução lógica.',
- 'Azedo é irmão mais velho da Linn.':'O Azedo é o mais novo da turma: ele é irmão mais novo da Linn.',
- 'Azedo é irmão mais novo da Linn.':'Ele é o mais novo da turma e vive implicando com o grupo.',
- 'Zulmi e Pessy são melhores amigas.':'A Zulmi é a melhor amiga da Pessy, e a Pessy é a melhor amiga da Zulmi.',
- 'Morajo detesta pensar de forma lógica.':'É o contrário: o Morajo sempre procura uma solução lógica para tudo.',
- 'Jay estuda medicina.':'O Jay estuda comunicação.',
- 'Jay estuda comunicação.':'Ele também já trabalhou com o Morajo.',
- 'Margo sonha em ficar famosa.':'Ela tem muito carisma e uma personalidade forte.',
- 'Abel é irmão do Torajo.':'O irmão do Torajo é o Morajo. O Abel é o narrador dos acontecimentos de Verade.',
- 'Linn e Azedo são frutas cítricas.':'A Linn é o limão e o Azedo é a lima, duas frutas cítricas.',
- 'Torajo e Morajo são bananas.':'O Torajo é a maçã verde e o Morajo é a maçã vermelha.',
- 'A Nezuko é irmã do Tanjiro.':'Ela viaja dentro de uma caixa de madeira nas costas do irmão.',
- 'O Zenitsu é muito corajoso e não tem medo de nada.':'O Zenitsu tem medo de quase tudo, mas luta melhor quando está dormindo.',
- 'O Inosuke usa uma máscara de javali.':'Ele também luta com duas espadas.',
- 'Os demônios adoram tomar sol.':'Os demônios têm medo da luz do sol.',
- 'O Rengoku é o Hashira das Chamas.':'O cabelo dele parece fogo, e ele adora comer.',
- 'A Kanao decide coisas jogando uma moeda.':'Ela foi treinada pela Shinobu e é muito quieta.',
- 'A Anya consegue ler pensamentos.':'Ela é telepata, mas mantém isso em segredo.',
- 'O Bond é um gato.':'O Bond é um cachorro grande e fofo.',
- 'O Loid é um espião.':'Ele é um espião muito habilidoso e cria uma família falsa para a missão.',
- 'A Yor cozinha muito bem.':'A Yor é péssima na cozinha! Ela é assassina profissional.',
- 'O Yuri é irmão da Yor.':'O Yuri é o irmão mais novo da Yor e trabalha para o governo.',
- 'A Becky é a melhor amiga da Anya.':'As duas estudam juntas na escola Eden.',
- 'O Hinata é o mais alto do time.':'O Hinata é baixinho, mas pula muito alto!',
- 'O Kenma adora videogame.':'O Kenma é o levantador do Nekoma e é bem calado.',
- 'O Daichi é o capitão do Karasuno.':'Ele lidera o time do Hinata e do Kageyama.',
- 'O Tsukishima usa óculos.':'Ele é o bloqueador alto do Karasuno.',
- 'O Nishinoya é levantador.':'O Nishinoya é líbero, o especialista em defesa do time.',
- 'O mascote do Nekoma é um gato.':'Nekoma lembra a palavra "gato" em japonês, e o time é famoso por sua defesa.',
- 'O Gon usa uma vara de pescar.':'A vara de pescar era do pai dele, o Ging.',
- 'O Leorio quer ser mágico.':'O Leorio quer ser médico.',
- 'A Alluka é irmã do Killua.':'Eles são irmãos e se importam muito um com o outro.',
- 'O Killua odeia chocolate.':'É o contrário: o Killua adora chocolate!',
- 'O Netero é o presidente da Associação Hunter.':'Ele é um caçador muito forte e já bem velhinho.',
- 'O Kurapika luta com correntes.':'As correntes dele são uma habilidade Nen.',
- 'O Naruto sonha em ser Hokage.':'Hokage é o líder da Vila da Folha.',
- 'A Sakura tem o cabelo azul.':'O cabelo da Sakura é rosa.',
- 'O Kakashi usa uma máscara.':'Ele cobre quase todo o rosto e é o professor do Time 7.',
- 'O Gaara controla a água.':'O Gaara controla a areia.',
- 'O Itachi é irmão do Sasuke.':'Os dois são do clã Uchiha.',
- 'O Rock Lee só luta corpo a corpo.':'O Rock Lee treina muito o taijutsu, que é a luta sem ninjutsu.',
- 'O Goku anda na Nuvem Voadora.':'A Nuvem Voadora só aceita quem tem coração puro.',
- 'O Piccolo é azul.':'O Piccolo é verde, porque ele é um namekuseijin.',
- 'A Bulma inventou o Radar do Dragão.':'O radar serve para achar as esferas do dragão.',
- 'O Trunks veio do passado.':'O Trunks veio do futuro para avisar o Goku sobre os perigos.',
- 'O Vegeta é o príncipe dos saiyajins.':'Ele é orgulhoso e sempre quis ficar mais forte que o Goku.',
- 'É preciso juntar 7 esferas para chamar o Shenlong.':'Com as 7 esferas reunidas, o dragão realiza um desejo.',
- 'O RM é o líder do BTS.':'O RM também é rapper do grupo.',
- 'O Jungkook é o integrante mais velho.':'O Jungkook é o mais novo do grupo. O mais velho é o Jin.',
- 'O V gosta de fotografia.':'O V costuma compartilhar fotos que ele mesmo tira.',
- 'O BTS é uma banda coreana.':'O BTS vem da Coreia do Sul.',
- 'O Jin não sabe cozinhar nada.':'O Jin gosta muito de cozinhar e é conhecido por isso.',
- 'O J-Hope é conhecido por dançar muito bem.':'Ele é um dos principais dançarinos do grupo.',
- 'A Diane é uma gigante.':'Ela é o Pecado da Inveja e pertence à Serpente.',
- 'O Escanor fica mais fraco ao meio-dia.':'O Escanor fica mais forte quando o sol está bem alto.',
- 'O Ban é imortal.':'Ele ficou imortal depois de beber a água da Fonte da Juventude.',
- 'O King é o Rei das Fadas.':'Ele é o Pecado da Preguiça e o líder da Floresta das Fadas.',
- 'O Hawk é um porco que fala.':'O Hawk é o mascote do grupo e adora restos de comida.',
- 'A Elizabeth é uma princesa má.':'A Elizabeth é uma princesa gentil e bondosa.',
- 'A Pitty é uma cantora de rock brasileira.':'Ela é da Bahia e ficou famosa com músicas como Máscara e Equalize.',
- 'A guitarra é um instrumento de percussão.':'A guitarra é um instrumento de cordas. Percussão é como a bateria.',
- 'Um refrão é a parte que se repete numa música.':'É a parte que todo mundo aprende primeiro e canta junto.',
- 'Bateria é o instrumento que marca o ritmo da banda.':'Quem toca bateria é o baterista.',
- 'Turnê é o nome de um instrumento musical.':'Turnê é uma série de shows em várias cidades.',
- 'Ensaio é o treino antes de um show.':'Nos ensaios a banda ou o grupo repete a apresentação várias vezes.',
- 'O Katseye é um grupo com várias integrantes.':'O Katseye tem seis integrantes.',
- 'A Yoonchae é a integrante mais velha do grupo.':'A Yoonchae é a mais nova do grupo.',
- 'A Manon é conhecida pelo sorriso contagiante.':'O sorriso dela anima os fãs nos palcos.',
- 'Coreografia é um tipo de instrumento musical.':'Coreografia é a sequência de passos de uma dança.',
- 'Fãs são pessoas que torcem por um grupo ou artista.':'Fãs também vão a shows, cantam junto e apoiam o grupo.',
- 'O Izuku Midoriya é conhecido como Deku.':'Deku é o apelido de herói dele.',
- 'O Bakugo controla gelo.':'O Bakugo cria explosões. Quem controla gelo é o Todoroki.',
- 'O Shoto Todoroki é filho do Endeavor.':'O Todoroki usa gelo com o lado direito e fogo com o esquerdo.',
- 'A Tsuyu tem poderes parecidos com os de um sapo.':'Ela pula longe, tem língua comprida e nada muito bem.',
- 'O All Might nunca foi um herói forte.':'O All Might é o maior herói, o Símbolo da Paz.',
- 'A Momo consegue criar objetos usando o corpo.':'O poder dela se chama Criação.',
- 'O Asta não nasceu com magia.':'Mesmo assim ele treinou muito e usa uma espada anti-magia.',
- 'O Yuno controla magia de fogo.':'O Yuno usa magia de vento.',
- 'O Yami é o capitão dos Touros Negros.':'Os Touros Negros são o esquadrão do Asta e da Noelle.',
- 'A Noelle é da família Silva.':'Ela é a princesa da família real Silva e usa magia de água.',
- 'O Finral tem magia de teletransporte.':'Ele usa magia de espaço para mudar de lugar rapidinho.',
- 'A Charmy odeia comer.':'A Charmy adora comer! Ela vive com fome.',
- 'A Hello Kitty usa um laço vermelho.':'O laço é o acessório mais famoso dela.',
- 'A Kuromi é sempre supereducada e nunca prega peças.':'A Kuromi é travessa e adora aprontar.',
- 'O Cinnamoroll consegue voar.':'Ele voa batendo as orelhas compridas.',
- 'O Pompompurin usa uma boina.':'A boina marrom faz parte do visual dele.',
- 'O Keroppi é um peixinho.':'O Keroppi é um sapinho.',
- 'A My Melody e a Kuromi são amigas-rivais.':'Elas brincam de disputar, mas no fundo se gostam.'
-};
-const VMEXTRA={
- torajo:[['O Jay já trabalhou com o Morajo.',true,'Os dois já fizeram um trabalho juntos.'],['A Pessy acredita em teorias da conspiração.',true,'Ela adora mistérios.'],['A Linn adora barulho e bagunça.',false,'A Linn prefere silêncio, paisagens e momentos de paz.'],['A Zulmi é amiga de infância do Torajo.',true,'Ela ajuda o canal com todo o carisma dela.'],['O Azedo é o mais velho da turma.',false,'O Azedo é o mais novo da turma.'],['A Margo já fez estágio.',true,'Ela também sonha em ficar famosa.']],
- demon:[['O Tanjiro tem um olfato muito forte.',true,'Ele usa o olfato para encontrar pistas.'],['A Shinobu usa veneno em vez de só força.',true,'Ela é a Hashira dos Insetos e usa enfeites de borboleta.'],['O Muzan é o primeiro demônio.',true,'Ele criou os outros demônios.'],['O Giyu é o Hashira da Água.',true,'Ele foi o primeiro caçador que o Tanjiro conheceu.'],['O Zenitsu tem o cabelo azul.',false,'O cabelo do Zenitsu é amarelo.'],['O Inosuke luta com uma única espada.',false,'O Inosuke luta com duas espadas.']],
- spy:[['O Loid é psiquiatra durante o dia.',true,'É a identidade que ele usa para esconder que é espião.'],['A Yor é assassina profissional.',true,'A Yor tem um segredo: à noite ela trabalha como assassina.'],['A Anya adora amendoim.',true,'Aliás, o amendoim virou marca registrada dela.'],['O Bond consegue ver o futuro.',true,'Ele é um cachorro grande e muito esperto.'],['A Yor é a irmã mais nova do Yuri.',false,'A Yor é a irmã mais velha, e o Yuri é o irmão mais novo.'],['O Damian é filho de um político importante.',true,'Ele estuda na mesma escola que a Anya.']],
- haikyu:[['O anime Haikyu!! é sobre vôlei.',true,'O time da história é o Karasuno.'],['O Kageyama é levantador.',true,'É ele quem levanta a bola para o Hinata atacar.'],['O Tanaka é do time do Nekoma.',false,'O Tanaka joga no Karasuno.'],['O Kenma é o levantador do Nekoma.',true,'Ele adora videogame e fala pouco.'],['O Bokuto é do time Fukurodani.',true,'O Bokuto é um dos atacantes mais famosos do anime.'],['O Hinata é baixinho, mas pula muito alto.',true,'Por isso ele é chamado de "pequeno gigante".']],
- hxh:[['O Gon procura o pai, o Ging.',true,'Ele virou Hunter para encontrá-lo.'],['O Killua vem de uma família de assassinos.',true,'Ele é da família Zoldyck.'],['O Hisoka usa cartas de baralho como arma.',true,'Ele é um mágico bem estranho e perigoso.'],['O Leorio quer ser médico.',true,'Ele usa o dinheiro do exame Hunter para estudar.'],['O Gon nasceu numa cidade enorme.',false,'O Gon cresceu na Ilha da Baleia, um lugar bem pequeno.'],['O Killua tem cabelo prateado.',true,'O cabelo dele parece branco.']],
- naruto:[['O Naruto tem uma raposa de nove caudas selada dentro dele.',true,'Ela se chama Kurama.'],['O Sasuke é do clã Uchiha.',true,'O irmão dele, o Itachi, também.'],['A Hinata usa o Byakugan.',true,'É um poder dos olhos do clã Hyuga.'],['O Rock Lee usa o Sharingan.',false,'O Rock Lee luta com taijutsu. O Sharingan é do clã Uchiha.'],['A Tsunade é a Quinta Hokage.',true,'Ela também é uma ninja médica muito forte.'],['O Gaara é da Vila da Areia.',true,'Ele controla a areia.']],
- dragonball:[['O Goku é um saiyajin.',true,'Ele nasceu no planeta Vegeta, mas cresceu na Terra.'],['O Kuririn é careca.',true,'Ele é o melhor amigo do Goku.'],['O Gohan é filho do Goku.',true,'O Gohan é muito inteligente e forte.'],['O Vegeta nasceu na Terra.',false,'O Vegeta nasceu no planeta Vegeta.'],['O Cell é um herói.',false,'O Cell é um vilão criado para ser super forte.'],['O Mestre Kame é o Mestre dos Kamehameha.',true,'Ele ensinou o golpe famoso ao Goku.']],
- bts:[['O BTS tem sete integrantes.',true,'São RM, Jin, Suga, J-Hope, Jimin, V e Jungkook.'],['O nome dos fãs do BTS é ARMY.',true,'O ARMY apoia o grupo no mundo todo.'],['O Jin é o integrante mais velho.',true,'O mais novo do grupo é o Jungkook.'],['O Suga também é conhecido como Agust D.',true,'Esse é o nome artístico dele quando canta sozinho.'],['O BTS é um grupo do Japão.',false,'O BTS é da Coreia do Sul.'],['O V também é chamado de Taehyung.',true,'V é o nome artístico dele.']],
- nanatsu:[['O Meliodas é o Pecado da Ira.',true,'Ele é o capitão dos Sete Pecados Capitais.'],['O Ban é o Pecado da Ganância.',true,'Ele é imortal.'],['A Diane é o Pecado da Inveja.',true,'Ela é uma gigante e a Serpente do grupo.'],['O Escanor é o Pecado do Orgulho.',true,'Ele fica muito forte ao meio-dia.'],['O Hawk é um cavalo que fala.',false,'O Hawk é um porco que fala e é o mascote do grupo.'],['A Elizabeth é uma princesa.',true,'Ela é gentil e bondosa.']],
- pitty:[['A Pitty nasceu na Bahia.',true,'Ela é de Salvador.'],['Admirável Chip Novo é o nome de um álbum da Pitty.',true,'A música que dá nome ao álbum fala sobre o mundo moderno.'],['O baixo é um instrumento de cordas.',true,'Ele faz o som grave da banda.'],['Vocalista é quem canta na banda.',true,'A Pitty é a vocalista e também toca guitarra.'],['Show é o nome do treino antes do ensaio.',false,'É o contrário: o ensaio é o treino antes do show.'],['O DJ é quem toca bateria numa banda.',false,'Quem toca bateria é o baterista. O DJ mistura músicas.']],
- katseye:[['O Katseye tem seis integrantes.',true,'São Sophia, Manon, Daniela, Lara, Megan e Yoonchae.'],['O grupo foi formado no programa Dream Academy.',true,'Meninas do mundo todo participaram.'],['O Katseye é um grupo de meninos.',false,'O Katseye é um grupo de seis meninas.'],['As integrantes do Katseye vêm de países diferentes.',true,'É um grupo global.'],['Clipe é um vídeo de uma música.',true,'Muitos clipes mostram coreografias.'],['A Yoonchae é da Coreia do Sul.',true,'Ela é a integrante mais nova do grupo.']],
- mha:[['A escola dos heróis do Deku se chama UA.',true,'Lá os alunos treinam para virar heróis profissionais.'],['O Todoroki usa gelo e fogo.',true,'Ele usa gelo de um lado do corpo e fogo do outro.'],['O All Might é o Símbolo da Paz.',true,'Ele salva pessoas sempre sorrindo.'],['A Uraraka faz as coisas flutuarem.',true,'O poder dela zera a gravidade do que ela toca.'],['O Kirishima consegue endurecer o corpo.',true,'Assim ele vira uma rocha para proteger os amigos.'],['A Tsuyu detesta a água.',false,'A Tsuyu é parecida com um sapo e adora água.']],
- blackclover:[['O Asta sonha em ser o Imperador Mago.',true,'Ele treina todo dia para isso.'],['O Yuno usa magia de vento.',true,'O Yuno é o rival e melhor amigo do Asta.'],['O grimório do Asta tem um trevo de cinco folhas.',true,'É um grimório especial, que traz o poder anti-magia.'],['A Noelle usa magia de água.',true,'Ela é da família real Silva.'],['A Noelle usa magia de fogo.',false,'A magia da Noelle é de água.'],['O Luck usa magia de raio.',true,'Ele adora uma boa luta.']],
- sanrio:[['A Kuromi tem um capuz de caveirinha rosa.',true,'Ela é uma personagem travessa.'],['O Cinnamoroll é um filhote de cachorro branco.',true,'Ele voa batendo as orelhas.'],['O Chococat é um gato preto.',true,'Ele é curioso e muito inteligente.'],['O Badtz-Maru é um pinguim.',true,'Ele é um pinguim levado e cheio de atitude.'],['A Hello Kitty é um cachorrinho.',false,'A Hello Kitty é uma gatinha branca.'],['O Keroppi é um sapinho.',true,'Ele adora nadar e viver perto do lago.']]
-};
+const VMX={},VMEXTRA={};
 function trueFalse(){
   g1css('vm-css',`
 .vm-wrap{overflow-x:clip;padding-bottom:4px;display:flex;flex-direction:column;gap:9px;max-width:560px;margin:0 auto;width:100%}
@@ -2535,28 +2442,6 @@ function forcaWords(){
     M.forEach(([w,d])=>L.push({w,d,k:'m'}));
     return L;
   }
-  const F=[["maçã","Fruta do Torajo e do Morajo"],["pêssego","Fruta da Pessy"],["mirtilo","Fruta da Zulmi, pequena e azul"],["limão","Fruta azeda e amarela da Linn"],["lima","Fruta verde do Azedo"],["cítrica","Tipo de fruta do limão e da lima"],
-   ["banana","Fruta amarela e comprida"],["morango","Fruta vermelha com sementinhas por fora"],["abacaxi","Fruta com coroa e espinhos"],["melancia","Grande, verde por fora e vermelha por dentro"],["uva","Fruta pequena que vem em cacho"],
-   ["laranja","Fruta que dá nome a uma cor"],["kiwi","Marrom e peludo por fora, verde por dentro"],["manga","Amarela, cheirosa e com caroço grande"],["goiaba","Pode ser vermelha ou branca por dentro"],["cereja","Pequenininha e enfeita bolo"],
-   ["framboesa","Frutinha vermelha parecida com amora"],["abacate","Verde com um caroço enorme"],["maracujá","Azedinho, usado em suco e mousse"],["jabuticaba","Roxa e nasce grudada no tronco"],["pitanga","Frutinha vermelha com gomos"],
-   ["caju","Tem a castanha do lado de fora"],["coco","Duro por fora e com água por dentro"],["pera","Parecida com maçã, mas mais comprida"],["ameixa","Roxa, também existe seca"],["tangerina","Também chamada de mexerica ou bergamota"],
-   ["açaí","Frutinha roxa da Amazônia, famosa na tigela"],["acerola","Pequena, vermelha e cheia de vitamina C"],["amora","Frutinha escura que mancha a mão"],["carambola","Cortada, parece uma estrela"],["cupuaçu","Fruta da Amazônia parente do cacau"],
-   ["graviola","Verde, com espinhos moles e polpa branca"],["lichia","Casca rosada e áspera, polpa branca e doce"],["mamão","Laranja por dentro, cheio de sementes pretas"],["melão","Parente da melancia, amarelo por fora"],["figo","Roxo por fora, cheio de sementinhas dentro"],
-   ["romã","Cheia de sementes vermelhas e brilhantes"],["tâmara","Fruta doce do deserto, vem de uma palmeira"],["pitaya","Rosa por fora, com escamas, também chamada fruta-do-dragão"],["caqui","Laranja e bem mole quando maduro"],["damasco","Parente do pêssego, muito vendido seco"],
-   ["nectarina","Parece um pêssego, mas com a casca lisa"],["guaraná","Frutinha vermelha que parece um olho"],["cacau","Fruto de onde vem o chocolate"],["jaca","Fruta enorme com gomos amarelos"],["pinha","Também chamada de fruta-do-conde"],
-   ["tamarindo","Vagem marrom com polpa azedinha"],["mangaba","Fruta do cerrado e do nordeste"],["pequi","Fruta do cerrado com espinhos no caroço"],["buriti","Fruta de palmeira com casca de escamas"],["seriguela","Pequena, amarela ou vermelha, do nordeste"],
-   ["uvaia","Frutinha amarela e azedinha da Mata Atlântica"],["cambuci","Fruta verde em forma de disco voador"],["physalis","Frutinha laranja escondida num balãozinho"],["groselha","Frutinha vermelha usada em xarope"],["toranja","Parente da laranja, grande e amarguinha"]];
-  F.forEach(([w,d])=>L.push({w,d,k:'f'}));
-  const M=[["cofrinho","Onde guardamos moedas para o futuro"],["poupança","Dinheiro que a gente guarda"],["mesada","Dinheiro que as crianças recebem todo mês"],["economia","Gastar menos e guardar mais"],["investimento","Gastar agora para ganhar depois"],
-   ["juros","O dinheiro guardado cresce por causa dos..."],["moeda","Dinheiro redondo de metal"],["troco","O dinheiro que volta quando você paga a mais"],["orçamento","Plano de quanto gastar e quanto guardar"],["reserva","Dinheiro guardado para imprevistos"],
-   ["objetivo","Um sonho que ajuda a guardar dinheiro"],["preço","Quanto custa uma coisa"],["desconto","Quando o preço fica menor"],["carteira","Onde levamos o dinheiro no bolso"],["banco","Lugar que guarda o dinheiro das pessoas"],
-   ["paciência","Qualidade de quem espera para comprar o que quer"],["planejamento","Pensar antes de gastar"],["lucro","O que sobra quando se vende mais do que se gasta"]];
-  M.forEach(([w,d])=>L.push({w,d,k:'m'}));
-  const N=[["pomar","Lugar cheio de árvores frutíferas"],["semente","Plantando ela, nasce uma árvore"],["casca","A parte de fora da fruta"],["polpa","A parte de dentro da fruta que a gente come"],["suco","Bebida feita com frutas"],
-   ["vitamina","Frutas batidas com leite"],["feira","Lugar onde se compram frutas frescas"],["cesta","Onde levamos as frutas"],["colheita","Quando se tiram as frutas das árvores"],["árvore","Onde nascem muitas frutas"],
-   ["macieira","Árvore da maçã"],["limoeiro","Árvore do limão"],["pessegueiro","Árvore do pêssego"],["bananeira","Planta da banana"],["salada de frutas","Várias frutas cortadas juntas"],["geleia","Doce de fruta para passar no pão"],
-   ["picolé","Sorvete no palito, pode ser de fruta"],["abelha","Inseto que ajuda as flores a virarem frutas"],["flor","Antes de virar fruta, a planta dá uma..."],["primavera","Estação das flores"],["regador","Usado para molhar as plantas"],["horta","Lugar onde se plantam verduras"]];
-  N.forEach(([w,d])=>L.push({w,d,k:'n'}));
   return L;
 }
 /* ---------- estilos compartilhados dos jogos redesenhados (injetados uma vez) ---------- */
@@ -4085,7 +3970,7 @@ function million(){
 
 /* ---------- 21. bingo dos personagens ---------- */
 function bingo(){
-  panel('🎯 Bingo dos personagens');
+  panel('🎯 Bingo das contas');
   if(!document.getElementById('bg-css')){const st=document.createElement('style');st.id='bg-css';st.textContent=`
 .bg-wrap{display:flex;flex-direction:column;gap:11px}
 .bg-seg{display:flex;gap:6px;align-items:center}
@@ -4155,13 +4040,11 @@ function bingo(){
   /* bolas dentro do globo */
   const G=$('bgGlobe');
   G.innerHTML=Array.from({length:9},(_,k)=>{const r=()=>Math.round(8+Math.random()*82);const p=[0,1,2,3].map(j=>`--x${j}:${r()}px;--y${j}:${r()}px`).join(';');return`<i class="bg-b" style="--bc:${BC[k%5]};--d:${-k*.37}s;${p}"></i>`}).join('');
-  const numOf=c=>(Math.max(0,CH.findIndex(x=>x.n===c.n))*13+5)%75+1;
+  const numOf=c=>c.bn||1;
   const ballOf=n=>'BINGO'[Math.min(4,Math.floor((n-1)/15))];
   const colOf=n=>BC[Math.min(4,Math.floor((n-1)/15))];
-  function clueFor(c){
-    if(hard){const cl=(c.c||[]).slice(0,-1);return pick(cl.length?cl:[c.f||c.n[0]+'...'],1)[0]}
-    const opts=[`Quem tem o símbolo ${c.e}?`,`Quem é: ${c.f||c.s||'...'}?`,pick(c.c,1)[0]];
-    return pick(opts,1)[0]}
+  /* a bola mostra uma conta; a cartela tem o resultado (no difícil, a conta vem sem apoio visual) */
+  function clueFor(c){return `Quanto é ${pick(c.c,1)[0]}?`}
   function render(){
     $('bgCard').innerHTML=card.map((c,i)=>c.free?`<button type="button" class="bg-cell free on" disabled aria-label="Espaço livre"><span class="e">⭐</span><b>Livre</b><i class="bg-daub" style="animation:none;opacity:.35"></i></button>`
       :`<button type="button" class="bg-cell${marked[i]?' on':''}" data-i="${i}" aria-label="${c.n}">${hard?'':`<span class="e">${c.e}</span>`}<b>${c.n}</b>${marked[i]?'<i class="bg-daub"></i>':''}</button>`).join('');
@@ -4191,10 +4074,10 @@ function bingo(){
   function finish(){
     over=true;SFX.win();addStars(25);confetti();
     banner('BINGO!'.split('').map((l,k)=>`<span class="bl" style="--bc:${BC[k%5]};--k:${k}">${l}</span>`).join(''),true);
-    later(()=>{$('bgEnd').innerHTML='';winPanel('bgEnd',{icon:'🎯',title:'BINGO! Cartela cheia! 🎉',msg:`Você marcou todos os personagens${errs?` com ${errs} erro${errs>1?'s':''}`:' sem errar nenhum'}! ${T.cheer||''}`,stars:25,rate:errs===0?1:errs<=3?.75:.5,again:start});$('bgEnd').scrollIntoView({block:'nearest',behavior:'smooth'})},1500)}
+    later(()=>{$('bgEnd').innerHTML='';winPanel('bgEnd',{icon:'🎯',title:'BINGO! Cartela cheia! 🎉',msg:`Você marcou todos os resultados${errs?` com ${errs} erro${errs>1?'s':''}`:' sem errar nenhum'}! ${T.cheer||''}`,stars:25,rate:errs===0?1:errs<=3?.75:.5,again:start});$('bgEnd').scrollIntoView({block:'nearest',behavior:'smooth'})},1500)}
   function start(){
     tm.forEach(clearTimeout);tm=[];
-    const ch=shuffle(CH).slice(0,9),fr=[4,0,2,7,3,5,1,6,8].slice(0,9-ch.length);let u=0;
+    const ch=mathBingo(),fr=[4,0,2,7,3,5,1,6,8].slice(0,9-ch.length);let u=0;
     card=Array.from({length:9},(_,k)=>fr.includes(k)?{free:true,n:'Livre'}:{...ch[u++],free:false});
     marked=card.map(c=>!!c.free);lines=0;cur=null;errs=0;wrongNow=0;over=false;drawn=[];busy=false;
     $('bgL').textContent=0;$('bgE').textContent=0;$('bgEnd').innerHTML='';$('bgHist').innerHTML='';$('bgBall').innerHTML='';$('bgClue').textContent='';
@@ -4720,13 +4603,21 @@ function chessMinimax(st,depth,alpha,beta,maximizing){
   if(maximizing){let best=-Infinity;for(const m of ordered){const v=chessMinimax(chessApplyMove(st,m),depth-1,alpha,beta,false);best=Math.max(best,v);alpha=Math.max(alpha,v);if(beta<=alpha)break}return best}
   let best=Infinity;for(const m of ordered){const v=chessMinimax(chessApplyMove(st,m),depth-1,alpha,beta,true);best=Math.min(best,v);beta=Math.min(beta,v);if(beta<=alpha)break}return best;
 }
-function chessAiMove(st){
+/* nivel do computador (xadrez e dama): facil, medio ou dificil, guardado no aparelho */
+const AI_LEVELS=['facil','medio','dificil'];
+function aiLevel(game){let v='medio';try{v=localStorage.getItem('lv_'+game)||'medio'}catch(e){}return AI_LEVELS.includes(v)?v:'medio'}
+function setAiLevel(game,v){try{localStorage.setItem('lv_'+game,v)}catch(e){}}
+function aiLevelUI(game){const cur=aiLevel(game);
+  return `<div class="seg" id="lv_${game}" role="group" aria-label="N&iacute;vel do computador"><button type="button" data-lv="facil" aria-pressed="${cur==='facil'}">&#127793; F&aacute;cil</button><button type="button" data-lv="medio" aria-pressed="${cur==='medio'}">&#127807; M&eacute;dio</button><button type="button" data-lv="dificil" aria-pressed="${cur==='dificil'}">&#127942; Dif&iacute;cil</button></div>`}
+function aiLevelBind(game,root,onPick){root.querySelectorAll('#lv_'+game+' button').forEach(b=>b.onclick=()=>{SFX.click();setAiLevel(game,b.dataset.lv);root.querySelectorAll('#lv_'+game+' button').forEach(x=>x.setAttribute('aria-pressed',x===b));if(onPick)onPick()})}
+const CHESS_LV={facil:{d:0,n:60,b:60},medio:{d:2,n:6,b:3},dificil:{d:3,n:1,b:1}};function chessAiMove(st){
+  const L=CHESS_LV[aiLevel('xadrez')];
   const moves=chessOrder(chessLegalMoves(st,'b'));
   if(!moves.length)return null;
   let bestScore=-Infinity,bestMoves=[];
   moves.forEach(m=>{
-    const v=chessMinimax(chessApplyMove(st,m),2,-Infinity,Infinity,false)+Math.random()*6;
-    if(v>bestScore+3){bestScore=v;bestMoves=[m]}else if(Math.abs(v-bestScore)<=3)bestMoves.push(m);
+    const v=chessMinimax(chessApplyMove(st,m),L.d,-Infinity,Infinity,false)+Math.random()*L.n;
+    if(v>bestScore+L.b){bestScore=v;bestMoves=[m]}else if(Math.abs(v-bestScore)<=L.b)bestMoves.push(m);
   });
   return bestMoves[Math.floor(Math.random()*bestMoves.length)];
 }
@@ -5348,6 +5239,7 @@ function xadrez(net){
   const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;gap:10px';
   w.innerHTML=`<p class="sub" id="xzSub" style="margin:0"></p>
   <p class="fb" id="xzStatus" aria-live="polite">Sua vez</p>
+  ${aiLevelUI('xadrez')}
   <div class="c3d-cap" id="xzCap" aria-label="Peças capturadas"></div>
   <div class="arena" id="xzArena">
     <div class="c3d-stage" id="xzStage" hidden></div>
@@ -5357,7 +5249,7 @@ function xadrez(net){
   </div>
   <div class="row c3d-row"><button class="btn c3d-sm" id="xzNew" type="button">Novo jogo</button><button class="btn ghost c3d-sm" id="xzUndo" type="button" disabled>↩ Desfazer</button>
   <div class="seg c3d-seg" id="xzSeg" role="group" aria-label="Vista do tabuleiro"><button type="button" data-m="3d" aria-pressed="true">3D</button><button type="button" data-m="2d" aria-pressed="false">2D</button></div></div>`;
-  app.append(w);fsTwo(w,$('xzArena'),.95);
+  app.append(w);fsTwo(w,$('xzArena'),.95);aiLevelBind('xadrez',w);
   let state=chessNewState(),selected=null,lastMove=null,gameOver=false,allLegalWhite=[],aiTimer=null,endT=0;
   let stTxt='Sua vez',stCls='fb',endDone=false,busy=false,dead=false,epoch=0,token=0,hist=[],cap={w:[],b:[]},view=null,mode='2d',can3d=true,promoWrap=null,ovEl=null;
   let want3d=true;try{want3d=localStorage.getItem('xadrezMode')!=='2d'}catch(e){}
@@ -5693,9 +5585,25 @@ function damaChainLen(st,r,c){
   });
   return best;
 }
+function damaEval(st){let s=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++){const p=st.board[r][c];if(!p)continue;const v=damaIsKing(p)?2.5:1;s+=damaColor(p)==='b'?v:-v}return s}
+function damaMinimax(st,depth,alpha,beta){
+  const col=st.turn,moves=damaLegalMoves(st,col);
+  if(!moves.length)return col==='b'?-100:100;
+  if(depth===0)return damaEval(st);
+  if(col==='b'){let best=-Infinity;for(const m of moves){const v=damaMinimax(damaApplyMove(st,m),depth-1,alpha,beta);best=Math.max(best,v);alpha=Math.max(alpha,v);if(beta<=alpha)break}return best}
+  let best=Infinity;for(const m of moves){const v=damaMinimax(damaApplyMove(st,m),depth-1,alpha,beta);best=Math.min(best,v);beta=Math.min(beta,v);if(beta<=alpha)break}return best;
+}
 function damaAiMove(st){
   const moves=damaLegalMoves(st,'b');
   if(!moves.length)return null;
+  const lv=aiLevel('dama');
+  if(lv==='facil')return moves[Math.floor(Math.random()*moves.length)];
+  if(lv==='dificil'){
+    let best=-Infinity,bestMoves=[];
+    moves.forEach(m=>{const v=damaMinimax(damaApplyMove(st,m),3,-Infinity,Infinity)+Math.random()*.05;
+      if(v>best+.02){best=v;bestMoves=[m]}else if(Math.abs(v-best)<=.02)bestMoves.push(m)});
+    return bestMoves[Math.floor(Math.random()*bestMoves.length)];
+  }
   const hasCap=moves.some(m=>m.capture);
   if(hasCap){
     let best=-1,bestMoves=[];
@@ -5720,9 +5628,10 @@ function dama(net){
   w.innerHTML=`<p class="sub">Você joga com as peças claras. Toque numa peça e depois no destino que brilha. Comer é obrigatório — e se der para continuar comendo com a mesma peça, continue!</p>
   <div class="bar dm-bar"><div class="stat"><i class="dm-dot w"></i>Você: <b id="dmNw">12</b></div><div class="stat"><i class="dm-dot b"></i>${net?'Amigo':'Computador'}: <b id="dmNb">12</b></div></div>
   <p class="fb dm-st" id="dmStatus" aria-live="polite">Sua vez</p>
+  ${aiLevelUI('dama')}
   <div class="dm-wrap" id="dmWrap"><div class="dm-frame"><div class="dm-grid" id="dmBoard"></div><div class="dm-layer" id="dmLayer"></div></div></div>
   <div class="row"><button class="btn" id="dmNew" type="button">Novo jogo</button><button class="btn ghost" id="dmUndo" type="button">↩ Desfazer</button></div>`;
-  app.append(w);fsTwo(w,$('dmWrap'),1);
+  app.append(w);fsTwo(w,$('dmWrap'),1);aiLevelBind('dama',w);
   let state=damaNewState(),selected=null,lastMove=null,gameOver=false,legalMovesW=[],busy=false,quiet=0,hist=[],ovEl=null,dead=false,pcs=[];
   const NET=(net&&net.room)||null,NETH=!!(net&&net.host),ntl=p=>NETH?p:[7-p[0],7-p[1]];
   if(NET&&!NETH)state.turn='b';
@@ -5914,6 +5823,7 @@ function buildGames(){const GI=T.gameIcons||{};return [
   {em:'⭕',name:'Jogo da velha',desc:'Contra o computador ou um amigo',fn:tictac,bg:'#f97316',sh:'#b4530f'},
   {em:GI.domino||'🁫',name:'Dominó',desc:'Dominó de pontos contra o computador',fn:domino,bg:'#1f2937',sh:'#000'},
   {em:GI.cards||'🂡',name:'Última Carta!',desc:'Jogo de cartas de cores e números',fn:cards,bg:'#dc2626',sh:'#991b1b'},
+  {em:'🎯',name:'Bingo das contas',desc:'Ache o resultado de cada conta na cartela',fn:bingo,bg:'#7c3aed',sh:'#5527a8'},
   {em:'🐷',name:'Cofrinho',desc:'Tabuleiro para aprender a poupar',fn:savingsBoard,bg:'#ec4899',sh:'#a3326a'},
   {em:'🔴',name:'Resta 1',desc:'Pule os pinos e deixe só 1 no tabuleiro',fn:pegSolitaire,bg:'#9d174d',sh:'#6b0f34'},
   {em:'♟️',name:'Xadrez',desc:'Partida completa contra o computador',fn:xadrez,bg:'#334155',sh:'#1e293b'},
@@ -6337,11 +6247,11 @@ function saveScreen(){
   let dead=false;const cur=svCollect({mundo:false}),big=svBig(),nRec=Object.keys(cur.recs).length;
   const bodyN=cur.av&&cur.av.d?({menino:'👦 Menino',neutro:'🧑 Neutro'}[cur.av.d.body]||'👧 Menina'):'';
   const w=document.createElement('div');w.className='sv-wrap';
-  w.innerHTML=`<div class="sv-hero"><i aria-hidden="true">💾</i><div><b>Proteja o seu progresso!</b><span>Suas ⭐, recordes e o seu personagem ficam guardados só neste aparelho. Faça uma cópia para não perder tudo se trocar de celular.</span></div></div>
+  w.innerHTML=`<div class="sv-hero"><i aria-hidden="true">💾</i><div><b>Proteja o seu progresso!</b><span>Suas ⭐, recordes e o seu perfil ficam guardados só neste aparelho. Faça uma cópia para não perder tudo se trocar de celular.</span></div></div>
   <div class="sv-sum"><span>⭐ ${cur.stars}</span><span>🏅 ${nRec} recorde${nRec===1?'':'s'}</span>${bodyN?`<span>${bodyN}</span>`:''}${big.mundo?'<span>⛏️ mundo</span>':''}${big.pintura?'<span>🎨 desenho</span>':''}</div>
   <section class="sv-card" id="svCode"><h3>📋 Código de backup</h3>
     <p>Copie o código e guarde numa conversa só sua ou nas notas. Para recuperar, é só colar aqui.</p>
-    <label class="sv-chk" id="svIncL"><input type="checkbox" id="svInc"><span>Incluir o mundo do Minecraft e o desenho <small id="svIncSz"></small></span></label>
+    <label class="sv-chk" id="svIncL" hidden><input type="checkbox" id="svInc"><span>Incluir o mundo do Minecraft e o desenho <small id="svIncSz"></small></span></label>
     <div class="sv-row"><button class="btn" id="svCopy" type="button">📋 Copiar código</button><button class="btn alt" id="svPasteB" type="button">📥 Colar código</button></div>
     <div id="svShow" hidden><p>Se o botão não copiou sozinho, segure e copie daqui:</p><textarea class="sv-ta" id="svShowTa" readonly></textarea></div>
     <div id="svPasteBox" hidden><textarea class="sv-ta" id="svTxt" placeholder="Cole aqui o código que começa com JP1." aria-label="Código de backup"></textarea><button class="btn" id="svPasteGo" type="button">✅ Restaurar</button></div>
@@ -6390,7 +6300,7 @@ function saveScreen(){
     try{const P=await svReadFile(f);await svRestorePayload(P,'um arquivo salvo')}
     catch(e){SFX.no();msg('svMsg2',(e&&e.pt)||'Não consegui abrir esse arquivo.',false)}
   };
-  svCloudRender(()=>dead);
+  /* sem nuvem na hospedagem estática: só código e arquivo */
 }
 function svSay(t,ok){const m=$('svMsg3');if(m){m.textContent=t||'';m.className='sv-msg'+(t?(ok?' ok':' no'):'')}}
 function svCloudRender(isDead){
