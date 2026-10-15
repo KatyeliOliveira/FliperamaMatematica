@@ -29,7 +29,7 @@ Dona do projeto: profª Katyeli Oliveira (Matemática, E.E. Anna Cuevas Guimarã
   - `memory3D` → Jogo da Memória (cartas 3D que giram).
   - `cofrinho3D` → Cofrinho Matemático (trilha 3D, peão e dado 3D; perguntas em blocos 3D).
   - `damas3D` → Damas (tabuleiro 3D com sombra; IA com níveis).
-  - `xadrez3D` → Xadrez (regras e IA do motor de referência, lógica pura; promoção com escolha da peça; IA com níveis).
+  - `xadrez3D` → Xadrez: tabuleiro, peças, câmera e animações copiados do motor 3D do jogo de referência (`chess3dCreate`, `chess3dLoad`); regras, IA, promoção com escolha da peça, desfazer e níveis são nossos.
 - Níveis de dificuldade: `DIFF` e `escolhaNivel()` (Xadrez e Damas: Fácil, Médio, Difícil).
 - Quiz SARESP: 200 questões (50 por ano) nos 4 níveis, baseadas em `docs/descritor_SARESP.pdf`. As figuras são SVG gerados em JS (`FIG`).
 
