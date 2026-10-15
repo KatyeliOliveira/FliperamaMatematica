@@ -1000,6 +1000,23 @@ function mathPairs(n){
   while(out.length<n){const a=mrnd(2,9),b=mrnd(2,9),p=a*b;if(used.has(p))continue;used.add(p);out.push({n:`${a} × ${b}`,e:String(p),f:'resultado',i:out.length,c:[`${a} × ${b} = ${p}`]});}
   return out;
 }
+/* Que número sou eu?: número secreto com 4 pistas e opções próximas que contrariam alguma pista */
+function mkNums(count){
+  const used=new Set(),out=[];
+  while(out.length<count){
+    const n=mrnd(11,98);if(used.has(n))continue;used.add(n);
+    const divs=[3,4,5,6,7,9].filter(d=>n%d===0),clues=[],preds=[];
+    clues.push(n%2===0?'Sou um número par.':'Sou um número ímpar.');preds.push(x=>x%2===n%2);
+    if(divs.length){const d=divs[mrnd(0,divs.length-1)];clues.push(`Sou múltiplo de ${d}.`);preds.push(x=>x%d===0);}
+    else{const sm=x=>String(x).split('').reduce((a,d)=>a+ +d,0),s=sm(n);clues.push(`A soma dos meus algarismos é ${s}.`);preds.push(x=>sm(x)===s);}
+    const lo=n-mrnd(4,9),hi=n+mrnd(4,9);clues.push(`Estou entre ${lo} e ${hi}.`);preds.push(x=>x>lo&&x<hi);
+    const u=n%10;clues.push(`O meu algarismo das unidades é ${u}.`);preds.push(x=>x%10===u);
+    const near=[];
+    for(let k=1;k<=40&&near.length<7;k++)for(const x of shuffle([n-k,n+k])){if(near.length<7&&x>=10&&x<=99&&!near.includes(x)&&preds.some(p=>!p(x)))near.push(x);}
+    out.push({n:String(n),e:'🔢',c:clues,i:out.length,others:near.map((x,j)=>({n:String(x),e:'🔢',i:out.length+1+j}))});
+  }
+  return out;
+}
 /* Rumo ao Milhão: 16 perguntas de matemática em quatro níveis */
 function millionBank(){
   const easy=[
@@ -1825,6 +1842,114 @@ function quizRun(cfg){const net=null;
 }
 
 /* ---------- 3. quem é ---------- */
+function whoIs(){
+  g1css('qe-css',`
+.qe-wrap{display:flex;flex-direction:column;gap:9px;max-width:560px;margin:0 auto;width:100%}
+.qe-hud{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:6px}
+.qe-pill{background:var(--face);border:2px solid var(--line);border-radius:14px;padding:3px 6px 2px;text-align:center;box-shadow:0 2px 0 var(--line);line-height:1.05;min-width:0}
+.qe-pill small{display:block;font:800 9.5px Nunito,sans-serif;color:var(--soft);text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.qe-pill b{display:block;font:800 19px "Baloo 2",sans-serif;font-variant-numeric:tabular-nums}
+.qe-pill.bump b{animation:qePop .4s}
+.qe-pill.hot{background:#fff1dc;border-color:#ff9a2e;box-shadow:0 2px 0 #ff9a2e,0 0 10px rgba(255,140,30,.4)}
+.qe-stage{display:grid;grid-template-columns:114px minmax(0,1fr);gap:12px;background:var(--face);border:2px solid var(--line);border-radius:22px;padding:12px;box-shadow:0 5px 0 var(--line),0 14px 22px -14px rgba(58,36,24,.3)}
+.qe-left{display:flex;flex-direction:column;gap:7px}
+.qe-portrait{position:relative;width:100%;aspect-ratio:1/1.12;border-radius:18px;overflow:hidden;background:radial-gradient(circle at 50% 28%,var(--c1),var(--c2));border:3px solid #fff;box-shadow:0 0 0 2px var(--line),0 6px 12px -6px rgba(0,0,0,.4)}
+.qe-portrait::before{content:"";position:absolute;inset:0;background:conic-gradient(from 200deg at 50% 100%,transparent 0 40deg,rgba(255,255,255,.28) 55deg,transparent 75deg 360deg);animation:qeBeam 3.2s ease-in-out infinite alternate}
+.qe-sil{position:absolute;inset:8% 6% 0;width:88%;height:92%;transition:transform .5s cubic-bezier(.5,-.4,.6,1),opacity .4s;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
+.qe-mark{position:absolute;left:0;right:0;top:20%;text-align:center;font:800 40px "Baloo 2",sans-serif;color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.35);animation:qeFloat 1.8s ease-in-out infinite;transition:opacity .3s}
+.qe-face{position:absolute;inset:0 0 24% 0;display:flex;align-items:center;justify-content:center;font-size:58px;transform:scale(0) rotate(-25deg);opacity:0;transition:transform .55s cubic-bezier(.3,1.6,.5,1) .12s,opacity .3s .12s;filter:drop-shadow(0 4px 3px rgba(0,0,0,.35))}
+.qe-plate{position:absolute;left:6px;right:6px;bottom:6px;background:rgba(20,10,40,.78);color:#fff;border-radius:10px;padding:3px 4px;text-align:center;font:800 13px/1.05 "Baloo 2",sans-serif;min-height:1.6em;display:flex;align-items:center;justify-content:center;overflow-wrap:anywhere}
+.qe-portrait.rev .qe-sil{transform:translateY(40px) scale(.5);opacity:0}
+.qe-portrait.rev .qe-mark{opacity:0}
+.qe-portrait.rev .qe-face{transform:scale(1) rotate(0);opacity:1}
+.qe-portrait.rev::after{content:"";position:absolute;inset:0;background:#fff;animation:qeFlash .6s ease-out forwards;pointer-events:none}
+.qe-portrait.wrong{animation:qeShake .45s}
+.qe-gems{display:flex;justify-content:center;gap:3px;font-size:15px;line-height:1}
+.qe-gems i{font-style:normal;transition:filter .3s,transform .3s}
+.qe-gems i.off{filter:grayscale(1) opacity(.3);transform:scale(.8)}
+.qe-cl{display:flex;flex-direction:column;gap:6px;min-width:0}
+.qe-clue{display:flex;align-items:flex-start;gap:8px;border-radius:12px;padding:6px 9px;min-height:40px;font:800 13.5px/1.22 Nunito,sans-serif;min-width:0}
+.qe-clue b{flex:none;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 13px "Baloo 2",sans-serif;margin-top:1px}
+.qe-clue span{flex:1;min-width:0}
+.qe-clue.on{background:var(--cream);border:2px solid var(--line);animation:qeSlide .4s cubic-bezier(.3,1.3,.5,1) both}
+.qe-clue.on b{background:var(--orange);color:#fff}
+.qe-clue.on.new{border-color:var(--orange);background:#fff8e6}
+.qe-clue.lock{border:2px dashed var(--line);color:#b7a99a;align-items:center}
+.qe-clue.lock b{background:var(--line);color:#fff}
+.qe-opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.qe-opt{display:flex;align-items:center;gap:8px;text-align:left;min-height:52px;background:var(--face);border:2px solid var(--line);border-radius:16px;padding:6px 8px 6px 6px;cursor:pointer;color:var(--ink);font:800 14.5px/1.1 Nunito,sans-serif;box-shadow:0 4px 0 var(--line);transition:transform .12s,box-shadow .12s,background .2s,border-color .2s,opacity .25s;touch-action:manipulation;min-width:0}
+.qe-opt i{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font:800 17px "Baloo 2",sans-serif;font-style:normal;color:#fff;background:linear-gradient(150deg,var(--c1),var(--c2));box-shadow:inset 0 -3px 0 rgba(0,0,0,.18)}
+.qe-opt span{flex:1;min-width:0;overflow-wrap:anywhere}
+.qe-opt:hover:not(:disabled){transform:translateY(-2px);border-color:var(--orange);box-shadow:0 6px 0 var(--orange)}
+.qe-opt:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.qe-opt:disabled{cursor:default}
+.qe-opt.ok{background:#eefbe9;border-color:var(--leaf);box-shadow:0 4px 0 var(--leaf);animation:qePop .4s}
+.qe-opt.no{background:#ffecee;border-color:var(--berry);box-shadow:0 4px 0 var(--berry);animation:qeShake .4s}
+.qe-opt.dim{opacity:.5}
+.qe-bar{display:flex;gap:8px;align-items:center;min-height:46px}
+.qe-fb{flex:1;min-width:0;margin:0;font:800 14px/1.15 Nunito,sans-serif}
+.qe-fb.ok{color:var(--leaf)}.qe-fb.no{color:var(--berry)}
+.qe-more{flex:none;font:800 14.5px "Baloo 2",sans-serif;color:#fff;background:var(--blue);border:0;border-radius:999px;padding:10px 16px;cursor:pointer;box-shadow:0 3px 0 #2f3f9e;touch-action:manipulation}
+.qe-more:active{transform:translateY(2px);box-shadow:0 1px 0 #2f3f9e}
+.qe-more.next{background:var(--leaf);box-shadow:0 3px 0 #2c7a37}
+.qe-more[hidden]{display:none}
+@keyframes qePop{50%{transform:scale(1.07)}}
+@keyframes qeShake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes qeFloat{50%{transform:translateY(-6px) rotate(5deg)}}
+@keyframes qeBeam{from{transform:rotate(-10deg)}to{transform:rotate(10deg)}}
+@keyframes qeFlash{from{opacity:.95}to{opacity:0}}
+@keyframes qeSlide{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.qe-mark,.qe-portrait::before,.qe-clue.on,.qe-portrait.wrong{animation:none}}
+`);
+  panel('🔢 Que número sou eu?');
+  const w=document.createElement('div');w.className='qe-wrap';
+  w.innerHTML=`<div class="qe-hud"><div class="qe-pill" id="qeRP"><small>Rodada</small><b><span id="wn">1</span>/<span id="wtot">9</span></b></div><div class="qe-pill" id="qeSP"><small>Pontos</small><b id="ws">0</b></div><div class="qe-pill" id="qeKP"><small>Sequência</small><b>🔥 <span id="qeK">0</span></b></div></div>
+  <div id="whoBox"></div>
+  <p class="note" id="qeNote" style="text-align:center">Quanto menos pistas, mais pontos: 4, 3, 2 ou 1.</p>`;
+  app.append(w);
+  let list=[],i=0,score=0,streak=0,tm=null,done=false,cur=null;
+  const later=(f,ms)=>{clearTimeout(tm);tm=setTimeout(f,ms)};
+  cleanup=()=>clearTimeout(tm);
+  const bump=id=>{const e=$(id);if(!e)return;e.classList.remove('bump');void e.offsetWidth;e.classList.add('bump')};
+  const SIL=`<svg class="qe-sil" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="qeg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1748"/><stop offset="1" stop-color="#0f0820"/></linearGradient></defs><circle cx="50" cy="34" r="20" fill="url(#qeg)"/><path d="M8 100c0-24 15-38 42-38s42 14 42 38z" fill="url(#qeg)"/></svg>`;
+  function start(){list=mkNums(8);i=0;score=0;streak=0;$('wtot').textContent=list.length;$('qeNote').hidden=false;$('qeK').textContent=0;show()}
+  function hud(){$('ws').textContent=score;$('qeK').textContent=streak;$('qeKP').classList.toggle('hot',streak>=3)}
+  function show(){
+    const box=$('whoBox');hud();done=false;
+    if(i>=list.length){$('qeNote').hidden=true;SFX.win();addStars(score);if(score>=24)confetti();
+      const tot=list.length*4,prev=bestGet('whoIs');bestSet('whoIs',score);
+      winPanel(box,{title:`${score} de ${tot} pontos`,msg:score>=tot*.8?'Mestre dos números! 🔢':'Boa! Jogue de novo para melhorar.',stars:score,rate:score/tot,record:score>prev&&prev>0,again:start});return}
+    const c=list[i];cur=c;$('wn').textContent=i+1;let shown=1;
+    const opts=shuffle([c,...c.others]);
+    const [c1,c2]=g1col(g1idx(c));
+    box.innerHTML=`<div class="qe-stage"><div class="qe-left"><div class="qe-portrait" id="qePort" style="--c1:${c1};--c2:${c2}">${SIL}<div class="qe-mark">?</div><div class="qe-face">${c.e}</div><div class="qe-plate" id="qePlate">???</div></div><div class="qe-gems" id="qeGems" title="Pontos em jogo"></div></div>
+      <div class="qe-cl" id="qeCl"></div></div>
+      <div class="qe-opts" style="margin-top:9px">${opts.map((o,k)=>{const [a,b]=g1col(g1idx(o));return`<button class="qe-opt" type="button" id="wo-${k}" style="--c1:${a};--c2:${b}"><i>${'ABCDEFGH'[k]}</i><span></span></button>`}).join('')}</div>
+      <div class="qe-bar"><p class="qe-fb" id="wfb" aria-live="polite"></p><button class="qe-more" id="more" type="button">🔍 Mais uma pista</button></div>`;
+    opts.forEach((o,k)=>{const b=$('wo-'+k);b.querySelector('span').textContent=o.n;b.onclick=()=>pickAns(o,k)});
+    const renderClues=(fresh)=>{
+      $('qeCl').innerHTML=[0,1,2,3].map(k=>k<shown?`<div class="qe-clue on${fresh&&k===shown-1?' new':''}"><b>${k+1}</b><span></span></div>`:`<div class="qe-clue lock"><b>🔒</b><span>Pista ${k+1}</span></div>`).join('');
+      $('qeCl').querySelectorAll('.qe-clue.on span').forEach((s,k)=>s.textContent=c.c[k]);
+      $('qeGems').innerHTML='<span style="font:800 11px Nunito,sans-serif;color:var(--soft);margin-right:3px;align-self:center">Vale</span>'+[0,1,2,3].map(k=>`<i class="${k<5-shown?'':'off'}">⭐</i>`).join('');
+      const m=$('more');if(m&&!done){m.hidden=shown>=4;m.textContent=`🔍 Mais uma pista (vale ${4-shown})`}
+    };
+    renderClues(false);
+    $('more').onclick=()=>{
+      if(done){SFX.click();clearTimeout(tm);i++;show();return}
+      SFX.pop();shown++;renderClues(true)};
+    function pickAns(o,k){
+      if(done)return;done=true;const pts=5-shown;
+      box.querySelectorAll('.qe-opt').forEach((b,j)=>{b.disabled=true;if(opts[j].n===c.n)b.classList.add('ok');else if(j!==k)b.classList.add('dim')});
+      const port=$('qePort');port.classList.add('rev');$('qePlate').textContent=c.n;
+      if(o.n===c.n){score+=pts;streak++;SFX.ok();$('wfb').textContent=`Isso! É o número ${c.n}. +${pts} ponto${pts>1?'s':''}`;$('wfb').className='qe-fb ok';bump('qeSP');bump('qeKP');sparkBurst(port);
+        if(streak>=3)[0,1,2].forEach(n=>tone(660*Math.pow(1.26,n),.09,'triangle',.12,.25+n*.07))}
+      else{streak=0;SFX.no();$('wo-'+k).classList.add('no');$('wfb').textContent=`Era o número ${c.n}.`;$('wfb').className='qe-fb no';port.classList.add('wrong')}
+      hud();const m=$('more');m.hidden=false;m.className='qe-more next';m.textContent=i+1>=list.length?'Ver resultado ▶':'Próximo ▶';
+      later(()=>{i++;show()},2600);
+    }
+  }
+  start();
+}
 function race(){
   g1css('cr2-css',`
 .cr2-wrap{display:flex;flex-direction:column;gap:8px;max-width:560px;margin:0 auto;width:100%}
@@ -5776,7 +5901,8 @@ function dama(net){
 let GAMES=[];
 function buildGames(){const GI=T.gameIcons||{};return [
   {em:'🧮',name:'Quiz SARESP',desc:'Questões dos descritores, por ano e nível',fn:quiz,bg:'#e2384f',sh:'#a82337'},
-  {em:'⏱️',name:'Corrida contra o tempo',desc:'Perguntas sem fim até o tempo acabar',fn:race,bg:'#3fa34d',sh:'#2c7a37'},
+  {em:'🔢',name:'Que número sou eu?',desc:'Descubra o número com menos pistas',fn:whoIs,bg:'#8a4bd1',sh:'#5f2f98'},
+  {em:'⏱️',name:'Corrida das contas',desc:'Contas e perguntas até o tempo acabar',fn:race,bg:'#3fa34d',sh:'#2c7a37'},
   {em:'✅',name:'Verdade ou mentira',desc:'A conta está certa? Responda rápido: V ou F',fn:trueFalse,bg:'#e0a100',sh:'#a37400'},
   {em:'🔎',name:'Qual é o intruso?',desc:'Ache o que não combina',fn:intruder,bg:'#be185d',sh:'#86103f'},
   {em:'💰',name:'Rumo ao Milhão',desc:'16 perguntas valendo 1 milhão',fn:million,bg:'#1b3a6b',sh:'#0e2140'},
